@@ -118,6 +118,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+  flutter_js:
+    dependency: transitive
+    description:
+      name: flutter_js
+      sha256: a04966b102967891ee4947d6e52b450676f16204876ba936e394008ca26db04b
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.5"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -150,7 +158,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.1.1"
+    version: "1.1.0"
   html:
     dependency: transitive
     description:
@@ -159,6 +167,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.15.6"
+  http:
+    dependency: transitive
+    description:
+      name: http
+      sha256: "87721a4a50b19c7f1d49001e51409bddc46303966ce89a65af4f4e6004896412"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.6.0"
   http_parser:
     dependency: transitive
     description:
@@ -324,6 +340,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
+  sync_http:
+    dependency: transitive
+    description:
+      name: sync_http
+      sha256: "7f0cd72eca000d2e026bcd6f990b81d0ca06022ef4e32fb257b30d3d1014a961"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.1"
   term_glyph:
     dependency: transitive
     description:

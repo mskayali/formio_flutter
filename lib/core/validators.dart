@@ -3,6 +3,8 @@
 /// Provides reusable validators that match Form.io's validation rules.
 /// Components can use these validators in their TextFormField validator properties.
 
+import 'validators_js_loader.dart';
+
 class FormioValidators {
   /// Validates that a field is not empty if required.
   ///
@@ -180,6 +182,86 @@ class FormioValidators {
       return null;
     } catch (e) {
       return message ?? 'Please enter valid JSON.';
+    }
+  }
+
+  /// Custom JavaScript validation.
+  ///
+  /// Executes JavaScript code to validate the input value.
+  /// The JavaScript code has access to:
+  /// - `input`: the current field value
+  /// - `data`: entire form data
+  /// - `valid`: boolean or string (error message)
+  ///
+  /// Example:
+  /// ```dart
+  /// FormioValidators.customJS(
+  ///   'magic',
+  ///   "valid = (input === 'magic') ? true : 'Must be magic';",
+  ///   {},
+  /// )
+  /// ```
+  ///
+  /// Form.io format:
+  /// ```json
+  /// {
+  ///   "validate": {
+  ///     "custom": "valid = (input.length > 5) ? true : 'Too short';"
+  ///   }
+  /// }
+  /// ```
+  static String? customJS(
+    String? value,
+    String jsCode,
+    Map<String, dynamic> formData, {
+    String? fieldName,
+  }) {
+    try {
+      // Import JavaScript evaluator
+      // ignore: implementation_imports
+      final jsEvaluator = _getJavaScriptEvaluator();
+      
+      if (jsEvaluator == null) {
+        return 'JavaScript validation not available';
+      }
+      
+      // Create JavaScript context
+      final context = {
+        'input': value,
+        'data': formData,
+        'valid': true,
+      };
+      
+      // Validate code safety
+      jsEvaluator.validateCode(jsCode);
+      
+      // Execute JavaScript
+      final result = jsEvaluator.evaluate(jsCode, context);
+      
+      // Form.io validation result format:
+      // - true or 'true' means valid
+      // - string means error message
+      // - false or anything else means generic error
+      if (result == true || result == 'true' || result == 'True') {
+        return null; // Valid
+      } else if (result is String && result.isNotEmpty) {
+        return result; // Custom error message
+      } else {
+        return '${fieldName ?? "This field"} is invalid.';
+      }
+    } catch (e) {
+      print('Custom validation error: $e');
+      return 'Validation failed: ${e.toString()}';
+    }
+  }
+
+  /// Helper to lazily load JavaScript evaluator.
+  static dynamic _getJavaScriptEvaluator() {
+    try {
+      // Import at runtime to avoid issues when JS not available
+      return JavaScriptEvaluatorLoader.load();
+    } catch (e) {
+      return null;
     }
   }
 
@@ -385,6 +467,148 @@ class FormioValidators {
 
       return combine(validators);
     };
+  }
+
+  /// Validates minimum date.
+  static String? minDate(DateTime? value, DateTime minDate, {String? fieldName}) {
+    if (value == null) return null;
+    
+    if (value.isBefore(minDate)) {
+      return '${fieldName ?? "Date"} must be on or after ${_formatDate(minDate)}.';
+    }
+    
+    return null;
+  }
+
+  /// Validates maximum date.
+  static String? maxDate(DateTime? value, DateTime maxDate, {String? fieldName}) {
+    if (value == null) return null;
+    
+    if (value.isAfter(maxDate)) {
+      return '${fieldName ?? "Date"} must be on or before ${_formatDate(maxDate)}.';
+    }
+    
+    return null;
+  }
+
+  /// Validates date range.
+  static String? dateRange(DateTime? value, DateTime? minDate, DateTime? maxDate, {String? fieldName}) {
+    if (value == null) return null;
+    
+    if (minDate != null) {
+      final error = FormioValidators.minDate(value, minDate, fieldName: fieldName);
+      if (error != null) return error;
+    }
+    
+    if (maxDate != null) {
+      final error = FormioValidators.maxDate(value, maxDate, fieldName: fieldName);
+      if (error != null) return error;
+    }
+    
+    return null;
+  }
+
+  /// Validates minimum year.
+  static String? minYear(DateTime? value, int minYear, {String? fieldName}) {
+    if (value == null) return null;
+    
+    if (value.year < minYear) {
+      return '${fieldName ?? "Year"} must be $minYear or later.';
+    }
+    
+    return null;
+  }
+
+  /// Validates maximum year.
+  static String? maxYear(DateTime? value, int maxYear, {String? fieldName}) {
+    if (value == null) return null;
+    
+    if (value.year > maxYear) {
+      return '${fieldName ?? "Year"} must be $maxYear or earlier.';
+    }
+    
+    return null;
+  }
+
+  /// Validates file size (in bytes).
+  static String? fileSize(int? sizeBytes, {int? minSize, int? maxSize, String? fieldName}) {
+    if (sizeBytes == null) return null;
+    
+    if (minSize != null && sizeBytes < minSize) {
+      return '${fieldName ?? "File"} must be at least ${_formatFileSize(minSize)}.';
+    }
+    
+    if (maxSize != null && sizeBytes > maxSize) {
+      return '${fieldName ?? "File"} must not exceed ${_formatFileSize(maxSize)}.';
+    }
+    
+    return null;
+  }
+
+  /// Validates file type/pattern.
+  static String? filePattern(String? fileName, String pattern, {String? message}) {
+    if (fileName == null || fileName.isEmpty) return null;
+    
+    // Pattern can be comma-separated extensions: ".pdf,.doc,.docx"
+    // or mime types: "application/pdf,application/msword"
+    final patterns = pattern.split(',').map((p) => p.trim()).toList();
+    
+    final extension = fileName.contains('.') 
+        ? '.${fileName.split('.').last.toLowerCase()}'
+        : '';
+    
+    // Check if any pattern matches
+    final matches = patterns.any((p) {
+      if (p.startsWith('.')) {
+        // Extension match
+        return extension == p.toLowerCase();
+      } else if (p.contains('/')) {
+        // MIME type match (would need actual file MIME type)
+        // For now, just check common extensions
+        return _matchesMimeType(extension, p);
+      }
+      return false;
+    });
+    
+    if (!matches) {
+      return message ?? 'File type not allowed. Allowed types: $pattern';
+    }
+    
+    return null;
+  }
+
+  /// Helper to format date for error messages.
+  static String _formatDate(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
+  /// Helper to format file size for error messages.
+  static String _formatFileSize(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
+  }
+
+  /// Helper to match file extension to MIME type.
+  static bool _matchesMimeType(String extension, String mimeType) {
+    final mimeMap = {
+      '.pdf': 'application/pdf',
+      '.doc': 'application/msword',
+      '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      '.xls': 'application/vnd.ms-excel',
+      '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      '.ppt': 'application/vnd.ms-powerpoint',
+      '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.png': 'image/png',
+      '.gif': 'image/gif',
+      '.txt': 'text/plain',
+      '.csv': 'text/csv',
+    };
+    
+    return mimeMap[extension] == mimeType;
   }
 
   /// Creates a cross-field validator that compares two fields.
