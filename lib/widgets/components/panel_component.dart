@@ -32,11 +32,6 @@ class PanelComponent extends StatelessWidget {
 
   /// Updates the form value for a child component inside the panel.
   void _updateChild(String key, dynamic fieldValue) {
-    final updated = Map<String, dynamic>.from(value);
-    updated[key] = fieldValue;
-    onChanged(updated);
-  }
-
   void _updateField(String key, dynamic val) {
     final updated = Map<String, dynamic>.from(value);
     updated[key] = val;
@@ -45,8 +40,6 @@ class PanelComponent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = component.label;
-
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

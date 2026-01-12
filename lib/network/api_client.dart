@@ -1,3 +1,4 @@
+import 'package:curl_logger_dio_interceptor/curl_logger_dio_interceptor.dart';
 import 'package:dio/dio.dart';
 
 class ApiClient {
@@ -21,6 +22,9 @@ class ApiClient {
       baseUrl: _baseUrl.toString(),
       headers: {'Content-Type': 'application/json'},
     ));
+    
+    // Add cURL logger for debugging HTTP requests
+    dio.interceptors.add(CurlLoggerDioInterceptor(printOnSuccess: true));
   }
 
   void setAuthToken(String token) {
@@ -64,6 +68,77 @@ class ApiClient {
       options: options,
       cancelToken: cancelToken,
       onReceiveProgress: onReceiveProgress,
+    );
+  }
+
+  Future<Response<Map<String, dynamic>>> put(
+    String path, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    void Function(int, int)? onReceiveProgress,
+  }) {
+    return dio.put(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+      cancelToken: cancelToken,
+      onReceiveProgress: onReceiveProgress,
+    );
+  }
+
+  Future<Response<Map<String, dynamic>>> patch(
+    String path, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    void Function(int, int)? onReceiveProgress,
+  }) {
+    return dio.patch(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+      cancelToken: cancelToken,
+      onReceiveProgress: onReceiveProgress,
+    );
+  }
+
+  Future<Response<Map<String, dynamic>>> delete(
+    String path, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+  }) {
+    return dio.delete(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+      cancelToken: cancelToken,
+    );
+  }
+
+  /// Uploads a file using multipart/form-data
+  Future<Response<Map<String, dynamic>>> upload(
+    String path, {
+    required FormData formData,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    void Function(int, int)? onSendProgress,
+  }) {
+    return dio.post(
+      path,
+      data: formData,
+      queryParameters: queryParameters,
+      options: options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
     );
   }
 }

@@ -10,90 +10,344 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Form.io Flutter Live Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const FormListPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
+class FormListPage extends StatefulWidget {
+  const FormListPage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<FormListPage> createState() => _FormListPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _FormListPageState extends State<FormListPage> {
+  List<FormModel> forms = [];
+  bool isLoading = true;
+  String? errorMessage;
+
   @override
-  List<FormModel> forms=[];
-  int index=0;
   void initState() {
-    ApiClient.setBaseUrl(Uri.parse('https://formio.spinex.io'));
-    final formService = FormService(ApiClient());
-    formService.fetchForms().then((e){
-      forms = e;
-      print(forms.length);
-      setState(() {
-        
-      });
-    });
     super.initState();
+    _loadForms();
   }
+
+  Future<void> _loadForms() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    try {
+      ApiClient.setBaseUrl(Uri.parse('https://examples.form.io'));
+      final formService = FormService(ApiClient());
+      final fetchedForms = await formService.fetchForms();
+      
+      setState(() {
+        forms = fetchedForms;
+        isLoading = false;
+      });
+      
+      print('✅ Loaded ${forms.length} forms from API');
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Failed to load forms: $e';
+        isLoading = false;
+      });
+      print('❌ Error loading forms: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: const Text('Form.io Live Demo'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body:ListView(
-        children: [
-          Container(
-            padding: EdgeInsets.all(20), 
-            child: Text('Form Number: ${index+1} of ${forms.length}'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadForms,
+            tooltip: 'Reload forms',
           ),
-          Container(
-            padding: EdgeInsets.all(20), 
-            child:  forms.isEmpty ? SizedBox() : FormRenderer(form: forms[index],)
-          ),
-          Container(padding: EdgeInsets.all(20), child: forms.isEmpty ? SizedBox() : Text(forms[index].toJson().toString())),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-              onPressed: (){
-                if(forms.isNotEmpty && forms.length > index+1){
-                  index++;
-                }
-                setState(() {
-                  print(jsonEncode(forms[index]));
-                });
-              },
-              tooltip: 'Increment',
-              child: const Icon(Icons.add),
-            ), 
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    if (isLoading) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('Loading forms from API...'),
+          ],
+        ),
+      );
+    }
+
+    if (errorMessage != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              const SizedBox(height: 16),
+              Text(
+                errorMessage!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.red),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: _loadForms,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (forms.isEmpty) {
+      return const Center(
+        child: Text('No forms available'),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: forms.length,
+      itemBuilder: (context, index) {
+        final form = forms[index];
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              child: Text(
+                '${index + 1}',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            title: Text(
+              form.title.isNotEmpty ? form.title : 'Untitled Form',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 4),
+                Text('Path: /${form.path}'),
+                Text('Components: ${form.components.length}'),
+              ],
+            ),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () => _openForm(form),
+          ),
+        );
+      },
+    );
+  }
+
+  void _openForm(FormModel form) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => FormDetailPage(form: form),
+      ),
+    );
+  }
+}
+
+class FormDetailPage extends StatefulWidget {
+  final FormModel form;
+
+  const FormDetailPage({super.key, required this.form});
+
+  @override
+  State<FormDetailPage> createState() => _FormDetailPageState();
+}
+
+class _FormDetailPageState extends State<FormDetailPage> {
+  Map<String, dynamic> formData = {};
+  bool showJson = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.form.title.isNotEmpty ? widget.form.title : 'Form'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          IconButton(
+            icon: Icon(showJson ? Icons.visibility_off : Icons.code),
+            onPressed: () => setState(() => showJson = !showJson),
+            tooltip: showJson ? 'Hide JSON' : 'Show JSON',
+          ),
+        ],
+      ),
+      body: showJson ? _buildJsonView() : _buildFormView(),
+    );
+  }
+
+  Widget _buildFormView() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Form info card
+          Card(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Form Information',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text('ID: ${widget.form.id}'),
+                  Text('Path: /${widget.form.path}'),
+                  Text('Components: ${widget.form.components.length}'),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          
+          // Form renderer
+          FormRenderer(
+            form: widget.form,
+            initialData: formData,
+            onChanged: (data) {
+              setState(() => formData = data);
+              print('📝 Form data changed: ${data.keys.join(', ')}');
+            },
+            onSubmit: (data) {
+              print('✅ Form submitted!');
+              print('📦 Submission data: ${jsonEncode(data)}');
+              
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Form "${widget.form.title}" submitted successfully!'),
+                  backgroundColor: Colors.green,
+                  action: SnackBarAction(
+                    label: 'View',
+                    textColor: Colors.white,
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Submission Data'),
+                          content: SingleChildScrollView(
+                            child: SelectableText(
+                              const JsonEncoder.withIndent('  ').convert(data),
+                              style: const TextStyle(fontFamily: 'monospace'),
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Close'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              );
+            },
+            onError: (error) {
+              print('❌ Form submission error: $error');
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Submission failed: $error'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildJsonView() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Form Definition (JSON)',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 16),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: SelectableText(
+                const JsonEncoder.withIndent('  ').convert(widget.form.toJson()),
+                style: const TextStyle(
+                  fontFamily: 'monospace',
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (formData.isNotEmpty) ...[
+            Text(
+              'Current Form Data',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              color: Colors.green.shade50,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: SelectableText(
+                  const JsonEncoder.withIndent('  ').convert(formData),
+                  style: const TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

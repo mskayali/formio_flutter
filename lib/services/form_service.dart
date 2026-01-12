@@ -63,4 +63,44 @@ class FormService {
     final response = await client.dio.get('/form/$pathOrId');
     return FormModel.fromJson(response.data as Map<String, dynamic>);
   }
+
+  /// Creates a new form in the Form.io project.
+  ///
+  /// Makes a `POST /form` request.
+  ///
+  /// [form] is the FormModel containing form definition.
+  ///
+  /// Returns the created [FormModel] with server-generated ID.
+  ///
+  /// Throws [DioError] on failure.
+  Future<FormModel> createForm(FormModel form) async {
+    final response = await client.dio.post('/form', data: form.toJson());
+    return FormModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  /// Updates an existing form.
+  ///
+  /// Makes a `PUT /form/:formId` request.
+  ///
+  /// [formId] is the unique ID of the form to update.
+  /// [form] is the FormModel with updated data.
+  ///
+  /// Returns the updated [FormModel].
+  ///
+  /// Throws [DioError] on failure.
+  Future<FormModel> updateForm(String formId, FormModel form) async {
+    final response = await client.dio.put('/form/$formId', data: form.toJson());
+    return FormModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  /// Deletes a form from the Form.io project.
+  ///
+  /// Makes a `DELETE /form/:formId` request.
+  ///
+  /// [formId] is the unique ID of the form to delete.
+  ///
+  /// Throws [DioError] on failure.
+  Future<void> deleteForm(String formId) async {
+    await client.dio.delete('/form/$formId');
+  }
 }

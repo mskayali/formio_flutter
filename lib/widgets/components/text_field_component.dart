@@ -1,9 +1,11 @@
 /// A Flutter widget that renders a text field based on a Form.io "textfield" component.
 ///
-/// Supports placeholder, label, default value, and required validation.
+/// Supports placeholder, label, default value, and comprehensive validation including
+/// required, pattern, minLength, maxLength, minWords, maxWords.
 
 import 'package:flutter/material.dart';
 
+import '../../core/validators.dart';
 import '../../models/component.dart';
 
 class TextFieldComponent extends StatelessWidget {
@@ -26,13 +28,13 @@ class TextFieldComponent extends StatelessWidget {
   /// Retrieves a placeholder value if available in the raw JSON.
   String? get _placeholder => component.raw['placeholder'];
 
-  /// Returns true if the field is required.
-  bool get _isRequired => component.required;
+  /// Gets validation config from component.
+  Map<String, dynamic>? get _validateConfig => component.raw['validate'];
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      key: ValueKey(component.key), // Ensures rebuild on condition change
+      key: ValueKey(component.key),
       initialValue: value ?? component.defaultValue?.toString(),
       decoration: InputDecoration(
         labelText: component.label,
@@ -40,7 +42,7 @@ class TextFieldComponent extends StatelessWidget {
         border: const OutlineInputBorder(),
       ),
       onChanged: onChanged,
-      validator: _isRequired ? (val) => (val == null || val.isEmpty) ? '${component.label} is required.' : null : null,
+      validator: FormioValidators.fromConfig(_validateConfig, component.label),
     );
   }
 }

@@ -9,6 +9,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../core/calculation_evaluator.dart';
+import '../core/conditional_evaluator.dart';
 import '../core/exceptions.dart';
 import '../models/component.dart';
 import '../models/form.dart';
@@ -50,12 +52,39 @@ class _FormRendererState extends State<FormRenderer> {
   void initState() {
     super.initState();
     _formData = widget.initialData != null ? Map<String, dynamic>.from(widget.initialData!) : {};
+    
+    // Calculate initial values for calculated fields
+    _updateCalculatedFields();
+  }
+
+  /// Updates all calculated fields based on current form data.
+  void _updateCalculatedFields() {
+    for (final component in widget.form.components) {
+      if (CalculationEvaluator.hasCalculation(component.raw)) {
+        final calculateConfig = component.raw['calculateValue'];
+        final calculatedValue = CalculationEvaluator.evaluate(calculateConfig, _formData);
+        
+        if (calculatedValue != null) {
+          // Only update if allowCalculateOverride is false or field is empty
+          final allowOverride = CalculationEvaluator.allowsOverride(component.raw);
+          final hasUserValue = _formData.containsKey(component.key) && _formData[component.key] != null;
+          
+          if (!allowOverride || !hasUserValue) {
+            _formData[component.key] = calculatedValue;
+          }
+        }
+      }
+    }
   }
 
   void _updateField(String key, dynamic value) {
     setState(() {
       _formData[key] = value;
     });
+    
+    // Recalculate any fields that depend on this field
+    _updateCalculatedFields();
+    
     widget.onChanged?.call(_formData);
   }
 
@@ -104,22 +133,8 @@ class _FormRendererState extends State<FormRenderer> {
 
   /// Checks whether a component should be shown based on its conditional logic.
   bool _shouldShowComponent(ComponentModel component) {
-    final condition = component.raw['conditional'];
-    if (condition is! Map<String, dynamic>) return true;
-
-    final when = condition['when'];
-    final eq = condition['eq'];
-    final show = condition['show'];
-
-    if (when == null || when.toString().isEmpty) return true;
-
-    final value = _formData[when];
-    final matches = value?.toString() == eq?.toString();
-
-    // Default behavior is to show if matched
-    final shouldShow = (show == true || show == 'true') ? matches : !matches;
-
-    return shouldShow;
+    final conditional = component.raw['conditional'] as Map<String, dynamic>?;
+    return ConditionalEvaluator.shouldShow(conditional, _formData);
   }
 
   Widget _buildComponent(ComponentModel component) {
@@ -138,6 +153,7 @@ class _FormRendererState extends State<FormRenderer> {
       component: component,
       value: _formData[component.key],
       onChanged: (value) => _updateField(component.key, value),
+      formData: _formData,
     );
 
     final errorText = _errors[component.key];

@@ -28,9 +28,43 @@ class AuthService {
   /// Throws [DioError] on failure (invalid credentials, server error, etc).
   Future<UserModel> login(UserModel credentials) async {
     final response = await client.dio.post('/user/login', data: credentials.toLoginJson());
-
     return UserModel.fromJson(response.data as Map<String, dynamic>);
   }
 
-  /// Optionally, implement logout or token refresh in future.
+  /// Registers a new user account.
+  ///
+  /// Sends a `POST /user/register` request with user information.
+  ///
+  /// [user] should contain email, password, and any additional registration fields.
+  ///
+  /// Returns the created [UserModel] with JWT token.
+  ///
+  /// Throws [DioError] on failure.
+  Future<UserModel> register(UserModel user) async {
+    final response = await client.dio.post('/user/register', data: user.toRegisterJson());
+    return UserModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  /// Gets the currently authenticated user's profile.
+  ///
+  /// Sends a `GET /current` request (requires authentication token).
+  ///
+  /// Returns the current [UserModel].
+  ///
+  /// Throws [DioError] on failure.
+  Future<UserModel> getCurrentUser() async {
+    final response = await client.dio.get('/current');
+    return UserModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  /// Logs out the current user.
+  ///
+  /// Sends a `GET /user/logout` request.
+  ///
+  /// After logout, you should clear the auth token using `client.clearAuthToken()`.
+  ///
+  /// Throws [DioError] on failure.
+  Future<void> logout() async {
+    await client.dio.get('/user/logout');
+  }
 }

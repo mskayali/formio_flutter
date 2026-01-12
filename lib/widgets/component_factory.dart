@@ -5,7 +5,12 @@
 
 import 'package:flutter/material.dart';
 
+import '../core/conditional_evaluator.dart';
 import '../models/component.dart';
+// Complex
+import 'components/address_component.dart';
+// Display
+import 'components/alert_component.dart';
 import 'components/button_component.dart';
 import 'components/captcha_component.dart';
 import 'components/checkbox_component.dart';
@@ -25,6 +30,7 @@ import 'components/email_component.dart';
 import 'components/fieldset_component.dart';
 // Premium
 import 'components/file_component.dart';
+import 'components/form_component.dart';
 // Data
 import 'components/hidden_component.dart';
 import 'components/html_element_component.dart';
@@ -41,28 +47,35 @@ import 'components/signature_component.dart';
 import 'components/survey_component.dart';
 import 'components/table_component.dart';
 import 'components/tabs_component.dart';
+import 'components/tags_component.dart';
 import 'components/text_area_component.dart';
 // Basic
 import 'components/text_field_component.dart';
 import 'components/time_component.dart';
+import 'components/unknown_component.dart';
+import 'components/url_component.dart';
 import 'components/well_component.dart';
 
 typedef OnComponentChanged = void Function(dynamic value);
 
 class ComponentFactory {
   /// Creates the appropriate widget for a given component.
-  static Widget build({required ComponentModel component, dynamic value, required OnComponentChanged onChanged}) {
-    if (component.conditional != null) {
-      final when = component.conditional?['when'];
-      final eq = component.conditional?['eq'];
-      final show = component.conditional?['show'] == 'true';
-      final currentValue = value is Map<String, dynamic> ? value[when] : null;
-      final matches = currentValue?.toString() == eq?.toString();
-      final shouldShow = show ? matches : !matches;
-      if (!shouldShow) {
+  /// 
+  /// [formData] should be the complete form data to support conditional logic evaluation.
+  static Widget build({
+    required ComponentModel component,
+    dynamic value,
+    required OnComponentChanged onChanged,
+    Map<String, dynamic>? formData,
+  }) {
+    // Check conditional logic using the new ConditionalEvaluator
+    if (formData != null) {
+      final conditional = component.raw['conditional'] as Map<String, dynamic>?;
+      if (!ConditionalEvaluator.shouldShow(conditional, formData)) {
         return const SizedBox.shrink();
       }
     }
+    
     switch (component.type) {
       // Basic
       case 'textfield':
@@ -75,6 +88,8 @@ class ComponentFactory {
         return PasswordComponent(component: component, value: value, onChanged: onChanged);
       case 'email':
         return EmailComponent(component: component, value: value, onChanged: onChanged);
+      case 'url':
+        return UrlComponent(component: component, value: value, onChanged: onChanged);
       case 'phoneNumber':
         return PhoneNumberComponent(component: component, value: value, onChanged: onChanged);
       case 'checkbox':
@@ -89,6 +104,7 @@ class ComponentFactory {
         return ButtonComponent(component: component, onPressed: () {}, isDisabled: false);
 
       // Advanced
+      case 'date':
       case 'datetime':
         return DateTimeComponent(component: component, value: value, onChanged: onChanged);
       case 'day':
@@ -97,6 +113,10 @@ class ComponentFactory {
         return TimeComponent(component: component, value: value, onChanged: onChanged);
       case 'currency':
         return CurrencyComponent(component: component, value: value, onChanged: onChanged);
+      case 'address':
+        return AddressComponent(component: component, value: value is Map<String, dynamic> ? value : {}, onChanged: onChanged);
+      case 'tags':
+        return TagsComponent(component: component, value: value, onChanged: onChanged);
       case 'survey':
         return SurveyComponent(component: component, value: value is Map<String, String> ? value : <String, String>{}, onChanged: onChanged);
       case 'signature':
@@ -123,6 +143,8 @@ class ComponentFactory {
         return HtmlElementComponent(component: component);
       case 'content':
         return ContentComponent(component: component);
+      case 'alert':
+        return AlertComponent(component: component);
       case 'fieldset':
         return FieldSetComponent(component: component, value: value is Map<String, dynamic> ? value : {}, onChanged: onChanged);
       case 'table':
@@ -137,6 +159,8 @@ class ComponentFactory {
         return FileComponent(component: component, value: value is List<String> ? value : [], onChanged: onChanged);
       case 'nestedform':
         return NestedFormComponent(component: component, value: value is Map<String, dynamic> ? value : {}, onChanged: onChanged);
+      case 'form':
+        return FormComponent(component: component, value: value is Map<String, dynamic> ? value : {}, onChanged: onChanged);
       case 'captcha':
         return CaptchaComponent(component: component, value: value, onChanged: onChanged);
 
@@ -146,7 +170,7 @@ class ComponentFactory {
 
       // Fallback
       default:
-        return Text('Unsupported component type: ${component.type}', style: const TextStyle(color: Colors.red));
+        return UnknownComponent(component: component);
     }
   }
 }
