@@ -269,9 +269,9 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Support
 
-- 📖 [Documentation](https://github.com/your-repo/formio_flutter)
-- 🐛 [Issue Tracker](https://github.com/your-repo/formio_flutter/issues)
-- 💬 [Discussions](https://github.com/your-repo/formio_flutter/discussions)
+- 📖 [Documentation](https://github.com/mskayali/formio_flutter)
+- 🐛 [Issue Tracker](https://github.com/mskayali/formio_flutter/issues)
+- 💬 [Discussions](https://github.com/mskayali/formio_flutter/discussions)
 
 ## Credits
 

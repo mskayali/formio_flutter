@@ -171,4 +171,4 @@ Explore the main package documentation for:
 
 ## Support
 
-Found a bug? [Open an issue](https://github.com/your-repo/formio_flutter/issues)
+Found a bug? [Open an issue](https://github.com/mskayali/formio_flutter/issues)

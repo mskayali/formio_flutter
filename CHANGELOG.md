@@ -160,5 +160,5 @@ New features:
 
 ---
 
-[1.0.0]: https://github.com/your-repo/formio_flutter/releases/tag/v1.0.0
-[0.9.0]: https://github.com/your-repo/formio_flutter/releases/tag/v0.9.0
+[1.0.0]: https://github.com/mskayali/formio_flutter/releases/tag/v1.0.0
+[0.9.0]: https://github.com/mskayali/formio_flutter/releases/tag/v0.9.0
