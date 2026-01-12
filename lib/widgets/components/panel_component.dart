@@ -13,7 +13,7 @@ class PanelComponent extends StatelessWidget {
   /// The Form.io panel definition.
   final ComponentModel component;
 
-  /// Nested values passed into the panel’s child components.
+  /// Nested values passed into the panel's child components.
   final Map<String, dynamic> value;
 
   /// Callback triggered when any child component inside the panel changes.
@@ -27,11 +27,6 @@ class PanelComponent extends StatelessWidget {
     return components.map((c) => ComponentModel.fromJson(c)).toList();
   }
 
-  /// Optional description shown below the title.
-  String? get _description => component.raw['description'];
-
-  /// Updates the form value for a child component inside the panel.
-  void _updateChild(String key, dynamic fieldValue) {
   void _updateField(String key, dynamic val) {
     final updated = Map<String, dynamic>.from(value);
     updated[key] = val;
