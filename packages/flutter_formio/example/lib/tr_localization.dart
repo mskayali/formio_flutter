@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_formio/flutter_formio.dart';
+import 'package:formio/formio.dart';
 
 /// Turkish implementation of [FormioLocalizations].
 class TurkishFormioLocalizations implements FormioLocalizations {

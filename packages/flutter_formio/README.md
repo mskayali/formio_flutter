@@ -35,7 +35,7 @@ flutter pub get
 ### 1. Initialize JavaScript Evaluator
 
 ```dart
-import 'package:formio/flutter_formio.dart';
+import 'package:formio/formio.dart';
 
 void main() {
   // Required for JavaScript calculations and validations
@@ -168,7 +168,7 @@ class _CustomRatingComponentState extends State<CustomRatingComponent> {
 Implement `FormioComponentBuilder` to tell the factory how to build your component:
 
 ```dart
-import 'package:formio/flutter_formio.dart';
+import 'package:formio/formio.dart';
 
 class RatingComponentBuilder implements FormioComponentBuilder {
   const RatingComponentBuilder();

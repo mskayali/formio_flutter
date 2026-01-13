@@ -13,7 +13,7 @@ dependencies:
 
   cupertino_icons: ^1.0.8
   webview_flutter_plus: ^0.4.19
-  flutter_formio:
+  formio:
     path: ../
 
 dev_dependencies:

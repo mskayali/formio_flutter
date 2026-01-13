@@ -8,7 +8,7 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:formio/flutter_formio.dart';
+import 'package:formio/formio.dart';
 
 class FileComponent extends StatelessWidget {
   /// The Form.io file component definition.

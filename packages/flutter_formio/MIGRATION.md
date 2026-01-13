@@ -19,7 +19,7 @@ dependencies:
 
 ```dart
 // main.dart
-import 'package:formio/flutter_formio.dart';
+import 'package:formio/formio.dart';
 
 void main() {
   runApp(MyApp());
@@ -37,7 +37,7 @@ dependencies:
 
 ```dart
 // main.dart
-import 'package:formio/flutter_formio.dart';
+import 'package:formio/formio.dart';
 
 void main() {
   // NEW: Initialize JavaScript evaluator
@@ -51,8 +51,8 @@ void main() {
 
 ### 1. Package Name Change
 
-**Old**: `import 'package:formio/flutter_formio.dart';`  
-**New**: `import 'package:formio/flutter_formio.dart';`
+**Old**: `import 'package:formio/formio.dart';`  
+**New**: `import 'package:formio/formio.dart';`
 
 **Action**: Update all imports in your project
 
@@ -89,7 +89,7 @@ Most types are re-exported from `flutter_formio` for convenience, but if you nee
 import 'package:formio_api/formio_api.dart';
 
 // For widgets and UI
-import 'package:formio/flutter_formio.dart';
+import 'package:formio/formio.dart';
 ```
 
 ## New Features in v2.0
@@ -167,15 +167,15 @@ dependencies:
 find lib test -name "*.dart" -exec sed -i '' 's/package:formio/package:formio/g' {} +
 
 # Or manually in each file:
-# OLD: import 'package:formio/flutter_formio.dart';
-# NEW: import 'package:formio/flutter_formio.dart';
+# OLD: import 'package:formio/formio.dart';
+# NEW: import 'package:formio/formio.dart';
 ```
 
 ### 3. Initialize JS Evaluator
 
 ```dart
 // lib/main.dart
-import 'package:formio/flutter_formio.dart';
+import 'package:formio/formio.dart';
 
 void main() {
   // Add this line
@@ -226,7 +226,7 @@ class MyBuilder implements FormioComponentBuilder {
 // import 'package:formio_api/formio_api.dart';
 
 // Use:
-import 'package:formio/flutter_formio.dart';
+import 'package:formio/formio.dart';
 ```
 
 ### Issue 3: JavaScript Calculations Not Working

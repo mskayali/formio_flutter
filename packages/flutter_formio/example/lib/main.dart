@@ -4,7 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_formio/flutter_formio.dart';
+import 'package:formio/formio.dart';
 
 import 'custom_rating_component.dart';
 import 'custom_textfield.dart';

@@ -5,7 +5,7 @@
 ///
 /// Example usage:
 /// ```dart
-/// import 'package:formio/flutter_formio.dart';
+/// import 'package:formio/formio.dart';
 ///
 /// void main() {
 ///   // Initialize JS evaluator for calculations
@@ -37,16 +37,12 @@ export 'package:formio_api/formio_api.dart';
 // Core Flutter-specific
 export 'src/core/flutter_js_evaluator.dart';
 export 'src/core/validators.dart';
-
 // Models - Flutter-specific
 export 'src/models/file_typedefs.dart';
 export 'src/models/formio_localizations.dart';
-
 // Widgets
 export 'src/widgets/base_component.dart';
 export 'src/widgets/component_factory.dart';
-export 'src/widgets/form_renderer.dart';
-
 // Commonly used components
 export 'src/widgets/components/address_component.dart';
 export 'src/widgets/components/alert_component.dart';
@@ -94,6 +90,7 @@ export 'src/widgets/components/time_component.dart';
 export 'src/widgets/components/unknown_component.dart';
 export 'src/widgets/components/url_component.dart';
 export 'src/widgets/components/well_component.dart';
+export 'src/widgets/form_renderer.dart';
 
 // Note: Other 35+ components are available via ComponentFactory
 // Users can import specific components as needed from src/widgets/components/

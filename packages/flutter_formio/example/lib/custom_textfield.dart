@@ -2,7 +2,7 @@
 // This shows how to customize the appearance of the standard textfield
 
 import 'package:flutter/material.dart';
-import 'package:flutter_formio/flutter_formio.dart';
+import 'package:formio/formio.dart';
 
 /// A custom styled textfield component.
 ///

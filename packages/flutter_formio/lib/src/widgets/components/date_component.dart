@@ -5,7 +5,7 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:formio/flutter_formio.dart';
+import 'package:formio/formio.dart';
 import 'package:intl/intl.dart';
 
 class DateComponent extends StatefulWidget {

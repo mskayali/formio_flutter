@@ -49,6 +49,7 @@ export 'src/network/endpoints.dart';
 // Services
 export 'src/services/action_service.dart';
 export 'src/services/auth_service.dart';
+export 'src/services/datasource_service.dart';
 export 'src/services/form_service.dart';
 export 'src/services/submission_service.dart';
 export 'src/services/user_service.dart';

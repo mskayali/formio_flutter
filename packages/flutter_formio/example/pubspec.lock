@@ -102,13 +102,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_formio:
-    dependency: "direct main"
-    description:
-      path: ".."
-      relative: true
-    source: path
-    version: "2.0.1"
   flutter_html:
     dependency: transitive
     description:
@@ -138,6 +131,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  formio:
+    dependency: "direct main"
+    description:
+      path: ".."
+      relative: true
+    source: path
+    version: "2.0.1"
   formio_api:
     dependency: transitive
     description:

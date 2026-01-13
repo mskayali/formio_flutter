@@ -8,7 +8,6 @@
 /// - Reactive updates when trigger fields change
 library;
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:formio_api/formio_api.dart';
 
@@ -78,6 +77,7 @@ class _DataSourceComponentState extends State<DataSourceComponent> {
 
   Future<void> _fetchData() async {
     setState(() {
+      // IsLoading state could be handled here if we add visual feedback
     });
 
     try {
@@ -86,33 +86,11 @@ class _DataSourceComponentState extends State<DataSourceComponent> {
         throw 'No fetch configuration';
       }
 
-      final url = fetchConfig['url']?.toString();
-      if (url == null || url.isEmpty) {
-        throw 'No URL specified';
-      }
-
-      final method = fetchConfig['method']?.toString() ?? 'get';
-      final headers = _buildHeaders(fetchConfig['headers']);
-      
-      // print('🌐 DataSource fetching:');
-      // print('   URL: $url');
-      // print('   Method: $method');
-      // print('   Headers: $headers');
-
-      // Make HTTP request
-      final dio = Dio();
-      final response = await dio.request(
-        url,
-        options: Options(method: method.toUpperCase(), headers: headers),
+      // Delegate fetching to formio_api service
+      final transformedData = await DataSourceService.fetchData(
+        fetchConfig: fetchConfig,
+        formData: widget.formData ?? {},
       );
-
-      // print('   ✅ Response received (${response.statusCode})');
-
-      // Transform data using mapFunction
-      final mapFunction = fetchConfig['mapFunction']?.toString();
-      final transformedData = await _transformData(response.data, mapFunction);
-
-      // print('   ✅ Data transformed: $transformedData');
 
       // Store in form state
       widget.onChanged(transformedData);
@@ -120,47 +98,9 @@ class _DataSourceComponentState extends State<DataSourceComponent> {
     } catch (e) {
       // print('   ❌ Error: $e');
       setState(() {
+        // Handle error state
       });
     }
-  }
-
-  Map<String, dynamic> _buildHeaders(dynamic headersConfig) {
-    if (headersConfig is! List) return {};
-    
-    final headers = <String, dynamic>{};
-    for (final header in headersConfig) {
-      if (header is! Map) continue;
-      
-      final key = header['key']?.toString();
-      final value = header['value']?.toString();
-      
-      if (key != null && value != null) {
-        // Interpolate {{data.field}} in header value
-        final interpolated = InterpolationUtils.interpolate(
-          value,
-          widget.formData ?? {},
-        );
-        headers[key] = interpolated;
-      }
-    }
-    return headers;
-  }
-
-  Future<dynamic> _transformData(dynamic responseData, String? mapFunction) async {
-    if (mapFunction == null || mapFunction.isEmpty) {
-      // print('   No mapFunction - returning raw response');
-      return responseData;
-    }
-
-    // print('   mapFunction specified: $mapFunction');
-    // print('   ⚠️  JavaScript execution not yet implemented');
-    // print('   Returning raw response data for now');
-    
-    // TODO: Implement JavaScript evaluation using flutter_js
-    // For now, return raw response data
-    // Users can still use the data, just not transformed
-    
-    return responseData;
   }
 
   @override

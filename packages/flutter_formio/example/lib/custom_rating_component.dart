@@ -2,7 +2,7 @@
 // This demonstrates how to create a completely new Form.io component type
 
 import 'package:flutter/material.dart';
-import 'package:flutter_formio/flutter_formio.dart';
+import 'package:formio/formio.dart';
 
 /// A custom star rating component for Form.io forms.
 ///

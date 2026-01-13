@@ -1,7 +1,7 @@
 // ignore_for_file: avoid_print
 
 
-import 'package:flutter_formio/flutter_formio.dart';
+import 'package:formio/formio.dart';
 
 /// Comprehensive test script for Form.io API integration
 ///

@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Package Split**: `formio` package has been split into two packages:
   - `formio_api` - Pure Dart API client (no Flutter dependencies)
   - `flutter_formio` - Flutter widgets for rendering forms
-- **Import Changes**: Update imports from `package:formio/flutter_formio.dart` to `package:formio/flutter_formio.dart`
+- **Import Changes**: Update imports from `package:formio/formio.dart` to `package:formio/formio.dart`
 - **JS Evaluator**: Must now explicitly initialize JavaScript evaluator in `main()`:
   ```dart
   JavaScriptEvaluator.setEvaluator(FlutterJsEvaluator());
