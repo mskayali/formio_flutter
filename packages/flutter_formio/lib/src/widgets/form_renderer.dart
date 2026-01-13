@@ -12,6 +12,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_formio/flutter_formio.dart';
 
+import 'form_data_provider.dart';
+
 
 typedef OnFormChanged = void Function(Map<String, dynamic> data);
 typedef OnFormSubmitted = void Function(Map<String, dynamic> data);
@@ -195,18 +197,21 @@ class _FormRendererState extends State<FormRenderer> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (widget.form.title.isNotEmpty) Text(widget.form.title, style: Theme.of(context).textTheme.headlineSmall),
-        const SizedBox(height: 12),
-        ...widget.form.components.map((component) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: _buildComponent(component),
-          );
-        }),
-      ],
+    return FormDataProvider(
+      formData: _formData,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (widget.form.title.isNotEmpty) Text(widget.form.title, style: Theme.of(context).textTheme.headlineSmall),
+          const SizedBox(height: 12),
+          ...widget.form.components.map((component) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: _buildComponent(component),
+            );
+          }),
+        ],
+      ),
     );
   }
 }

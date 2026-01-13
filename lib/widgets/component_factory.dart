@@ -5,6 +5,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:formio/widgets/components/datasource_component.dart';
 import 'package:formio/widgets/components/date_component.dart';
 
 import '../models/component.dart';
@@ -240,6 +241,13 @@ class ComponentFactory {
       // Data Components
       case 'hidden':
         return HiddenComponent(component: component, value: value, onChanged: onChanged);
+      case 'datasource':
+        return DataSourceComponent(
+          component: component,
+          value: value,
+          onChanged: onChanged,
+          formData: formData,
+        );
       case 'container':
         return ContainerComponent(
           component: component,

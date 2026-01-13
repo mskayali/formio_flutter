@@ -364,28 +364,69 @@ class _FormDetailPageState extends State<FormDetailPage> {
   }
 
   Widget _buildJsonView() {
+    final formJson = const JsonEncoder.withIndent('  ').convert(widget.form.toJson());
+    final dataJson = formData.isNotEmpty ? const JsonEncoder.withIndent('  ').convert(formData) : '';
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Form Definition (JSON)', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+          Row(
+            children: [
+              Expanded(
+                child: Text('Form Definition (JSON)', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+              ),
+              IconButton(
+                icon: const Icon(Icons.copy),
+                tooltip: 'Copy Form JSON',
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: formJson));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Form JSON copied to clipboard'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
-              child: SelectableText(const JsonEncoder.withIndent('  ').convert(widget.form.toJson()), style: const TextStyle(fontFamily: 'monospace', fontSize: 12)),
+              child: SelectableText(formJson, style: const TextStyle(fontFamily: 'monospace', fontSize: 12)),
             ),
           ),
           const SizedBox(height: 16),
           if (formData.isNotEmpty) ...[
-            Text('Current Form Data', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            Row(
+              children: [
+                Expanded(
+                  child: Text('Current Form Data', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.copy),
+                  tooltip: 'Copy Form Data JSON',
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: dataJson));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Form data copied to clipboard'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
             const SizedBox(height: 16),
             Card(
               color: Colors.green.shade50,
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: SelectableText(const JsonEncoder.withIndent('  ').convert(formData), style: const TextStyle(fontFamily: 'monospace', fontSize: 12)),
+                child: SelectableText(dataJson, style: const TextStyle(fontFamily: 'monospace', fontSize: 12)),
               ),
             ),
           ],

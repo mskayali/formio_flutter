@@ -104,4 +104,43 @@ class FormService {
   Future<void> deleteForm(String formId) async {
     await client.dio.delete('/form/$formId');
   }
+
+  /// Fetches submissions from a resource (form) by ID.
+  ///
+  /// Used for populating select component options from other forms/resources.
+  /// Makes a `GET /form/:resourceId/submission` request.
+  ///
+  /// [resourceId] is the unique ID of the source form/resource.
+  /// [limit] optional parameter to limit number of results (default: 100).
+  /// [skip] optional parameter for pagination offset (default: 0).
+  ///
+  /// Returns a list of submission data maps.
+  ///
+  /// Example:
+  /// ```dart
+  /// final submissions = await formService.fetchResourceSubmissions('662fa9be1e8aa19b582626f7');
+  /// ```
+  ///
+  /// Throws [DioException] on failure.
+  Future<List<Map<String, dynamic>>> fetchResourceSubmissions(
+    String resourceId, {
+    int limit = 100,
+    int skip = 0,
+  }) async {
+    final response = await client.dio.get(
+      '/form/$resourceId/submission',
+      queryParameters: {
+        'limit': limit,
+        'skip': skip,
+      },
+    );
+
+    if (response.data is List<dynamic>) {
+      return List<Map<String, dynamic>>.from(
+        response.data.map((item) => item as Map<String, dynamic>),
+      );
+    }
+
+    return [];
+  }
 }

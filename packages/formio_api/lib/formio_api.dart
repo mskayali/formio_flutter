@@ -31,6 +31,7 @@ export 'src/core/exceptions.dart';
 export 'src/core/interpolation_utils.dart';
 export 'src/core/js_evaluator.dart';
 export 'src/core/js_evaluator_interface.dart';
+export 'src/core/template_parser.dart';
 export 'src/core/utils.dart';
 // Models
 export 'src/models/action.dart';

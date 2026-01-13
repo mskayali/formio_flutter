@@ -1,0 +1,241 @@
+/// A non-visual Flutter component that fetches data from external URLs.
+///
+/// The DataSource component makes HTTP requests to external APIs and stores
+/// the result in form state for use by other components. It supports:
+/// - HTTP GET/POST/PUT/DELETE requests
+/// - Custom headers with form data interpolation
+/// - JavaScript transformation of responses via mapFunction
+/// - Reactive updates when trigger fields change
+library;
+
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+
+import '../../core/interpolation_utils.dart';
+import '../../core/js_evaluator.dart';
+import '../../models/component.dart';
+
+class DataSourceComponent extends StatefulWidget {
+  /// The Form.io component definition.
+  final ComponentModel component;
+
+  /// The current value (fetched data).
+  final dynamic value;
+
+  /// Complete form data for header interpolation.
+  final Map<String, dynamic>? formData;
+
+  /// Callback when data is fetched.
+  final ValueChanged<dynamic> onChanged;
+
+  const DataSourceComponent({
+    super.key,
+    required this.component,
+    required this.value,
+    this.formData,
+    required this.onChanged,
+  });
+
+  @override
+  State<DataSourceComponent> createState() => _DataSourceComponentState();
+}
+
+class _DataSourceComponentState extends State<DataSourceComponent> {
+  bool _isLoading = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    print('🔍 DataSourceComponent.initState()');
+    print('   Component key: ${widget.component.key}');
+    
+    // Fetch on init if trigger.init is true (default)
+    final trigger = widget.component.raw['trigger'] as Map<String, dynamic>?;
+    final shouldFetchOnInit = trigger?['init'] ?? true;
+    
+    if (shouldFetchOnInit) {
+      print('   ✅ Fetching on init(1)');
+      WidgetsBinding.instance.addPostFrameCallback((_) => _fetchData());
+    } else {
+      print('   ❌ NOT fetching on init(1) (trigger.init = false)');
+    }
+  }
+
+  @override
+  void didUpdateWidget(DataSourceComponent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    print('🔄 DataSource.didUpdateWidget called');
+    print('   Component key: ${widget.component.key}');
+    
+    // Check if refreshOnBlur field changed
+    final refreshOn = widget.component.raw['refreshOnBlur']?.toString();
+    print('   refreshOn field: $refreshOn');
+    
+    if (refreshOn != null && refreshOn.isNotEmpty) {
+      final oldValue = oldWidget.formData?[refreshOn];
+      final newValue = widget.formData?[refreshOn];
+      
+      print('   Old formData[$refreshOn]: $oldValue');
+      print('   New formData[$refreshOn]: $newValue');
+      
+      if (oldValue != newValue) {
+        print('   ✅ Value changed! Fetching data...');
+        _fetchData();
+      } else {
+        print('   ❌ No change detected');
+      }
+    }
+  }
+
+  Future<void> _fetchData() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final fetchConfig = widget.component.raw['fetch'] as Map<String, dynamic>?;
+      if (fetchConfig == null) {
+        throw 'No fetch configuration';
+      }
+
+      final url = fetchConfig['url']?.toString();
+      if (url == null || url.isEmpty) {
+        throw 'No URL specified';
+      }
+
+      final method = fetchConfig['method']?.toString() ?? 'get';
+      final headers = _buildHeaders(fetchConfig['headers']);
+      
+      print('🌐 DataSource fetching:');
+      print('   URL: $url');
+      print('   Method: $method');
+      print('   Headers: $headers');
+
+      // Make HTTP request
+      final dio = Dio();
+      final response = await dio.request(
+        url,
+        options: Options(method: method.toUpperCase(), headers: headers),
+      );
+
+      print('   ✅ Response received (${response.statusCode})');
+
+      // Transform data using mapFunction
+      final mapFunction = fetchConfig['mapFunction']?.toString();
+      final transformedData = await _transformData(response.data, mapFunction);
+
+      print('   ✅ Data transformed: $transformedData');
+
+      // Store in form state
+      widget.onChanged(transformedData);
+      
+      setState(() => _isLoading = false);
+    } catch (e) {
+      print('   ❌ Error: $e');
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  Map<String, dynamic> _buildHeaders(dynamic headersConfig) {
+    if (headersConfig is! List) return {};
+    
+    final headers = <String, dynamic>{};
+    for (final header in headersConfig) {
+      if (header is! Map) continue;
+      
+      final key = header['key']?.toString();
+      final value = header['value']?.toString();
+      
+      if (key != null && value != null) {
+        // Interpolate {{data.field}} in header value
+        final interpolated = InterpolationUtils.interpolate(
+          value,
+          widget.formData ?? {},
+        );
+        headers[key] = interpolated;
+      }
+    }
+    return headers;
+  }
+
+  Future<dynamic> _transformData(dynamic responseData, String? mapFunction) async {
+    if (mapFunction == null || mapFunction.isEmpty) {
+      print('   No mapFunction - returning raw response');
+      return responseData;
+    }
+
+    print('   Executing mapFunction: $mapFunction');
+
+    try {
+      // Use 'result' variable which the evaluator's wrapper looks for
+      // The evaluator checks: result !== 'undefined' ? result : value
+      final jsCode = '''
+        var responseData = ${_convertToJson(responseData)};
+        var value;
+        $mapFunction;
+        // Use JSON.stringify and assign to 'result' which evaluator will return
+        var result = JSON.stringify(value);
+      ''';
+      
+      print('   JavaScript code (sets result=JSON.stringify(value)): $jsCode');
+      
+      // Execute the JavaScript
+      final jsResult = JavaScriptEvaluator.evaluate(jsCode, {});
+      
+      print('   ✅ JS evaluator returned: $jsResult');
+      print('   Result type: ${jsResult.runtimeType}');
+      
+      // Parse the JSON string back to Dart object
+      if (jsResult is String) {
+        try {
+          final parsed = jsonDecode(jsResult);
+          print('   ✅ Parsed JSON: $parsed');
+          print('   Parsed type: ${parsed.runtimeType}');
+          return parsed;
+        } catch (e) {
+          print('   ⚠️ JSON parse error: $e');
+          print('   Raw result: "$jsResult"');
+          return jsResult;
+        }
+      }
+      
+      print('   ✅ Direct result (not a string): $jsResult');
+      return jsResult;
+    } catch (e) {
+      print('   ❌ mapFunction error: $e');
+      print('   Returning raw data as fallback');
+      return responseData;
+    }
+  }
+
+  /// Convert dynamic data to JSON string for JavaScript context
+  String _convertToJson(dynamic data) {
+    if (data is String) return '"$data"';
+    if (data is num || data is bool) return data.toString();
+    if (data is Map || data is List) {
+      // Use jsonEncode to properly serialize complex objects
+      try {
+        return jsonEncode(data);
+      } catch (e) {
+        print('   ⚠️ JSON encode error: $e');
+        return '{}';
+      }
+    }
+    return '{}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Non-visual component - renders nothing
+    return const SizedBox.shrink();
+  }
+}

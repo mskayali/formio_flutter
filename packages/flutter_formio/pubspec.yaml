@@ -12,8 +12,9 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # Core API package
-  formio_api: ^2.0.0
+  # Core API package (local development)
+  formio_api:
+    path: ../formio_api
 
   # Flutter-specific dependencies
   flutter_html: ^3.0.0

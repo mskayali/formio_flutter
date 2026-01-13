@@ -30,7 +30,9 @@ class CheckboxComponent extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         CheckboxListTile(
-          title: component.hideLabel ? null : Text(component.label),
+          // Always show label for checkboxes - hideLabel refers to the field label above,
+          // not the checkbox label itself which is inline
+          title: component.label.isNotEmpty ? Text(component.label) : null,
           value: value,
           onChanged: component.disabled
               ? null

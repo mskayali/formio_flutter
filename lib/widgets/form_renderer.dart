@@ -104,6 +104,10 @@ class _FormRendererState extends State<FormRenderer> {
   }
 
   void _updateField(String key, dynamic value) {
+    if (kDebugMode) {
+      print('📝 _updateField called: key="$key", value="$value"');
+    }
+    
     setState(() {
       _formData = Map<String, dynamic>.from(_formData)..[key] = value;
       _updateCalculatedFields();
@@ -112,6 +116,7 @@ class _FormRendererState extends State<FormRenderer> {
     widget.onChanged?.call(_formData);
     if (kDebugMode) {
       print('📝 Form data changed: ${_formData.keys.join(', ')}');
+      print('   Current formData: $_formData');
     }
   }
 

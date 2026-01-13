@@ -15,6 +15,7 @@ class ConditionalEvaluator {
   /// Evaluates whether a component should be shown based on its conditional logic.
   ///
   /// Supports:
+  /// - Conditions array: {show: true/false, conjunction: 'all'/'any', conditions: [...]}
   /// - Simple conditionals: {when: 'field', eq: 'value', show: true/false}
   /// - JSONLogic: {json: {...}} format with standard JSONLogic operations
   ///
@@ -40,6 +41,11 @@ class ConditionalEvaluator {
       // Log a warning and default to showing the component
       // print('Warning: JavaScript custom conditionals are not supported. Component will be shown by default.');
       return true;
+    }
+
+    // Check if this is a conditions array format (newer Form.io format)
+    if (conditional.containsKey('conditions') && conditional['conditions'] is List) {
+      return _evaluateConditionsArray(conditional, formData);
     }
 
     // Otherwise, treat as a simple conditional
@@ -77,6 +83,94 @@ class ConditionalEvaluator {
     // print('🔍 Result: $result');
 
     return result;
+  }
+
+  /// Evaluates a conditions array format (newer Form.io format).
+  /// 
+  /// Format: 
+  /// {
+  ///   "show": false,
+  ///   "conjunction": "all",  // or "any"
+  ///   "conditions": [
+  ///     {
+  ///       "component": "fieldName",
+  ///       "operator": "isEqual",  // or "isEmpty", "isNotEmpty", etc.
+  ///       "value": expectedValue
+  ///     }
+  ///   ]
+  /// }
+  static bool _evaluateConditionsArray(Map<String, dynamic> conditional, Map<String, dynamic> formData) {
+    final conditionsList = conditional['conditions'] as List;
+    final show = conditional['show'];
+    final conjunction = conditional['conjunction'] ?? 'all'; // default to 'all'
+
+    if (conditionsList.isEmpty) {
+      return true;
+    }
+
+    // Debug output
+    print('🔍 Evaluating conditions array:');
+    print('   Show: $show, Conjunction: $conjunction');
+    print('   Form data: $formData');
+
+    // Evaluate each condition
+    final results = conditionsList.map((condition) {
+      if (condition is! Map<String, dynamic>) return false;
+      
+      final component = condition['component'];
+      final operator = condition['operator'] ?? 'isEqual';
+      final expectedValue = condition['value'];
+
+      if (component == null) return false;
+
+      final fieldValue = _getNestedValue(formData, component.toString());
+      
+      print('   Component: $component, Operator: $operator, Expected: $expectedValue, Actual: $fieldValue');
+
+      // Evaluate based on operator
+      final result = _evaluateOperator(operator, fieldValue, expectedValue);
+      print('   Result: $result');
+      
+      return result;
+    }).toList();
+
+    // Combine results based on conjunction
+    final allConditionsMet = conjunction == 'all'
+        ? results.every((r) => r == true)
+        : results.any((r) => r == true);
+
+    // Determine whether to show based on the 'show' flag
+    // If show is true (default), show when conditions are met
+    // If show is false, show when conditions are NOT met
+    final shouldShowWhenMatched = show == null || show == true || show == 'true';
+
+    final finalResult = shouldShowWhenMatched ? allConditionsMet : !allConditionsMet;
+    print('   Final result: $finalResult (allConditionsMet: $allConditionsMet, shouldShowWhenMatched: $shouldShowWhenMatched)');
+
+    return finalResult;
+  }
+
+  /// Evaluates a condition operator.
+  static bool _evaluateOperator(String operator, dynamic fieldValue, dynamic expectedValue) {
+    switch (operator) {
+      case 'isEqual':
+        return _valuesMatch(fieldValue, expectedValue);
+      case 'isNotEqual':
+        return !_valuesMatch(fieldValue, expectedValue);
+      case 'isEmpty':
+        return fieldValue == null || 
+               (fieldValue is String && fieldValue.isEmpty) ||
+               (fieldValue is List && fieldValue.isEmpty) ||
+               (fieldValue is Map && fieldValue.isEmpty);
+      case 'isNotEmpty':
+        return fieldValue != null && 
+               (fieldValue is! String || fieldValue.isNotEmpty) &&
+               (fieldValue is! List || fieldValue.isNotEmpty) &&
+               (fieldValue is! Map || fieldValue.isNotEmpty);
+      default:
+        // Unsupported operator, default to false
+        return false;
+    }
   }
 
   /// Evaluates a JSONLogic conditional.

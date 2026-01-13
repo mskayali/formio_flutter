@@ -20,6 +20,7 @@ import 'components/currency_component.dart';
 import 'components/custom_component.dart';
 import 'components/data_grid_component.dart';
 import 'components/data_map_component.dart';
+import 'components/datasource_component.dart';
 import 'components/datatable_component.dart';
 // Advanced
 import 'components/day_component.dart';
@@ -225,6 +226,13 @@ class ComponentFactory {
       // Data Components
       case 'hidden':
         return HiddenComponent(component: component, value: value, onChanged: onChanged);
+      case 'datasource':
+        return DataSourceComponent(
+          component: component,
+          value: value,
+          onChanged: onChanged,
+          formData: formData,
+        );
       case 'container':
         return ContainerComponent(
           component: component,

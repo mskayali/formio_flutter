@@ -126,10 +126,9 @@ packages:
   formio_api:
     dependency: "direct main"
     description:
-      name: formio_api
-      sha256: "33743ff1bd7ca045ff6112277a77ad67df101aaac273a6ae0e10f67e846be03a"
-      url: "https://pub.dev"
-    source: hosted
+      path: "../formio_api"
+      relative: true
+    source: path
     version: "2.0.0"
   html:
     dependency: transitive
