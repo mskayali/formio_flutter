@@ -10,21 +10,5 @@ environment:
   flutter: ">=3.10.0"
 
 dependencies:
-  flutter:
-    sdk: flutter
-
-  # Core dependencies
-  dio: ^5.9.0
-  curl_logger_dio_interceptor: ^1.0.1
-  flutter_html: ^3.0.0
-  intl: ^0.18.1
-  jsonlogic: ^2.0.2 # For Form.io conditional logic support
-  flutter_js: ^0.8.5 # For JavaScript custom validation and calculations
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^3.0.0
-
-flutter:
-  uses-material-design: true
+  formio_flutter: ^1.1.0
+  formio_api: ^2.0.0

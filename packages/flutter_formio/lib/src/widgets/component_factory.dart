@@ -6,6 +6,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_formio/flutter_formio.dart';
+import 'package:flutter_formio/src/widgets/components/text_area_component.dart';
 
 // Complex
 import 'components/address_component.dart';

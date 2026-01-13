@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:formio/core/calculation_evaluator.dart';
+
+import '../../formio.dart';
 
 void main() {
   group('CalculationEvaluator', () {
@@ -11,10 +12,10 @@ void main() {
             {'var': 'data.b'}
           ]
         };
-        
+
         final formData = {'a': 5, 'b': 3};
         final result = CalculationEvaluator.evaluate(calculateConfig, formData);
-        
+
         expect(result, equals(8));
       });
 
@@ -25,10 +26,10 @@ void main() {
             {'var': 'data.quantity'}
           ]
         };
-        
+
         final formData = {'price': 10.5, 'quantity': 3};
         final result = CalculationEvaluator.evaluate(calculateConfig, formData);
-        
+
         expect(result, equals(31.5));
       });
 
@@ -45,10 +46,10 @@ void main() {
             1.08
           ]
         };
-        
+
         final formData = {'price': 100, 'quantity': 2};
         final result = CalculationEvaluator.evaluate(calculateConfig, formData);
-        
+
         expect(result, equals(216.0));
       });
 
@@ -56,7 +57,7 @@ void main() {
         const calculateConfig = 'value = data.price * data.quantity';
         final formData = {'price': 10, 'quantity': 2};
         final result = CalculationEvaluator.evaluate(calculateConfig, formData);
-        
+
         expect(result, isNull);
       });
 
@@ -69,9 +70,11 @@ void main() {
     group('hasCalculation', () {
       test('returns true when calculateValue exists', () {
         final componentRaw = {
-          'calculateValue': {'+': [1, 2]}
+          'calculateValue': {
+            '+': [1, 2]
+          }
         };
-        
+
         expect(CalculationEvaluator.hasCalculation(componentRaw), isTrue);
       });
 
@@ -106,7 +109,7 @@ void main() {
       test('extracts single dependency', () {
         final calculateConfig = {'var': 'data.fieldName'};
         final deps = CalculationEvaluator.extractDependencies(calculateConfig);
-        
+
         expect(deps, contains('fieldName'));
         expect(deps.length, equals(1));
       });
@@ -118,9 +121,9 @@ void main() {
             {'var': 'data.tax'}
           ]
         };
-        
+
         final deps = CalculationEvaluator.extractDependencies(calculateConfig);
-        
+
         expect(deps, contains('price'));
         expect(deps, contains('tax'));
         expect(deps.length, equals(2));
@@ -138,9 +141,9 @@ void main() {
             {'var': 'data.c'}
           ]
         };
-        
+
         final deps = CalculationEvaluator.extractDependencies(calculateConfig);
-        
+
         expect(deps, contains('a'));
         expect(deps, contains('b'));
         expect(deps, contains('c'));

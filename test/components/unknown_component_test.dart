@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:formio/models/component.dart';
-import 'package:formio/widgets/components/unknown_component.dart';
+
+import '../../formio.dart';
 
 void main() {
   group('UnknownComponent', () {

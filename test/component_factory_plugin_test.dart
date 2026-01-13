@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:formio/models/component.dart';
-import 'package:formio/widgets/base_component.dart';
-import 'package:formio/widgets/component_factory.dart';
+import '../formio.dart';
 
 void main() {
   group('ComponentFactory Plugin System', () {
@@ -55,8 +53,7 @@ void main() {
       expect(ComponentFactory.isRegistered('customType'), isFalse);
     });
 
-    testWidgets('should use custom component builder when registered',
-        (WidgetTester tester) async {
+    testWidgets('should use custom component builder when registered', (WidgetTester tester) async {
       // Register a custom textfield that shows a unique identifier
       final customBuilder = FunctionComponentBuilder((context) {
         return const Text('CUSTOM_TEXTFIELD_MARKER');
@@ -93,8 +90,7 @@ void main() {
       ComponentFactory.unregister('textfield');
     });
 
-    testWidgets('should fall back to default when no custom builder is registered',
-        (WidgetTester tester) async {
+    testWidgets('should fall back to default when no custom builder is registered', (WidgetTester tester) async {
       // Ensure textfield is not custom registered
       ComponentFactory.unregister('textfield');
 
@@ -124,8 +120,7 @@ void main() {
       expect(find.byType(TextFormField), findsOneWidget);
     });
 
-    testWidgets('should pass context parameters to custom builder',
-        (WidgetTester tester) async {
+    testWidgets('should pass context parameters to custom builder', (WidgetTester tester) async {
       FormioComponentBuildContext? capturedContext;
 
       // Create a custom builder that captures the context
@@ -171,8 +166,7 @@ void main() {
       ComponentFactory.unregister('customType');
     });
 
-    testWidgets('should allow overriding default components',
-        (WidgetTester tester) async {
+    testWidgets('should allow overriding default components', (WidgetTester tester) async {
       // Register custom number component
       final customBuilder = FunctionComponentBuilder((context) {
         return Text('CUSTOM_NUMBER_${context.component.label}');

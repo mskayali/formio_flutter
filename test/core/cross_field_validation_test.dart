@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:formio/core/validators.dart';
+import '../../formio.dart';
 
 void main() {
   group('Cross-Field Validation', () {
