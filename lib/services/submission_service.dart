@@ -2,6 +2,7 @@
 ///
 /// Supports creating new submissions and optionally fetching existing ones
 /// using the REST endpoints `/form/:path/submission`.
+library;
 
 import '../core/exceptions.dart';
 import '../models/submission.dart';

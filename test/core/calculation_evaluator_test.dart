@@ -53,7 +53,7 @@ void main() {
       });
 
       test('returns null for JavaScript expressions', () {
-        final calculateConfig = 'value = data.price * data.quantity';
+        const calculateConfig = 'value = data.price * data.quantity';
         final formData = {'price': 10, 'quantity': 2};
         final result = CalculationEvaluator.evaluate(calculateConfig, formData);
         

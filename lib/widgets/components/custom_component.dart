@@ -4,6 +4,7 @@
 /// Since the behavior of a custom component is not known at compile-time,
 /// this widget provides a flexible callback hook for rendering and handling
 /// data, or simply displays an unsupported message.
+library;
 
 import 'package:flutter/material.dart';
 
@@ -24,7 +25,7 @@ class CustomComponent extends StatelessWidget {
   /// Optional external builder to render the actual custom component UI.
   final CustomComponentBuilder? customBuilder;
 
-  const CustomComponent({Key? key, required this.component, required this.value, required this.onChanged, this.customBuilder}) : super(key: key);
+  const CustomComponent({super.key, required this.component, required this.value, required this.onChanged, this.customBuilder});
 
   /// Optional JavaScript logic defined in Form.io for custom logic.
   String? get _customCode => component.raw['customCode'];
@@ -42,7 +43,8 @@ class CustomComponent extends StatelessWidget {
         const SizedBox(height: 6),
         Container(
           padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(6), color: Colors.grey.shade50),
+          decoration:
+              BoxDecoration(border: Border.all(color: Theme.of(context).colorScheme.outline), borderRadius: BorderRadius.circular(6), color: Theme.of(context).colorScheme.surfaceContainerHighest),
           child: Text(
             'Custom component not implemented.\n'
             'You can handle "${component.key}" manually.\n\n'

@@ -14,15 +14,13 @@ void main() {
         'input': true,
       });
 
-      String? capturedValue;
-
       // Act
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           body: UrlComponent(
             component: component,
             value: null,
-            onChanged: (val) => capturedValue = val,
+            onChanged: (val) {},
           ),
         ),
       ));
@@ -55,11 +53,11 @@ void main() {
       ));
 
       final formField = tester.widget<TextFormField>(find.byType(TextFormField));
-      
+
       // Assert: Invalid URL
       expect(formField.validator!('invalid-url'), isNotNull);
       expect(formField.validator!('notaurl'), isNotNull);
-      
+
       // Assert: Valid URLs
       expect(formField.validator!('https://example.com'), isNull);
       expect(formField.validator!('http://www.google.com'), isNull);

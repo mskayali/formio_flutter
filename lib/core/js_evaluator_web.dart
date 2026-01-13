@@ -1,8 +1,12 @@
 /// Web implementation of JavaScript evaluator using dart:js.
 ///
 /// Uses the browser's native JavaScript engine.
+library;
+
+// ignore_for_file: deprecated_member_use, avoid_web_libraries_in_flutter
 
 import 'dart:js' as js;
+import 'package:flutter/foundation.dart';
 
 dynamic evaluateJS(
   String code,
@@ -12,26 +16,28 @@ dynamic evaluateJS(
   try {
     // Create a JavaScript context object
     final jsContext = js.JsObject.jsify(context);
-    
+
     // Create a function that takes the context and returns the result
     final wrappedCode = '''
       (function(context) {
         ${_injectContext(context)}
-        ${code};
+        $code;
         return typeof result !== 'undefined' ? result : 
                typeof valid !== 'undefined' ? valid :
                typeof value !== 'undefined' ? value : null;
       })
     ''';
-    
+
     // Evaluate the JavaScript code
     final jsFunction = js.context.callMethod('eval', [wrappedCode]);
     final result = jsFunction.apply([jsContext]);
-    
+
     // Convert JS result to Dart
     return _convertToDart(result);
   } catch (e) {
-    print('JavaScript evaluation error (web): $e');
+    if (kDebugMode) {
+      debugPrint('JavaScript evaluation error (web): $e');
+    }
     return null;
   }
 }
@@ -48,7 +54,7 @@ String _injectContext(Map<String, dynamic> context) {
 /// Converts JavaScript values to Dart values.
 dynamic _convertToDart(dynamic jsValue) {
   if (jsValue == null) return null;
-  
+
   // Handle JS objects
   if (jsValue is js.JsObject) {
     // Check if it's an array
@@ -56,7 +62,7 @@ dynamic _convertToDart(dynamic jsValue) {
       final length = jsValue['length'] as int;
       return List.generate(length, (i) => _convertToDart(jsValue[i]));
     }
-    
+
     // Convert to Map
     final map = <String, dynamic>{};
     final keys = js.context['Object'].callMethod('keys', [jsValue]) as List;
@@ -65,7 +71,9 @@ dynamic _convertToDart(dynamic jsValue) {
     }
     return map;
   }
-  
+
   // Primitive types are already converted
   return jsValue;
 }
+
+void disposeRuntime() {}

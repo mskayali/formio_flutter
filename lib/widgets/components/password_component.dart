@@ -2,6 +2,7 @@
 ///
 /// Supports label, placeholder, required validation, and default value.
 /// The input is obscured by default for security.
+library;
 
 import 'package:flutter/material.dart';
 
@@ -17,7 +18,7 @@ class PasswordComponent extends StatefulWidget {
   /// Callback called when the user updates the password.
   final ValueChanged<String> onChanged;
 
-  const PasswordComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  const PasswordComponent({super.key, required this.component, required this.value, required this.onChanged});
 
   @override
   State<PasswordComponent> createState() => _PasswordComponentState();
@@ -39,7 +40,6 @@ class _PasswordComponentState extends State<PasswordComponent> {
       decoration: InputDecoration(
         labelText: widget.component.label,
         hintText: _placeholder,
-        border: const OutlineInputBorder(),
         suffixIcon: IconButton(
           icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility),
           onPressed: () {

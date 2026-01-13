@@ -2,6 +2,7 @@
 ///
 /// Supports placeholder, label, default value, and comprehensive validation including
 /// required, pattern, minLength, maxLength, minWords, maxWords.
+library;
 
 import 'package:flutter/material.dart';
 
@@ -19,11 +20,11 @@ class TextFieldComponent extends StatelessWidget {
   final ValueChanged<String> onChanged;
 
   const TextFieldComponent({
-    Key? key,
+    super.key,
     required this.component,
     required this.value,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   /// Retrieves a placeholder value if available in the raw JSON.
   String? get _placeholder => component.raw['placeholder'];
@@ -39,7 +40,6 @@ class TextFieldComponent extends StatelessWidget {
       decoration: InputDecoration(
         labelText: component.label,
         hintText: _placeholder,
-        border: const OutlineInputBorder(),
       ),
       onChanged: onChanged,
       validator: FormioValidators.fromConfig(_validateConfig, component.label),

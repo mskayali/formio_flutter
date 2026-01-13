@@ -2,6 +2,7 @@
 ///
 /// This model is used for logging in, storing user credentials, and
 /// handling JWT tokens returned from the Form.io authentication endpoint.
+library;
 
 class UserModel {
   /// Unique ID of the user (if available).

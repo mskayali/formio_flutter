@@ -2,6 +2,7 @@
 ///
 /// Supports label, placeholder, default value, required validation,
 /// and basic numeric constraints (min, max).
+library;
 
 import 'package:flutter/material.dart';
 
@@ -17,7 +18,7 @@ class NumberComponent extends StatelessWidget {
   /// Callback called when the user updates the number.
   final ValueChanged<num?> onChanged;
 
-  const NumberComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  const NumberComponent({super.key, required this.component, required this.value, required this.onChanged});
 
   /// Returns true if the field is marked as required.
   bool get _isRequired => component.required;
@@ -62,7 +63,7 @@ class NumberComponent extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       initialValue: value?.toString() ?? component.defaultValue?.toString(),
-      decoration: InputDecoration(labelText: component.label, hintText: _placeholder, border: const OutlineInputBorder()),
+      decoration: InputDecoration(labelText: component.label, hintText: _placeholder),
       keyboardType: TextInputType.number,
       onChanged: (input) => onChanged(_parse(input)),
       validator: _validator,

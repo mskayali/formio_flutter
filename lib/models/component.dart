@@ -2,6 +2,7 @@
 ///
 /// Each component defines its type (e.g., textfield, checkbox), key,
 /// label, validation rules, and other configuration options.
+library;
 
 class ComponentModel {
   /// Type of the component (e.g., "textfield", "select", "checkbox").

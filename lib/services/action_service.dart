@@ -3,6 +3,7 @@
 /// Actions are event-triggered behaviors on forms such as sending emails,
 /// calling webhooks, assigning roles, etc. This service provides CRUD
 /// operations for managing these actions.
+library;
 
 import '../models/action.dart';
 import '../network/api_client.dart';

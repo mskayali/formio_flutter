@@ -1,6 +1,7 @@
 /// A Flutter widget that renders a URL input field based on a Form.io "url" component.
 ///
 /// Supports URL validation, placeholder, label, and required validation.
+library;
 
 import 'package:flutter/material.dart';
 
@@ -17,11 +18,11 @@ class UrlComponent extends StatelessWidget {
   final ValueChanged<String> onChanged;
 
   const UrlComponent({
-    Key? key,
+    super.key,
     required this.component,
     required this.value,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   /// Retrieves a placeholder value if available in the raw JSON.
   String? get _placeholder => component.raw['placeholder'];
@@ -40,11 +41,11 @@ class UrlComponent extends StatelessWidget {
     if (val == null || val.isEmpty) {
       return _isRequired ? '${component.label} is required.' : null;
     }
-    
+
     if (!_urlRegex.hasMatch(val)) {
       return 'Please enter a valid URL (e.g., https://example.com)';
     }
-    
+
     return null;
   }
 
@@ -56,7 +57,6 @@ class UrlComponent extends StatelessWidget {
       decoration: InputDecoration(
         labelText: component.label,
         hintText: _placeholder ?? 'https://example.com',
-        border: const OutlineInputBorder(),
         prefixIcon: const Icon(Icons.link),
       ),
       keyboardType: TextInputType.url,

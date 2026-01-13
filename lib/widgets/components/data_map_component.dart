@@ -3,6 +3,7 @@
 ///
 /// Allows users to add multiple dynamic key-value pairs. These pairs
 /// are stored in a map and submitted as a nested object.
+library;
 
 import 'package:flutter/material.dart';
 
@@ -18,7 +19,7 @@ class DataMapComponent extends StatefulWidget {
   /// Callback triggered when the map is updated.
   final ValueChanged<Map<String, String>> onChanged;
 
-  const DataMapComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  const DataMapComponent({super.key, required this.component, required this.value, required this.onChanged});
 
   @override
   State<DataMapComponent> createState() => _DataMapComponentState();
@@ -35,6 +36,14 @@ class _DataMapComponentState extends State<DataMapComponent> {
   void initState() {
     super.initState();
     _entries = Map<String, String>.from(widget.value);
+  }
+
+  @override
+  void didUpdateWidget(DataMapComponent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.value != oldWidget.value) {
+      _entries = Map<String, String>.from(widget.value);
+    }
   }
 
   void _addEntry() {
@@ -56,6 +65,13 @@ class _DataMapComponentState extends State<DataMapComponent> {
       _entries.remove(key);
     });
     widget.onChanged(_entries);
+  }
+
+  @override
+  void dispose() {
+    _newKeyController.dispose();
+    _newValueController.dispose();
+    super.dispose();
   }
 
   @override

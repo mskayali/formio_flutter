@@ -2,11 +2,16 @@
 ///
 /// Supports all standard, advanced, layout, data, and custom components.
 /// Add new component types here as needed.
+library;
 
 import 'package:flutter/material.dart';
+import 'package:formio/widgets/components/date_component.dart';
 
 import '../core/conditional_evaluator.dart';
 import '../models/component.dart';
+import '../models/file_data.dart';
+import '../models/file_typedefs.dart';
+import '../models/formio_locale.dart';
 // Complex
 import 'components/address_component.dart';
 // Display
@@ -22,9 +27,11 @@ import 'components/currency_component.dart';
 import 'components/custom_component.dart';
 import 'components/data_grid_component.dart';
 import 'components/data_map_component.dart';
+import 'components/datatable_component.dart';
 // Advanced
 import 'components/datetime_component.dart';
 import 'components/day_component.dart';
+import 'components/dynamic_wizard_component.dart';
 import 'components/edit_grid_component.dart';
 import 'components/email_component.dart';
 import 'components/fieldset_component.dart';
@@ -41,12 +48,15 @@ import 'components/panel_component.dart';
 import 'components/password_component.dart';
 import 'components/phone_number_component.dart';
 import 'components/radio_component.dart';
+import 'components/review_page_component.dart';
 import 'components/select_boxes_component.dart';
 import 'components/select_component.dart';
 import 'components/signature_component.dart';
+import 'components/sketchpad_component.dart';
 import 'components/survey_component.dart';
 import 'components/table_component.dart';
 import 'components/tabs_component.dart';
+import 'components/tagpad_component.dart';
 import 'components/tags_component.dart';
 import 'components/text_area_component.dart';
 // Basic
@@ -56,17 +66,45 @@ import 'components/unknown_component.dart';
 import 'components/url_component.dart';
 import 'components/well_component.dart';
 
-typedef OnComponentChanged = void Function(dynamic value);
+typedef FormioComponentBuilder = Widget Function({
+  required ComponentModel component,
+  required dynamic value,
+  required ValueChanged<dynamic> onChanged,
+  Map<String, dynamic>? formData,
+  FilePickerCallback? onFilePick,
+  DatePickerCallback? onDatePick,
+  TimePickerCallback? onTimePick,
+});
 
 class ComponentFactory {
+  /// Global locale configuration for all components
+  static FormioLocale _locale = const FormioLocale();
+
+  /// Get current locale
+  static FormioLocale get locale => _locale;
+
+  /// Custom builders registry (Form.io Extensibility)
+  static final Map<String, FormioComponentBuilder> _customBuilders = {};
+
+  /// Set global locale for all components
+  static void setLocale(FormioLocale newLocale) {
+    _locale = newLocale;
+  }
+
+  /// Registers a custom component builder for a specific component type (standard or custom).
+  static void registerCustomComponent(String type, FormioComponentBuilder builder) {
+    _customBuilders[type] = builder;
+  }
+
   /// Creates the appropriate widget for a given component.
-  /// 
-  /// [formData] should be the complete form data to support conditional logic evaluation.
   static Widget build({
     required ComponentModel component,
     dynamic value,
-    required OnComponentChanged onChanged,
+    required ValueChanged<dynamic> onChanged,
     Map<String, dynamic>? formData,
+    FilePickerCallback? onFilePick,
+    DatePickerCallback? onDatePick,
+    TimePickerCallback? onTimePick,
   }) {
     // Check conditional logic using the new ConditionalEvaluator
     if (formData != null) {
@@ -75,7 +113,20 @@ class ComponentFactory {
         return const SizedBox.shrink();
       }
     }
-    
+
+    // Check custom builders first
+    if (_customBuilders.containsKey(component.type)) {
+      return _customBuilders[component.type]!(
+        component: component,
+        value: value,
+        onChanged: onChanged,
+        formData: formData,
+        onFilePick: onFilePick,
+        onDatePick: onDatePick,
+        onTimePick: onTimePick,
+      );
+    }
+
     switch (component.type) {
       // Basic
       case 'textfield':
@@ -97,7 +148,12 @@ class ComponentFactory {
       case 'radio':
         return RadioComponent(component: component, value: value, onChanged: onChanged);
       case 'select':
-        return SelectComponent(component: component, value: value, onChanged: onChanged);
+        return SelectComponent(
+          component: component,
+          value: value,
+          onChanged: onChanged,
+          formData: formData,
+        );
       case 'selectboxes':
         return SelectBoxesComponent(component: component, value: value is Map<String, bool> ? value : <String, bool>{}, onChanged: onChanged);
       case 'button':
@@ -105,10 +161,23 @@ class ComponentFactory {
 
       // Advanced
       case 'date':
+        return DateComponent(
+          component: component,
+          value: value is String ? value : null,
+          onChanged: (val) => onChanged(val),
+          onDatePick: onDatePick,
+          onTimePick: onTimePick,
+        );
       case 'datetime':
-        return DateTimeComponent(component: component, value: value, onChanged: onChanged);
+        return DateTimeComponent(
+          component: component,
+          value: value is String ? value : (value is DateTime ? value.toIso8601String() : null),
+          onChanged: (val) => onChanged(val),
+          onDatePick: onDatePick,
+          onTimePick: onTimePick,
+        );
       case 'day':
-        return DayComponent(component: component, value: value, onChanged: onChanged);
+        return DayComponent(component: component, value: value, onChanged: onChanged, formData: formData);
       case 'time':
         return TimeComponent(component: component, value: value, onChanged: onChanged);
       case 'currency':
@@ -122,47 +191,142 @@ class ComponentFactory {
       case 'signature':
         return SignatureComponent(component: component, value: value, onChanged: onChanged);
 
-      // Data
+      // Data Components
       case 'hidden':
         return HiddenComponent(component: component, value: value, onChanged: onChanged);
       case 'container':
-        return ContainerComponent(component: component, value: value is Map<String, dynamic> ? value : {}, onChanged: onChanged);
+        return ContainerComponent(
+          component: component,
+          value: value is Map<String, dynamic> ? value : {},
+          onChanged: (val) => onChanged(val),
+          formData: formData,
+          onFilePick: onFilePick,
+          onDatePick: onDatePick,
+          onTimePick: onTimePick,
+        );
       case 'datamap':
         return DataMapComponent(component: component, value: value is Map<String, String> ? value : {}, onChanged: onChanged);
       case 'datagrid':
-        return DataGridComponent(component: component, value: value is List<Map<String, dynamic>> ? value : [], onChanged: onChanged);
+        return DataGridComponent(
+          component: component,
+          value: value is List ? List<Map<String, dynamic>>.from(value) : [],
+          onChanged: (val) => onChanged(val),
+          formData: formData,
+          onFilePick: onFilePick,
+          onDatePick: onDatePick,
+          onTimePick: onTimePick,
+        );
       case 'editgrid':
-        return EditGridComponent(component: component, value: value is List<Map<String, dynamic>> ? value : [], onChanged: onChanged);
+        return EditGridComponent(
+          component: component,
+          value: value is List ? List<Map<String, dynamic>>.from(value) : [],
+          onChanged: (val) => onChanged(val),
+          formData: formData,
+          onFilePick: onFilePick,
+          onDatePick: onDatePick,
+          onTimePick: onTimePick,
+        );
+      case 'dynamicwizard':
+        return DynamicWizardComponent(
+          component: component,
+          value: value is List ? List<Map<String, dynamic>>.from(value) : [],
+          onChanged: (val) => onChanged(val),
+          formData: formData,
+          onFilePick: onFilePick,
+          onDatePick: onDatePick,
+          onTimePick: onTimePick,
+        );
 
       // Layout
       case 'panel':
-        return PanelComponent(component: component, value: value is Map<String, dynamic> ? value : {}, onChanged: onChanged);
+        return PanelComponent(
+          component: component,
+          value: value is Map<String, dynamic> ? value : {},
+          onChanged: (val) => onChanged(val),
+          formData: formData,
+          onFilePick: onFilePick,
+          onDatePick: onDatePick,
+          onTimePick: onTimePick,
+        );
       case 'columns':
-        return ColumnsComponent(component: component, value: value is Map<String, dynamic> ? value : {}, onChanged: onChanged);
+        return ColumnsComponent(
+          component: component,
+          value: value is Map<String, dynamic> ? value : {},
+          onChanged: (val) => onChanged(val),
+          formData: formData,
+          onFilePick: onFilePick,
+          onDatePick: onDatePick,
+          onTimePick: onTimePick,
+        );
       case 'htmlelement':
-        return HtmlElementComponent(component: component);
+        return HtmlElementComponent(component: component, formData: formData);
       case 'content':
-        return ContentComponent(component: component);
+        return ContentComponent(component: component, formData: formData);
       case 'alert':
-        return AlertComponent(component: component);
+        return AlertComponent(component: component, formData: formData);
       case 'fieldset':
-        return FieldSetComponent(component: component, value: value is Map<String, dynamic> ? value : {}, onChanged: onChanged);
+        return FieldSetComponent(
+          component: component,
+          value: value is Map<String, dynamic> ? value : {},
+          onChanged: (val) => onChanged(val),
+          formData: formData,
+          onFilePick: onFilePick,
+          onDatePick: onDatePick,
+          onTimePick: onTimePick,
+        );
       case 'table':
-        return TableComponent(component: component, value: value is Map<String, dynamic> ? value : {}, onChanged: onChanged);
+        return TableComponent(
+          component: component,
+          value: value is Map<String, dynamic> ? value : {},
+          onChanged: (val) => onChanged(val),
+          formData: formData,
+          onFilePick: onFilePick,
+          onDatePick: onDatePick,
+          onTimePick: onTimePick,
+        );
       case 'tabs':
-        return TabsComponent(component: component, value: value is Map<String, dynamic> ? value : {}, onChanged: onChanged);
+        return TabsComponent(
+          component: component,
+          value: value is Map<String, dynamic> ? value : {},
+          onChanged: (val) => onChanged(val),
+          formData: formData,
+          onFilePick: onFilePick,
+          onDatePick: onDatePick,
+          onTimePick: onTimePick,
+        );
       case 'well':
-        return WellComponent(component: component, value: value is Map<String, dynamic> ? value : {}, onChanged: onChanged);
+        return WellComponent(
+          component: component,
+          value: value is Map<String, dynamic> ? value : {},
+          onChanged: (val) => onChanged(val),
+          formData: formData,
+          onFilePick: onFilePick,
+          onDatePick: onDatePick,
+          onTimePick: onTimePick,
+        );
 
-      // Premium
+      // Premium Components
       case 'file':
-        return FileComponent(component: component, value: value is List<String> ? value : [], onChanged: onChanged);
+        return FileComponent(
+          component: component,
+          value: value is List ? value.cast<FileData>() : <FileData>[],
+          onChanged: (files) => onChanged(files),
+          onFilePick: onFilePick,
+        );
       case 'nestedform':
         return NestedFormComponent(component: component, value: value is Map<String, dynamic> ? value : {}, onChanged: onChanged);
       case 'form':
         return FormComponent(component: component, value: value is Map<String, dynamic> ? value : {}, onChanged: onChanged);
       case 'captcha':
         return CaptchaComponent(component: component, value: value, onChanged: onChanged);
+      case 'tagpad':
+        return TagpadComponent(component: component, value: value is List ? value.cast<String>() : null, onChanged: onChanged);
+      case 'sketchpad':
+        return SketchpadComponent(component: component, value: value as String?, onChanged: onChanged);
+      case 'reviewpage':
+        return ReviewPageComponent(component: component, value: value is Map<String, dynamic> ? value : null, onChanged: onChanged);
+      case 'datatable':
+        return DataTableComponent(component: component, value: value is List ? value.cast<Map<String, dynamic>>() : null, onChanged: onChanged);
 
       // Custom
       case 'custom':

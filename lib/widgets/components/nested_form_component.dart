@@ -3,6 +3,7 @@
 ///
 /// This widget is useful for nesting a separate form definition inside
 /// another parent form. The child form is rendered dynamically.
+library;
 
 import 'package:flutter/material.dart';
 
@@ -22,7 +23,7 @@ class NestedFormComponent extends StatefulWidget {
   /// Callback triggered when nested form values change.
   final ValueChanged<Map<String, dynamic>> onChanged;
 
-  const NestedFormComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  const NestedFormComponent({super.key, required this.component, required this.value, required this.onChanged});
 
   @override
   State<NestedFormComponent> createState() => _NestedFormComponentState();

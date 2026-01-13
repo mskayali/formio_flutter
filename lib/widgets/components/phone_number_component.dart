@@ -3,6 +3,7 @@
 ///
 /// Supports label, placeholder, required validation, default value,
 /// and numeric keyboard input.
+library;
 
 import 'package:flutter/material.dart';
 
@@ -18,7 +19,7 @@ class PhoneNumberComponent extends StatelessWidget {
   /// Callback triggered when the phone number is updated.
   final ValueChanged<String> onChanged;
 
-  const PhoneNumberComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  const PhoneNumberComponent({super.key, required this.component, required this.value, required this.onChanged});
 
   /// Whether the field is marked as required.
   bool get _isRequired => component.required;
@@ -48,7 +49,7 @@ class PhoneNumberComponent extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       initialValue: value ?? component.defaultValue?.toString(),
-      decoration: InputDecoration(labelText: component.label, hintText: _placeholder ?? '+1 (555) 123-4567', border: const OutlineInputBorder()),
+      decoration: InputDecoration(labelText: component.label, hintText: _placeholder ?? '+1 (555) 123-4567'),
       keyboardType: TextInputType.phone,
       onChanged: onChanged,
       validator: _validator,

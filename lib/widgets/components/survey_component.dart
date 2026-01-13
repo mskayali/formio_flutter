@@ -2,6 +2,7 @@
 ///
 /// Each row represents a question and each column is a selectable rating option.
 /// Internally stores the selected values in a map of { questionValue: selectedOption }.
+library;
 
 import 'package:flutter/material.dart';
 
@@ -18,7 +19,7 @@ class SurveyComponent extends StatelessWidget {
   /// Callback triggered when a survey row is answered.
   final ValueChanged<Map<String, String>> onChanged;
 
-  const SurveyComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  const SurveyComponent({super.key, required this.component, required this.value, required this.onChanged});
 
   /// Whether at least one answer is required.
   bool get _isRequired => component.required;
@@ -61,7 +62,7 @@ class SurveyComponent extends StatelessWidget {
         const SizedBox(height: 8),
         Table(
           columnWidths: const {0: FlexColumnWidth(2)},
-          border: TableBorder.all(color: Colors.grey.shade300),
+          border: TableBorder.all(color: Theme.of(context).colorScheme.outline),
           children: [
             // Header Row
             TableRow(
@@ -78,12 +79,14 @@ class SurveyComponent extends StatelessWidget {
                   Padding(padding: const EdgeInsets.all(8.0), child: Text(row['label'] ?? '')),
                   ..._columns.map((col) {
                     final colValue = col['value']?.toString() ?? '';
-                    return Radio<String>(
-                      groupValue: _selectedFor(rowKey),
-                      value: colValue,
-                      onChanged: (val) {
-                        if (val != null) _update(rowKey, val);
+                    return RadioGroup<String>(
+                      onChanged: (value) {
+                        if (value != null) _update(rowKey, value);
                       },
+                      groupValue: _selectedFor(rowKey),
+                      child: Radio<String>(
+                        value: colValue,
+                      ),
                     );
                   }),
                 ],
@@ -91,8 +94,7 @@ class SurveyComponent extends StatelessWidget {
             }),
           ],
         ),
-        if (error != null)
-          Padding(padding: const EdgeInsets.only(top: 6), child: Text(error, style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12))),
+        if (error != null) Padding(padding: const EdgeInsets.only(top: 6), child: Text(error, style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12))),
       ],
     );
   }

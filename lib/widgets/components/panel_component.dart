@@ -3,10 +3,12 @@
 ///
 /// Used to visually group related form fields under a common section with
 /// an optional title and collapsible behavior (if configured).
+library;
 
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../../models/file_typedefs.dart';
 import '../component_factory.dart';
 
 class PanelComponent extends StatelessWidget {
@@ -16,10 +18,28 @@ class PanelComponent extends StatelessWidget {
   /// Nested values passed into the panel's child components.
   final Map<String, dynamic> value;
 
+  /// Complete form data for interpolation and logic
+  final Map<String, dynamic>? formData;
+
+  /// Callbacks
+  final FilePickerCallback? onFilePick;
+
+  final DatePickerCallback? onDatePick;
+  final TimePickerCallback? onTimePick;
+
   /// Callback triggered when any child component inside the panel changes.
   final ValueChanged<Map<String, dynamic>> onChanged;
 
-  const PanelComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  const PanelComponent({
+    super.key,
+    required this.component,
+    required this.value,
+    this.formData,
+    this.onFilePick,
+    this.onDatePick,
+    this.onTimePick,
+    required this.onChanged,
+  });
 
   /// List of components inside the panel.
   List<ComponentModel> get _children {
@@ -63,6 +83,10 @@ class PanelComponent extends StatelessWidget {
                 component: child,
                 value: value[child.key],
                 onChanged: (val) => _updateField(child.key, val),
+                formData: formData,
+                onFilePick: onFilePick,
+                onDatePick: onDatePick,
+                onTimePick: onTimePick,
               ),
             );
           }).toList(),

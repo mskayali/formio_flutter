@@ -2,25 +2,34 @@
 ///
 /// This is a display-only component that shows messages with type-based styling.
 /// Supports types: error, success, info, warning.
+library;
 
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../../core/interpolation_utils.dart';
 
 class AlertComponent extends StatelessWidget {
   /// The Form.io component definition.
   final ComponentModel component;
 
+  /// Complete form data for interpolation
+  final Map<String, dynamic>? formData;
+
   const AlertComponent({
-    Key? key,
+    super.key,
     required this.component,
-  }) : super(key: key);
+    this.formData,
+  });
 
   /// Gets the alert type from component definition.
   String get _alertType => component.raw['alertType']?.toString().toLowerCase() ?? 'info';
 
-  /// Gets the alert content/message.
-  String get _content => component.raw['content']?.toString() ?? component.label;
+  /// Gets the alert content/message with interpolation support.
+  String get _content => InterpolationUtils.interpolate(
+        component.raw['content']?.toString() ?? component.label,
+        formData,
+      );
 
   /// Returns the appropriate color for the alert type.
   Color _getColor() {
@@ -73,13 +82,13 @@ class AlertComponent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = _getColor();
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        border: Border.all(color: color.withOpacity(0.4)),
+        color: color.withValues(alpha: 0.1),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
@@ -96,7 +105,7 @@ class AlertComponent extends StatelessWidget {
                   _getTitle(),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: color.withOpacity(0.9),
+                    color: color.withValues(alpha: 0.9),
                     fontSize: 14,
                   ),
                 ),

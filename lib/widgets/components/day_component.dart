@@ -3,9 +3,11 @@
 ///
 /// Allows users to select a date by separately choosing the day,
 /// month, and year. The result is returned as a single ISO-8601 string.
+library;
 
 import 'package:flutter/material.dart';
 
+import '../../core/interpolation_utils.dart';
 import '../../models/component.dart';
 
 class DayComponent extends StatefulWidget {
@@ -15,10 +17,13 @@ class DayComponent extends StatefulWidget {
   /// The current ISO-8601 date string (yyyy-MM-dd).
   final String? value;
 
+  /// Complete form data for interpolation
+  final Map<String, dynamic>? formData;
+
   /// Callback called when the date changes.
   final ValueChanged<String?> onChanged;
 
-  const DayComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  const DayComponent({super.key, required this.component, required this.value, this.formData, required this.onChanged});
 
   @override
   State<DayComponent> createState() => _DayComponentState();
@@ -31,8 +36,23 @@ class _DayComponentState extends State<DayComponent> {
 
   bool get _isRequired => widget.component.required;
 
-  int get _startYear => widget.component.raw['fields']?['year']?['min'] ?? 1900;
-  int get _endYear => widget.component.raw['fields']?['year']?['max'] ?? DateTime.now().year;
+  int get _startYear {
+    final rawMin = widget.component.raw['fields']?['year']?['min'] ?? widget.component.raw['minYear'];
+    if (rawMin is String) {
+      final interpolated = InterpolationUtils.interpolate(rawMin, widget.formData);
+      return int.tryParse(interpolated) ?? 1900;
+    }
+    return rawMin is num ? rawMin.toInt() : 1900;
+  }
+
+  int get _endYear {
+    final rawMax = widget.component.raw['fields']?['year']?['max'] ?? widget.component.raw['maxYear'];
+    if (rawMax is String) {
+      final interpolated = InterpolationUtils.interpolate(rawMax, widget.formData);
+      return int.tryParse(interpolated) ?? DateTime.now().year;
+    }
+    return rawMax is num ? rawMax.toInt() : DateTime.now().year;
+  }
 
   void _updateValue() {
     if (_day != null && _month != null && _year != null) {
@@ -70,7 +90,7 @@ class _DayComponentState extends State<DayComponent> {
             // Day
             Expanded(
               child: DropdownButtonFormField<int>(
-                value: _day,
+                initialValue: _day,
                 decoration: const InputDecoration(labelText: 'Day'),
                 items: List.generate(31, (i) => i + 1).map((d) => DropdownMenuItem(value: d, child: Text(d.toString()))).toList(),
                 onChanged: (val) {
@@ -84,7 +104,7 @@ class _DayComponentState extends State<DayComponent> {
             // Month
             Expanded(
               child: DropdownButtonFormField<int>(
-                value: _month,
+                initialValue: _month,
                 decoration: const InputDecoration(labelText: 'Month'),
                 items: List.generate(12, (i) => i + 1).map((m) => DropdownMenuItem(value: m, child: Text(m.toString()))).toList(),
                 onChanged: (val) {
@@ -98,7 +118,7 @@ class _DayComponentState extends State<DayComponent> {
             // Year
             Expanded(
               child: DropdownButtonFormField<int>(
-                value: _year,
+                initialValue: _year,
                 decoration: const InputDecoration(labelText: 'Year'),
                 items: List.generate(_endYear - _startYear + 1, (i) => _endYear - i).map((y) => DropdownMenuItem(value: y, child: Text(y.toString()))).toList(),
                 onChanged: (val) {

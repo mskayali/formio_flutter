@@ -156,11 +156,6 @@ void main() {
 
     group('crossFieldValidator', () {
       test('validates cross-field comparison with custom message', () {
-        final formData = {
-          'startDate': '2024-01-01',
-          'endDate': '2024-12-31',
-        };
-
         // This would need proper date parsing in real scenario
         // For now we test the basic structure
         final error = FormioValidators.crossFieldValidator(

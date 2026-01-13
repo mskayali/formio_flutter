@@ -6,13 +6,16 @@
 ///
 /// When a component of type "button" and action "submit" is tapped,
 /// the form data is validated and submitted via [onSubmit].
+library;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../core/calculation_evaluator.dart';
 import '../core/conditional_evaluator.dart';
 import '../core/exceptions.dart';
 import '../models/component.dart';
+import '../models/file_typedefs.dart';
 import '../models/form.dart';
 import '../network/api_client.dart';
 import '../services/submission_service.dart';
@@ -29,14 +32,22 @@ class FormRenderer extends StatefulWidget {
   final OnFormSubmitFailed? onError;
   final Map<String, dynamic>? initialData;
 
+  // Custom widget callbacks
+  final FilePickerCallback? onFilePick;
+  final DatePickerCallback? onDatePick;
+  final TimePickerCallback? onTimePick;
+
   const FormRenderer({
-    Key? key,
+    super.key,
     required this.form,
     this.onChanged,
     this.onSubmit,
     this.onError,
     this.initialData,
-  }) : super(key: key);
+    this.onFilePick,
+    this.onDatePick,
+    this.onTimePick,
+  });
 
   @override
   State<FormRenderer> createState() => _FormRendererState();
@@ -52,25 +63,40 @@ class _FormRendererState extends State<FormRenderer> {
   void initState() {
     super.initState();
     _formData = widget.initialData != null ? Map<String, dynamic>.from(widget.initialData!) : {};
-    
+
     // Calculate initial values for calculated fields
     _updateCalculatedFields();
   }
 
   /// Updates all calculated fields based on current form data.
   void _updateCalculatedFields() {
-    for (final component in widget.form.components) {
-      if (CalculationEvaluator.hasCalculation(component.raw)) {
-        final calculateConfig = component.raw['calculateValue'];
-        final calculatedValue = CalculationEvaluator.evaluate(calculateConfig, _formData);
-        
-        if (calculatedValue != null) {
-          // Only update if allowCalculateOverride is false or field is empty
-          final allowOverride = CalculationEvaluator.allowsOverride(component.raw);
-          final hasUserValue = _formData.containsKey(component.key) && _formData[component.key] != null;
-          
-          if (!allowOverride || !hasUserValue) {
-            _formData[component.key] = calculatedValue;
+    bool changed = true;
+    int iterations = 0;
+    const maxIterations = 5; // Safety limit for deep dependencies
+
+    // Continue updating as long as something changes, up to a limit
+    while (changed && iterations < maxIterations) {
+      changed = false;
+      iterations++;
+
+      for (final component in widget.form.components) {
+        if (CalculationEvaluator.hasCalculation(component.raw)) {
+          final calculateConfig = component.raw['calculateValue'];
+          final calculatedValue = CalculationEvaluator.evaluate(calculateConfig, _formData);
+
+          if (calculatedValue != null) {
+            // Check if the value is different from current value
+            final oldValue = _formData[component.key];
+            if (oldValue != calculatedValue) {
+              // Only update if allowCalculateOverride is false or field is empty
+              final allowOverride = CalculationEvaluator.allowsOverride(component.raw);
+              final hasUserValue = _formData.containsKey(component.key) && _formData[component.key] != null;
+
+              if (!allowOverride || !hasUserValue) {
+                _formData[component.key] = calculatedValue;
+                changed = true;
+              }
+            }
           }
         }
       }
@@ -79,13 +105,14 @@ class _FormRendererState extends State<FormRenderer> {
 
   void _updateField(String key, dynamic value) {
     setState(() {
-      _formData[key] = value;
+      _formData = Map<String, dynamic>.from(_formData)..[key] = value;
+      _updateCalculatedFields();
     });
-    
-    // Recalculate any fields that depend on this field
-    _updateCalculatedFields();
-    
+
     widget.onChanged?.call(_formData);
+    if (kDebugMode) {
+      print('📝 Form data changed: ${_formData.keys.join(', ')}');
+    }
   }
 
   bool _validateForm() {
@@ -117,15 +144,9 @@ class _FormRendererState extends State<FormRenderer> {
     try {
       await _submissionService.submit(widget.form.path, _formData);
       widget.onSubmit?.call(_formData);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Form submitted successfully!')),
-      );
     } catch (e) {
       final error = e is ApiException ? e.message : 'Unknown error';
       widget.onError?.call(error);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Submission failed: $error')),
-      );
     } finally {
       setState(() => _isSubmitting = false);
     }
@@ -154,6 +175,9 @@ class _FormRendererState extends State<FormRenderer> {
       value: _formData[component.key],
       onChanged: (value) => _updateField(component.key, value),
       formData: _formData,
+      onFilePick: widget.onFilePick,
+      onDatePick: widget.onDatePick,
+      onTimePick: widget.onTimePick,
     );
 
     final errorText = _errors[component.key];
@@ -189,7 +213,7 @@ class _FormRendererState extends State<FormRenderer> {
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: _buildComponent(component),
           );
-        }).toList(),
+        }),
       ],
     );
   }

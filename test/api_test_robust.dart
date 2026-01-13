@@ -1,22 +1,25 @@
 // Comprehensive Form.io API Integration Test
 // Run with: dart run test/api_test_robust.dart
 
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 import 'package:dio/dio.dart';
 
 class TestApiClient {
   final Dio dio;
-  
-  TestApiClient(String baseUrl) : dio = Dio(BaseOptions(
-    baseUrl: baseUrl,
-    headers: {'Content-Type': 'application/json'},
-    validateStatus: (status) => status! < 500, // Don't throw on 4xx errors
-  ));
-  
+
+  TestApiClient(String baseUrl)
+      : dio = Dio(BaseOptions(
+          baseUrl: baseUrl,
+          headers: {'Content-Type': 'application/json'},
+          validateStatus: (status) => status! < 500, // Don't throw on 4xx errors
+        ));
+
   void setAuthToken(String token) {
     dio.options.headers['x-jwt-token'] = token;
   }
-  
+
   void clearAuthToken() {
     dio.options.headers.remove('x-jwt-token');
   }
@@ -26,24 +29,24 @@ class TestResults {
   int passed = 0;
   int failed = 0;
   int skipped = 0;
-  
+
   void pass(String test) {
     passed++;
     print('   ✅ $test');
   }
-  
+
   void fail(String test, dynamic error) {
     failed++;
     print('   ❌ $test - Error: $error');
   }
-  
+
   void skip(String test, String reason) {
     skipped++;
     print('   ⏭️  $test - Skipped: $reason');
   }
-  
+
   void summary() {
-    print('\n' + '=' * 60);
+    print('\n${'=' * 60}');
     print('📊 TEST SUMMARY');
     print('=' * 60);
     print('✅ Passed: $passed');
@@ -63,32 +66,32 @@ void main() async {
   const baseUrl = 'https://examples.form.io';
   const email = 'test@example.com';
   const password = 'YOUR_PASSWORD_HERE';
-  
+
   final client = TestApiClient(baseUrl);
   final results = TestResults();
-  
+
   String? authToken;
   String? userId;
   Map<String, dynamic>? testForm;
-  
+
   try {
     // ========================================================================
     // TEST GROUP 1: Authentication
     // ========================================================================
     print('🔐 TEST GROUP 1: Authentication');
     print('─' * 60);
-    
+
     // Test 1.1: Login
     try {
       final response = await client.dio.post('/user/login', data: {
         'data': {'email': email, 'password': password},
       });
-      
+
       authToken = response.headers.value('x-jwt-token');
       userId = response.data['_id'];
-      
+
       if (authToken != null && userId != null) {
-        client.setAuthToken(authToken!);
+        client.setAuthToken(authToken);
         results.pass('Login with credentials');
         print('      Token: ${authToken.substring(0, 30)}...');
         print('      User ID: $userId');
@@ -98,7 +101,7 @@ void main() async {
     } catch (e) {
       results.fail('Login', e);
     }
-    
+
     // Test 1.2: Get Current User
     if (authToken != null) {
       try {
@@ -115,13 +118,13 @@ void main() async {
     } else {
       results.skip('Get current user', 'No auth token');
     }
-    
+
     // ========================================================================
     // TEST GROUP 2: Form Operations
     // ========================================================================
     print('\n📋 TEST GROUP 2: Form Operations');
     print('─' * 60);
-    
+
     // Test 2.1: List Forms
     List<dynamic> forms = [];
     try {
@@ -130,17 +133,15 @@ void main() async {
         forms = response.data as List;
         results.pass('List all forms');
         print('      Retrieved: ${forms.length} forms');
-        
+
         // Find a non-system form for testing
         testForm = forms.firstWhere(
-          (f) => !(f['path'] as String).contains('admin') && 
-                 !(f['path'] as String).contains('user') &&
-                 !(f['path'] as String).contains('role'),
+          (f) => !(f['path'] as String).contains('admin') && !(f['path'] as String).contains('user') && !(f['path'] as String).contains('role'),
           orElse: () => forms.isNotEmpty ? forms.first : null,
         );
-        
+
         if (testForm != null) {
-          print('      Test form: ${testForm!['title']} (${testForm!['path']})');
+          print('      Test form: ${testForm['title']} (${testForm['path']})');
         }
       } else {
         results.fail('List forms', 'Invalid response');
@@ -148,11 +149,11 @@ void main() async {
     } catch (e) {
       results.fail('List forms', e);
     }
-    
+
     // Test 2.2: Get Form by ID
     if (testForm != null) {
       try {
-        final formId = testForm!['_id'];
+        final formId = testForm['_id'];
         final response = await client.dio.get('/form/$formId');
         if (response.statusCode == 200) {
           results.pass('Get form by ID');
@@ -167,19 +168,19 @@ void main() async {
     } else {
       results.skip('Get form by ID', 'No test form available');
     }
-    
+
     // ========================================================================
-    // TEST GROUP 3: Submission Operations  
+    // TEST GROUP 3: Submission Operations
     // ========================================================================
     print('\n📨 TEST GROUP 3: Submission Operations');
     print('─' * 60);
-    
+
     String? submissionId;
     String? testFormPath;
-    
+
     if (testForm != null) {
-      testFormPath = testForm!['path'];
-      
+      testFormPath = testForm['path'];
+
       // Test 3.1: Create Submission
       try {
         final response = await client.dio.post(
@@ -190,7 +191,7 @@ void main() async {
             },
           },
         );
-        
+
         if (response.statusCode == 201 || response.statusCode == 200) {
           submissionId = response.data['_id'];
           results.pass('Create submission');
@@ -201,14 +202,14 @@ void main() async {
       } catch (e) {
         results.fail('Create submission', e);
       }
-      
+
       // Test 3.2: List Submissions
       try {
         final response = await client.dio.get(
           '$testFormPath/submission',
           queryParameters: {'limit': 5},
         );
-        
+
         if (response.statusCode == 200 && response.data is List) {
           results.pass('List submissions');
           print('      Count: ${(response.data as List).length}');
@@ -218,7 +219,7 @@ void main() async {
       } catch (e) {
         results.fail('List submissions', e);
       }
-      
+
       // Test 3.3: Update Submission (PUT)
       if (submissionId != null) {
         try {
@@ -231,7 +232,7 @@ void main() async {
               },
             },
           );
-          
+
           if (response.statusCode == 200) {
             results.pass('Update submission (PUT)');
           } else {
@@ -240,7 +241,7 @@ void main() async {
         } catch (e) {
           results.fail('Update submission (PUT)', e);
         }
-        
+
         // Test 3.4: Partial Update (PATCH)
         try {
           final response = await client.dio.patch(
@@ -251,7 +252,7 @@ void main() async {
               },
             },
           );
-          
+
           if (response.statusCode == 200) {
             results.pass('Partial update (PATCH)');
           } else {
@@ -260,13 +261,13 @@ void main() async {
         } catch (e) {
           results.fail('Partial update (PATCH)', e);
         }
-        
+
         // Test 3.5: Get Submission by ID
         try {
           final response = await client.dio.get(
             '$testFormPath/submission/$submissionId',
           );
-          
+
           if (response.statusCode == 200) {
             results.pass('Get submission by ID');
           } else {
@@ -275,13 +276,13 @@ void main() async {
         } catch (e) {
           results.fail('Get submission by ID', e);
         }
-        
+
         // Test 3.6: Delete Submission
         try {
           final response = await client.dio.delete(
             '$testFormPath/submission/$submissionId',
           );
-          
+
           if (response.statusCode == 200 || response.statusCode == 204) {
             results.pass('Delete submission');
           } else {
@@ -304,18 +305,18 @@ void main() async {
       results.skip('Get submission by ID', 'No test form');
       results.skip('Delete submission', 'No test form');
     }
-    
+
     // ========================================================================
     // TEST GROUP 4: Action Management
     // ========================================================================
     print('\n⚡ TEST GROUP 4: Action Management');
     print('─' * 60);
-    
+
     String? actionId;
-    
+
     if (testForm != null) {
-      final formId = testForm!['_id'];
-      
+      final formId = testForm['_id'];
+
       // Test 4.1: List Actions
       try {
         final response = await client.dio.get('/form/$formId/action');
@@ -328,7 +329,7 @@ void main() async {
       } catch (e) {
         results.fail('List actions', e);
       }
-      
+
       // Test 4.2: Create Action
       try {
         final response = await client.dio.post(
@@ -348,7 +349,7 @@ void main() async {
             },
           },
         );
-        
+
         if (response.statusCode == 201 || response.statusCode == 200) {
           actionId = response.data['_id'];
           results.pass('Create action');
@@ -359,7 +360,7 @@ void main() async {
       } catch (e) {
         results.fail('Create action', e);
       }
-      
+
       // Test 4.3: Update Action
       if (actionId != null) {
         try {
@@ -380,7 +381,7 @@ void main() async {
               },
             },
           );
-          
+
           if (response.statusCode == 200) {
             results.pass('Update action');
           } else {
@@ -389,7 +390,7 @@ void main() async {
         } catch (e) {
           results.fail('Update action', e);
         }
-        
+
         // Test 4.4: Delete Action
         try {
           final response = await client.dio.delete('/form/$formId/action/$actionId');
@@ -411,13 +412,13 @@ void main() async {
       results.skip('Update action', 'No test form');
       results.skip('Delete action', 'No test form');
     }
-    
+
     // ========================================================================
     // TEST GROUP 5: Logout
     // ========================================================================
     print('\n🚪 TEST GROUP 5: Logout');
     print('─' * 60);
-    
+
     try {
       final response = await client.dio.get('/user/logout');
       if (response.statusCode == 200) {
@@ -429,12 +430,11 @@ void main() async {
     } catch (e) {
       results.fail('Logout', e);
     }
-    
+
     // Display final summary
     results.summary();
-    
+
     print('\n✅ Test suite completed successfully!');
-    
   } catch (e, stackTrace) {
     print('\n❌ CRITICAL ERROR: $e');
     print('Stack trace:');

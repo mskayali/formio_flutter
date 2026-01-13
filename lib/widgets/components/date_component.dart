@@ -2,11 +2,13 @@
 ///
 /// Supports picking date, time, or both depending on the `enableTime` and `enableDate` flags.
 /// Handles required validation and provides a formatted string as the selected value.
+library;
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/component.dart';
+import '../../models/file_typedefs.dart';
 
 class DateComponent extends StatefulWidget {
   /// The Form.io component definition.
@@ -18,7 +20,20 @@ class DateComponent extends StatefulWidget {
   /// Callback triggered when the datetime value changes.
   final ValueChanged<String?> onChanged;
 
-  const DateComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  /// Optional custom date picker callback
+  final DatePickerCallback? onDatePick;
+
+  /// Optional custom time picker callback
+  final TimePickerCallback? onTimePick;
+
+  const DateComponent({
+    super.key,
+    required this.component,
+    required this.value,
+    required this.onChanged,
+    this.onDatePick,
+    this.onTimePick,
+  });
 
   @override
   State<DateComponent> createState() => _DateComponentState();
@@ -49,12 +64,38 @@ class _DateComponentState extends State<DateComponent> {
     TimeOfDay? time;
 
     if (_enableDate) {
-      date = await showDatePicker(context: context, initialDate: _selectedDateTime ?? DateTime.now(), firstDate: DateTime(1900), lastDate: DateTime(2100));
+      // Use custom date picker if provided, otherwise use default
+      if (widget.onDatePick != null) {
+        date = await widget.onDatePick!(
+          initialDate: _selectedDateTime ?? DateTime.now(),
+          firstDate: DateTime(1900),
+          lastDate: DateTime(2100),
+        );
+      } else {
+        date = await showDatePicker(
+          context: context,
+          initialDate: _selectedDateTime ?? DateTime.now(),
+          firstDate: DateTime(1900),
+          lastDate: DateTime(2100),
+        );
+      }
+      if (!mounted) return;
       if (date == null) return;
     }
 
     if (_enableTime) {
-      time = await showTimePicker(context: context, initialTime: TimeOfDay.fromDateTime(_selectedDateTime ?? DateTime.now()));
+      // Use custom time picker if provided, otherwise use default
+      if (widget.onTimePick != null) {
+        time = await widget.onTimePick!(
+          initialTime: TimeOfDay.fromDateTime(_selectedDateTime ?? DateTime.now()),
+        );
+      } else {
+        time = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay.fromDateTime(_selectedDateTime ?? DateTime.now()),
+        );
+      }
+      if (!mounted) return;
       if (time == null && !_enableDate) return;
     }
 
@@ -84,7 +125,13 @@ class _DateComponentState extends State<DateComponent> {
 
   @override
   Widget build(BuildContext context) {
-    final displayValue = _selectedDateTime != null ? _formatDateTime(_selectedDateTime!) : '';
+    // Format display value to show both date and time when available
+    String displayValue;
+    if (_selectedDateTime != null) {
+      displayValue = _formatDateTime(_selectedDateTime!);
+    } else {
+      displayValue = _placeholder ?? 'Select...';
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,7 +141,7 @@ class _DateComponentState extends State<DateComponent> {
         InkWell(
           onTap: _pickDateTime,
           child: InputDecorator(
-            decoration: InputDecoration(hintText: _placeholder ?? 'Select...', border: const OutlineInputBorder()),
+            decoration: InputDecoration(hintText: _placeholder ?? 'Select...'),
             child: Text(displayValue.isEmpty ? ' ' : displayValue),
           ),
         ),

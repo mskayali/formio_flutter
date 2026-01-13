@@ -1,9 +1,12 @@
 /// Evaluates calculated values for Form.io components.
 ///
 /// Form.io supports auto-calculated fields using JSONLogic or JavaScript expressions.
+library;
 
 import 'package:jsonlogic/jsonlogic.dart';
 
+import 'package:flutter/foundation.dart';
+import '../models/component.dart';
 import 'js_evaluator.dart';
 
 class CalculationEvaluator {
@@ -33,19 +36,19 @@ class CalculationEvaluator {
   /// [formData] - Current form data to use in calculation
   ///
   /// Returns the calculated value, or null if calculation fails.
-  static dynamic evaluate(dynamic calculateConfig, Map<String, dynamic> formData) {
+  static dynamic evaluate(dynamic calculateConfig, Map<String, dynamic> formData, {ComponentModel? component}) {
     if (calculateConfig == null) {
       return null;
     }
 
     // If it's a map, treat as JSONLogic
     if (calculateConfig is Map<String, dynamic>) {
-      return _evaluateJSONLogic(calculateConfig, formData);
+      return _evaluateJSONLogic(calculateConfig, formData, component: component);
     }
 
     // If it's a string starting with 'value', it's JavaScript
     if (calculateConfig is String && calculateConfig.trim().startsWith('value')) {
-      return _evaluateJavaScript(calculateConfig, formData);
+      return _evaluateJavaScript(calculateConfig, formData, component: component);
     }
 
     // Unknown format
@@ -55,24 +58,26 @@ class CalculationEvaluator {
   /// Evaluates a JavaScript calculation expression.
   ///
   /// Example: `value = data.price * data.quantity * 1.18`
-  static dynamic _evaluateJavaScript(String jsCode, Map<String, dynamic> formData) {
+  static dynamic _evaluateJavaScript(String jsCode, Map<String, dynamic> formData, {ComponentModel? component}) {
     try {
       // Create JavaScript context with data and value variables
       final context = {
         'data': formData,
         'value': null,
       };
-      
+
       // Validate code safety
       JavaScriptEvaluator.validateCode(jsCode);
-      
+
       // Execute JavaScript
-      JavaScriptEvaluator.evaluate(jsCode, context);
-      
+      final result = JavaScriptEvaluator.evaluate(jsCode, context);
+
       // Return the 'value' variable (Form.io convention)
-      return context['value'];
+      // If the evaluator returns a non-null result (e.g. from a return statement or last expression),
+      // use that as a fallback if context['value'] wasn't updated.
+      return result ?? context['value'];
     } catch (e) {
-      print('Error evaluating JavaScript calculation: $e');
+      debugPrint('Calculation error for key ${component?.key}: $e');
       return null;
     }
   }
@@ -93,20 +98,20 @@ class CalculationEvaluator {
   ///   }
   /// }
   /// ```
-  static dynamic _evaluateJSONLogic(Map<String, dynamic> logic, Map<String, dynamic> formData) {
+  static dynamic _evaluateJSONLogic(Map<String, dynamic> logic, Map<String, dynamic> formData, {ComponentModel? component}) {
     try {
       final jsonLogic = Jsonlogic();
-      
+
       // Wrap formData in a 'data' object to match Form.io convention
       // In Form.io, you access fields as {"var": "data.fieldName"}
       final context = {
         'data': formData,
       };
-      
+
       final result = jsonLogic.apply(logic, context);
       return result;
     } catch (e) {
-      print('Error evaluating JSONLogic calculation: $e');
+      debugPrint('Error evaluating JSONLogic calculation for key ${component?.key}: $e');
       return null;
     }
   }

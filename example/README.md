@@ -1,174 +1,178 @@
 # Form.io Flutter - Example App
 
-A live demonstration of the Form.io Flutter package with real API integration.
+This example demonstrates the complete usage of the `formio_flutter` package with all its features.
 
-## Features
+## Features Demonstrated
 
-This example app demonstrates:
+### 1. **Live API Integration**
+- Connects to `https://examples.form.io`
+- Fetches and displays real forms
+- Renders all form components dynamically
 
-✅ **Live API Integration** - Fetches real forms from Form.io server  
-✅ **Form List View** - Browse all available forms  
-✅ **Form Rendering** - Full FormRenderer with all components  
-✅ **JSON View** - Toggle to see form structure and data  
-✅ **Submission Handling** - Submit forms and see results  
-✅ **Error Handling** - Graceful error states and retry  
+### 2. **Internationalization (i18n)**
+The app shows how to configure global locale:
+
+```dart
+void main() {
+  // Configure Turkish locale
+  ComponentFactory.setLocale(FormioLocale.tr());
+  
+  runApp(const MyApp());
+}
+```
+
+**Supported Locales:**
+- English (default): `FormioLocale()` or `ComponentFactory.setLocale(FormioLocale())`
+- Turkish: `ComponentFactory.setLocale(FormioLocale.tr())`
+- Custom: `ComponentFactory.setLocale(FormioLocale(submit: 'Custom', ...))`
+
+### 3. **Live Theme Switcher** 🎨
+
+The example app includes an **interactive theme demo** showing full Flutter theme integration:
+
+**How to use:**
+1. Run the example app
+2. Click the **palette icon (🎨)** in the AppBar
+3. Toggle between two preset themes:
+   - 🔴 **Red Rounded**: BorderRadius 16px, red color scheme
+   - 🟣 **Purple Square**: BorderRadius 4px, purple color scheme
+
+**What it demonstrates:**
+- All form components instantly adapt to the new theme
+- Input borders, buttons, colors all update automatically
+- No component-level configuration needed
+- Shows how `ThemeData.colorScheme` and `inputDecorationTheme` work
+
+```dart
+// Implementation in main.dart
+MaterialApp(
+  theme: _isRedTheme ? _redRoundedTheme : _purpleSquareTheme,
+  home: FormListPage(...),
+)
+
+// All components use Theme.of(context) automatically!
+```
+
+This proves that formio_flutter **fully respects Flutter's theming system**.
+
+### 4. **Custom Widget Callbacks** (Optional)
+
+You can provide custom implementations for pickers and data fetchers:
+
+#### Custom File Picker
+```dart
+FormRenderer(
+  form: myForm,
+  onFilePick: ({required allowMultiple, allowedExtensions}) async {
+    // Use your preferred file picker
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: allowMultiple,
+      allowedExtensions: allowedExtensions,
+    );
+    return result?.files.map((f) => FileData(...)).toList();
+  },
+)
+```
+
+#### Custom Date Picker
+```dart
+FormRenderer(
+  form: myForm,
+  onDatePick: ({required initialDate, required firstDate, required lastDate}) async {
+    // Use Cupertino, Material, or custom picker
+    return await showCupertinoDatePicker(...);
+  },
+)
+```
+
+#### Custom Time Picker
+```dart
+FormRenderer(
+  form: myForm,
+  onTimePick: ({required initialTime}) async {
+    return await showCustomTimePicker(...);
+  },
+)
+```
 
 ## Running the Example
 
-### Prerequisites
+```bash
+# Get dependencies
+flutter pub get
 
-- Flutter SDK 3.0+
-- Access to a Form.io server (default: `https://examples.form.io`)
+# Run on your preferred platform
+flutter run
 
-### Steps
-
-1. **Navigate to example directory:**
-   ```bash
-   cd example
-   ```
-
-2. **Get dependencies:**
-   ```bash
-   flutter pub get
-   ```
-
-3. **Run the app:**
-   ```bash
-   # macOS
-   flutter run -d macos
-   
-   # Web
-   flutter run -d chrome
-   
-   # iOS (requires Xcode)
-   flutter run -d ios
-   
-   # Android (requires Android Studio)
-   flutter run -d android
-   ```
-
-### Configuration
-
-To use your own Form.io server, edit `lib/main.dart`:
-
-```dart
-ApiClient.setBaseUrl(Uri.parse('https://your-server.form.io'));
+# Or specific platform
+flutter run -d chrome    # Web
+flutter run -d macos     # macOS
+flutter run -d ios       # iOS (requires macOS)
+flutter run -d android   # Android
 ```
 
-## App Structure
+## Example Structure
 
 ```
 example/
-└── lib/
-    └── main.dart       # Main app with two pages:
-                        # - FormListPage: Lists all forms
-                        # - FormDetailPage: Displays form
+├── lib/
+│   └── main.dart          # Main app with all features
+├── test/
+│   ├── widget_test.dart   # Basic widget tests
+│   ├── widget_integration_test.dart  # Integration tests
+│   └── api_integration_test.dart     # API tests
+└── README.md              # This file
 ```
 
-### FormListPage
+## What's Included
 
-- Fetches all forms from API on startup
-- Shows loading indicator while fetching
-- Displays error state with retry button
-- Lists forms with title, path, and component count
-- Tap any form to open it
+### Form List Page
+- Fetches forms from live API
+- Displays form count and components
+- Error handling with retry
+- Loading states
 
-### FormDetailPage
+### Form Detail Page
+- Full form rendering with all components
+- Real-time form data display
+- JSON view toggle
+- Form submission handling
+- Success/error feedback
 
-- Renders the full form with FormRenderer
-- Toggle JSON view to see:
-  - Form definition (structure)
-  - Current form data (values)
-- Submit button with visual feedback
-- Success/error snackbars
+### Supported Components (70+)
+All Form.io components are rendered:
+- **Basic**: TextField, TextArea, Number, Password, Email, URL, PhoneNumber, Tags, Address, DateTime, Day, Time, Currency, Survey
+- **Advanced**: Email, URL, PhoneNumber, Tags, Address, DateTime, Day, Time, Currency, Survey  
+- **Layout**: HtmlElement, Content, Columns, FieldSet, Panel, Table, Tabs, Well
+- **Data**: DataGrid, EditGrid, DataMap, Container, DataTable, DynamicWizard
+- **Premium**: Signature, File, Sketchpad, ReviewPage, DataSource
+- **Special**: Button, Checkbox, Select, Radio, SelectBoxes, Hidden, Custom
 
-## Testing Features
+## i18n in Action
 
-### 1. All Components
-Navigate through forms to test all 41 component types:
-- Text inputs (TextField, TextArea, Email, URL)
-- Numbers (Number, Currency, PhoneNumber)
-- Dates (DateTime, Day, Time)
-- Selections (Select, Radio, Checkbox, SelectBoxes)
-- Layout (Panel, Tabs, Columns, Table)
-- Special (File, Signature, Tags, Address, Alert)
+When you set a locale, all UI strings change:
 
-### 2. Validation
-Test validation by:
-- Leaving required fields empty
-- Entering invalid formats (email, URL, phone)
-- Testing min/max length constraints
-- Testing word count limits
+**English** (Default):
+- Submit, Cancel, Clear, Add Another, Remove Row, etc.
 
-### 3. Conditional Logic
-- Fill in forms with conditional fields
-- Watch components show/hide based on values
+**Turkish** (FormioLocale.tr()):
+- Gönder, İptal, Temizle, Başka Ekle, Satırı Kaldır, etc.
 
-### 4. Calculated Values
-- Forms with auto-calculated fields (e.g., totals)
-- Values update automatically as you type
+## Troubleshooting
 
-### 5. Multi-Page Wizards
-- Forms with `display: 'wizard'`
-- Navigate between pages
-- Validation before proceeding
+### API Connection Issues
+The example uses `https://examples.form.io` which requires internet connection. If forms don't load:
+1. Check your internet connection
+2. Check if the API is accessible
+3. Review console logs for detailed errors
 
-## Debugging
+### Platform-Specific Issues
+- **Web**: Enable CORS if testing locally
+- **iOS**: Requires code signing for device testing  
+- **Android**: Requires SDK setup
 
-### View Console Output
+## Learn More
 
-The app logs helpful information:
-- `✅ Loaded X forms from API` - Successful form fetch
-- `📝 Form data changed: ...` - Form values updated
-- `✅ Form submitted!` - Form submission
-- `📦 Submission data: {...}` - Full submission payload
-
-### Common Issues
-
-**No forms showing:**
-- Check internet connection
-- Verify server URL is correct
-- Check server is accessible
-
-**Components not rendering:**
-- Check browser/terminal console for errors
-- Verify component type is supported
-- Check JSON structure is valid
-
-**Validation not working:**
-- Check `validate` object in component JSON
-- Verify validator configuration
-
-## Live Testing Checklist
-
-- [ ] Form list loads successfully
-- [ ] Can open individual forms
-- [ ] All components render correctly
-- [ ] Validation works as expected
-- [ ] Conditional logic shows/hides fields
-- [ ] Calculated values auto-update
-- [ ] Can submit forms
-- [ ] JSON view shows correct data
-- [ ] Error states display properly
-- [ ] Can retry after errors
-
-## Example Forms
-
-The demo connects to a test server with sample forms including:
-- Contact forms
-- Registration wizards  
-- Survey forms
-- Data collection forms
-- Shopping cart calculators
-
-## Next Steps
-
-Explore the main package documentation for:
-- Creating custom forms
-- Advanced validation
-- API integration
-- Production deployment
-
-## Support
-
-Found a bug? [Open an issue](https://github.com/mskayali/formio_flutter/issues)
+- [Form.io Documentation](https://help.form.io/)
+- [Flutter Documentation](https://docs.flutter.dev/)
+- [Package README](../README.md)

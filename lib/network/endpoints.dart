@@ -2,6 +2,7 @@
 ///
 /// These helper functions and constants provide consistent paths
 /// for use in services such as FormService, SubmissionService, etc.
+library;
 
 class ApiEndpoints {
   // ============================================================================
@@ -14,7 +15,7 @@ class ApiEndpoints {
   
   /// Returns the full path to fetch a form schema.
   /// Example: `/registration`
-  static String getForm(String path) => '$path';
+  static String getForm(String path) => path;
   
   /// Returns the path to create a new form
   /// Example: `/form`

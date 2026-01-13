@@ -95,9 +95,9 @@ void main() {
 
   group('File Validators', () {
     test('fileSize - valid size within range', () {
-      final size = 500 * 1024; // 500 KB
-      final minSize = 100 * 1024; // 100 KB
-      final maxSize = 1024 * 1024; // 1 MB
+      const size = 500 * 1024; // 500 KB
+      const minSize = 100 * 1024; // 100 KB
+      const maxSize = 1024 * 1024; // 1 MB
       
       expect(
         FormioValidators.fileSize(size, minSize: minSize, maxSize: maxSize),
@@ -106,8 +106,8 @@ void main() {
     });
 
     test('fileSize - too small', () {
-      final size = 50 * 1024; // 50 KB
-      final minSize = 100 * 1024; // 100 KB
+      const size = 50 * 1024; // 50 KB
+      const minSize = 100 * 1024; // 100 KB
       
       expect(
         FormioValidators.fileSize(size, minSize: minSize),
@@ -116,8 +116,8 @@ void main() {
     });
 
     test('fileSize - too large', () {
-      final size = 2 * 1024 * 1024; // 2 MB
-      final maxSize = 1024 * 1024; // 1 MB
+      const size = 2 * 1024 * 1024; // 2 MB
+      const maxSize = 1024 * 1024; // 1 MB
       
       expect(
         FormioValidators.fileSize(size, maxSize: maxSize),

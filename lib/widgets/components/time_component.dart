@@ -2,6 +2,7 @@
 ///
 /// Only allows time selection (hour and minute). Supports required validation,
 /// default value, and formatted display.
+library;
 
 import 'package:flutter/material.dart';
 
@@ -17,7 +18,7 @@ class TimeComponent extends StatefulWidget {
   /// Callback called when the time changes.
   final ValueChanged<String?> onChanged;
 
-  const TimeComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  const TimeComponent({super.key, required this.component, required this.value, required this.onChanged});
 
   @override
   State<TimeComponent> createState() => _TimeComponentState();
@@ -66,7 +67,7 @@ class _TimeComponentState extends State<TimeComponent> {
         const SizedBox(height: 6),
         InkWell(
           onTap: _pickTime,
-          child: InputDecorator(decoration: InputDecoration(hintText: _placeholder ?? 'HH:mm', border: const OutlineInputBorder()), child: Text(displayText)),
+          child: InputDecorator(decoration: InputDecoration(hintText: _placeholder ?? 'HH:mm'), child: Text(displayText)),
         ),
         if (hasError)
           Padding(

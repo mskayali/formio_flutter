@@ -3,6 +3,7 @@
 ///
 /// Displays a vertical list of options, supports default value,
 /// required validation, and value change handling.
+library;
 
 import 'package:flutter/material.dart';
 
@@ -19,18 +20,17 @@ class RadioComponent extends StatelessWidget {
   final ValueChanged<dynamic> onChanged;
 
   const RadioComponent({
-    Key? key,
+    super.key,
     required this.component,
     required this.value,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   /// Whether the field is marked as required.
   bool get _isRequired => component.required;
 
   /// List of values the user can select from.
-  List<Map<String, dynamic>> get _values =>
-      List<Map<String, dynamic>>.from(component.raw['values'] ?? []);
+  List<Map<String, dynamic>> get _values => List<Map<String, dynamic>>.from(component.raw['values'] ?? []);
 
   /// Validates selection based on requirement.
   String? _validator() {
@@ -52,15 +52,17 @@ class RadioComponent extends StatelessWidget {
           final optionLabel = option['label'] ?? '';
           final optionValue = option['value'];
 
-          return RadioListTile(
-            key: ValueKey('${component.key}_$optionValue'), // Ensure rebuild
-            value: optionValue,
+          return RadioGroup(
             groupValue: value,
-            title: Text(optionLabel.toString()),
-            onChanged: (dynamic newValue) {
-              onChanged(newValue);
+            onChanged: (value) {
+              onChanged(value);
             },
-            contentPadding: EdgeInsets.zero,
+            child: RadioListTile(
+              key: ValueKey('${component.key}_$optionValue'), // Ensure rebuild
+              value: optionValue,
+              title: Text(optionLabel.toString()),
+              contentPadding: EdgeInsets.zero,
+            ),
           );
         }),
         if (error != null)

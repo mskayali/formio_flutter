@@ -2,6 +2,7 @@
 ///
 /// This component can load an external form via API or use an inline form definition.
 /// It isolates the nested form data under the component's key.
+library;
 
 import 'package:flutter/material.dart';
 
@@ -24,12 +25,12 @@ class FormComponent extends StatefulWidget {
   final FormService? formService;
 
   const FormComponent({
-    Key? key,
+    super.key,
     required this.component,
     required this.value,
     required this.onChanged,
     this.formService,
-  }) : super(key: key);
+  });
 
   @override
   State<FormComponent> createState() => _FormComponentState();
@@ -71,9 +72,7 @@ class _FormComponentState extends State<FormComponent> {
             id: widget.component.key,
             path: widget.component.key,
             title: widget.component.label,
-            components: inlineComponents
-                .map((c) => ComponentModel.fromJson(c as Map<String, dynamic>))
-                .toList(),
+            components: inlineComponents.map((c) => ComponentModel.fromJson(c as Map<String, dynamic>)).toList(),
           );
           _loading = false;
         });
@@ -105,18 +104,18 @@ class _FormComponentState extends State<FormComponent> {
         padding: const EdgeInsets.all(12),
         margin: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.red.shade50,
-          border: Border.all(color: Colors.red.shade300),
+          color: Theme.of(context).colorScheme.errorContainer,
+          border: Border.all(color: Theme.of(context).colorScheme.error),
           borderRadius: BorderRadius.circular(4),
         ),
         child: Row(
           children: [
-            Icon(Icons.error_outline, color: Colors.red.shade700),
+            Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 _error!,
-                style: TextStyle(color: Colors.red.shade900),
+                style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
               ),
             ),
           ],
@@ -142,8 +141,8 @@ class _FormComponentState extends State<FormComponent> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.grey.shade50,
-            border: Border.all(color: Colors.grey.shade300),
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
             borderRadius: BorderRadius.circular(8),
           ),
           child: FormRenderer(

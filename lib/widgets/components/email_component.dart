@@ -2,6 +2,7 @@
 ///
 /// Validates email format and supports label, placeholder, required constraint,
 /// and a default value.
+library;
 
 import 'package:flutter/material.dart';
 
@@ -17,7 +18,7 @@ class EmailComponent extends StatelessWidget {
   /// Callback triggered when the email is updated.
   final ValueChanged<String> onChanged;
 
-  const EmailComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  const EmailComponent({super.key, required this.component, required this.value, required this.onChanged});
 
   /// Whether the field is marked as required.
   bool get _isRequired => component.required;
@@ -47,7 +48,7 @@ class EmailComponent extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       initialValue: value ?? component.defaultValue?.toString(),
-      decoration: InputDecoration(labelText: component.label, hintText: _placeholder ?? 'example@example.com', border: const OutlineInputBorder()),
+      decoration: InputDecoration(labelText: component.label, hintText: _placeholder ?? 'example@example.com'),
       keyboardType: TextInputType.emailAddress,
       onChanged: onChanged,
       validator: _validator,

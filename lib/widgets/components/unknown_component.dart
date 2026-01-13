@@ -2,6 +2,7 @@
 ///
 /// This component is used when the ComponentFactory encounters a component type
 /// that is not supported. It displays a warning message instead of crashing.
+library;
 
 import 'package:flutter/material.dart';
 
@@ -15,10 +16,10 @@ class UnknownComponent extends StatelessWidget {
   final bool showDebugInfo;
 
   const UnknownComponent({
-    Key? key,
+    super.key,
     required this.component,
     this.showDebugInfo = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

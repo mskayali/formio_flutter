@@ -1,6 +1,7 @@
 /// A Flutter widget that renders a checkbox based on a Form.io "checkbox" component.
 ///
 /// Supports default value, label, and required validation.
+library;
 
 import 'package:flutter/material.dart';
 
@@ -16,7 +17,7 @@ class CheckboxComponent extends StatelessWidget {
   /// Callback called when the user toggles the checkbox.
   final ValueChanged<bool> onChanged;
 
-  const CheckboxComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  const CheckboxComponent({super.key, required this.component, required this.value, required this.onChanged});
 
   /// Determines whether the checkbox is required.
   bool get _isRequired => component.required;

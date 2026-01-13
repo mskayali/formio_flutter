@@ -3,6 +3,7 @@
 /// Roles are used for permission management and access control within
 /// Form.io projects. Each role can be assigned to users and define
 /// permissions for accessing forms, submissions, and resources.
+library;
 
 class RoleModel {
   /// Unique identifier of the role.

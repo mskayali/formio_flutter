@@ -2,7 +2,9 @@
 ///
 /// Provides reusable validators that match Form.io's validation rules.
 /// Components can use these validators in their TextFormField validator properties.
+library;
 
+import 'package:flutter/foundation.dart';
 import 'validators_js_loader.dart';
 
 class FormioValidators {
@@ -13,19 +15,19 @@ class FormioValidators {
     if (value == null) {
       return '${fieldName ?? "This field"} is required.';
     }
-    
+
     if (value is String && value.trim().isEmpty) {
       return '${fieldName ?? "This field"} is required.';
     }
-    
+
     if (value is List && value.isEmpty) {
       return '${fieldName ?? "This field"} is required.';
     }
-    
+
     if (value is Map && value.isEmpty) {
       return '${fieldName ?? "This field"} is required.';
     }
-    
+
     return null;
   }
 
@@ -220,24 +222,24 @@ class FormioValidators {
       // Import JavaScript evaluator
       // ignore: implementation_imports
       final jsEvaluator = _getJavaScriptEvaluator();
-      
+
       if (jsEvaluator == null) {
         return 'JavaScript validation not available';
       }
-      
+
       // Create JavaScript context
       final context = {
         'input': value,
         'data': formData,
         'valid': true,
       };
-      
+
       // Validate code safety
       jsEvaluator.validateCode(jsCode);
-      
+
       // Execute JavaScript
       final result = jsEvaluator.evaluate(jsCode, context);
-      
+
       // Form.io validation result format:
       // - true or 'true' means valid
       // - string means error message
@@ -250,7 +252,7 @@ class FormioValidators {
         return '${fieldName ?? "This field"} is invalid.';
       }
     } catch (e) {
-      print('Custom validation error: $e');
+      debugPrint('Custom validation error for ${fieldName ?? "field"}: $e');
       return 'Validation failed: ${e.toString()}';
     }
   }
@@ -403,25 +405,20 @@ class FormioValidators {
       final validators = <String? Function()>[];
 
       // Required
-      if (validateConfig['required'] == true ||
-          validateConfig['required'] == 'true') {
+      if (validateConfig['required'] == true || validateConfig['required'] == 'true') {
         validators.add(() => required(value, fieldName: fieldName));
       }
 
       // String length
       if (validateConfig['minLength'] != null) {
-        final min = validateConfig['minLength'] is int
-            ? validateConfig['minLength'] as int
-            : int.tryParse(validateConfig['minLength'].toString()) ?? 0;
+        final min = validateConfig['minLength'] is int ? validateConfig['minLength'] as int : int.tryParse(validateConfig['minLength'].toString()) ?? 0;
         if (min > 0) {
           validators.add(() => minLength(value, min, fieldName: fieldName));
         }
       }
 
       if (validateConfig['maxLength'] != null) {
-        final max = validateConfig['maxLength'] is int
-            ? validateConfig['maxLength'] as int
-            : int.tryParse(validateConfig['maxLength'].toString()) ?? 0;
+        final max = validateConfig['maxLength'] is int ? validateConfig['maxLength'] as int : int.tryParse(validateConfig['maxLength'].toString()) ?? 0;
         if (max > 0) {
           validators.add(() => maxLength(value, max, fieldName: fieldName));
         }
@@ -429,18 +426,14 @@ class FormioValidators {
 
       // Word count
       if (validateConfig['minWords'] != null) {
-        final min = validateConfig['minWords'] is int
-            ? validateConfig['minWords'] as int
-            : int.tryParse(validateConfig['minWords'].toString()) ?? 0;
+        final min = validateConfig['minWords'] is int ? validateConfig['minWords'] as int : int.tryParse(validateConfig['minWords'].toString()) ?? 0;
         if (min > 0) {
           validators.add(() => minWords(value, min, fieldName: fieldName));
         }
       }
 
       if (validateConfig['maxWords'] != null) {
-        final max = validateConfig['maxWords'] is int
-            ? validateConfig['maxWords'] as int
-            : int.tryParse(validateConfig['maxWords'].toString()) ?? 0;
+        final max = validateConfig['maxWords'] is int ? validateConfig['maxWords'] as int : int.tryParse(validateConfig['maxWords'].toString()) ?? 0;
         if (max > 0) {
           validators.add(() => maxWords(value, max, fieldName: fieldName));
         }
@@ -472,91 +465,89 @@ class FormioValidators {
   /// Validates minimum date.
   static String? minDate(DateTime? value, DateTime minDate, {String? fieldName}) {
     if (value == null) return null;
-    
+
     if (value.isBefore(minDate)) {
       return '${fieldName ?? "Date"} must be on or after ${_formatDate(minDate)}.';
     }
-    
+
     return null;
   }
 
   /// Validates maximum date.
   static String? maxDate(DateTime? value, DateTime maxDate, {String? fieldName}) {
     if (value == null) return null;
-    
+
     if (value.isAfter(maxDate)) {
       return '${fieldName ?? "Date"} must be on or before ${_formatDate(maxDate)}.';
     }
-    
+
     return null;
   }
 
   /// Validates date range.
   static String? dateRange(DateTime? value, DateTime? minDate, DateTime? maxDate, {String? fieldName}) {
     if (value == null) return null;
-    
+
     if (minDate != null) {
       final error = FormioValidators.minDate(value, minDate, fieldName: fieldName);
       if (error != null) return error;
     }
-    
+
     if (maxDate != null) {
       final error = FormioValidators.maxDate(value, maxDate, fieldName: fieldName);
       if (error != null) return error;
     }
-    
+
     return null;
   }
 
   /// Validates minimum year.
   static String? minYear(DateTime? value, int minYear, {String? fieldName}) {
     if (value == null) return null;
-    
+
     if (value.year < minYear) {
       return '${fieldName ?? "Year"} must be $minYear or later.';
     }
-    
+
     return null;
   }
 
   /// Validates maximum year.
   static String? maxYear(DateTime? value, int maxYear, {String? fieldName}) {
     if (value == null) return null;
-    
+
     if (value.year > maxYear) {
       return '${fieldName ?? "Year"} must be $maxYear or earlier.';
     }
-    
+
     return null;
   }
 
   /// Validates file size (in bytes).
   static String? fileSize(int? sizeBytes, {int? minSize, int? maxSize, String? fieldName}) {
     if (sizeBytes == null) return null;
-    
+
     if (minSize != null && sizeBytes < minSize) {
       return '${fieldName ?? "File"} must be at least ${_formatFileSize(minSize)}.';
     }
-    
+
     if (maxSize != null && sizeBytes > maxSize) {
       return '${fieldName ?? "File"} must not exceed ${_formatFileSize(maxSize)}.';
     }
-    
+
     return null;
   }
 
   /// Validates file type/pattern.
   static String? filePattern(String? fileName, String pattern, {String? message}) {
     if (fileName == null || fileName.isEmpty) return null;
-    
+
     // Pattern can be comma-separated extensions: ".pdf,.doc,.docx"
     // or mime types: "application/pdf,application/msword"
     final patterns = pattern.split(',').map((p) => p.trim()).toList();
-    
-    final extension = fileName.contains('.') 
-        ? '.${fileName.split('.').last.toLowerCase()}'
-        : '';
-    
+
+    final extension = fileName.contains('.') ? '.${fileName.split('.').last.toLowerCase()}' : '';
+
     // Check if any pattern matches
     final matches = patterns.any((p) {
       if (p.startsWith('.')) {
@@ -569,11 +560,11 @@ class FormioValidators {
       }
       return false;
     });
-    
+
     if (!matches) {
       return message ?? 'File type not allowed. Allowed types: $pattern';
     }
-    
+
     return null;
   }
 
@@ -607,7 +598,7 @@ class FormioValidators {
       '.txt': 'text/plain',
       '.csv': 'text/csv',
     };
-    
+
     return mimeMap[extension] == mimeType;
   }
 

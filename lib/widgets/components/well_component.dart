@@ -3,10 +3,12 @@
 ///
 /// Used to emphasize or separate form sections without borders or titles.
 /// The well wraps child components in a subtle gray box.
+library;
 
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../../models/file_typedefs.dart';
 import '../component_factory.dart';
 
 class WellComponent extends StatelessWidget {
@@ -16,10 +18,28 @@ class WellComponent extends StatelessWidget {
   /// Current form values of all nested fields inside the well.
   final Map<String, dynamic> value;
 
+  /// Complete form data for interpolation and logic
+  final Map<String, dynamic>? formData;
+
+  /// Callbacks
+  final FilePickerCallback? onFilePick;
+
+  final DatePickerCallback? onDatePick;
+  final TimePickerCallback? onTimePick;
+
   /// Callback triggered when a nested field changes.
   final ValueChanged<Map<String, dynamic>> onChanged;
 
-  const WellComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  const WellComponent({
+    super.key,
+    required this.component,
+    required this.value,
+    this.formData,
+    this.onFilePick,
+    this.onDatePick,
+    this.onTimePick,
+    required this.onChanged,
+  });
 
   /// List of nested child components inside the well.
   List<ComponentModel> get _children {
@@ -39,15 +59,22 @@ class WellComponent extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10),
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(6)),
+      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(6)),
       child: Column(
-        children:
-            _children.map((child) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: ComponentFactory.build(component: child, value: value[child.key], onChanged: (val) => _updateField(child.key, val)),
-              );
-            }).toList(),
+        children: _children.map((child) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: ComponentFactory.build(
+              component: child,
+              value: value[child.key],
+              onChanged: (val) => _updateField(child.key, val),
+              formData: formData,
+              onFilePick: onFilePick,
+              onDatePick: onDatePick,
+              onTimePick: onTimePick,
+            ),
+          );
+        }).toList(),
       ),
     );
   }
