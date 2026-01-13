@@ -47,7 +47,7 @@ void main() async {
 
     if (user.token != null) {
       print('✅ Authentication successful');
-      client.setAuthToken(user.token!);
+      ApiClient.setAuthToken(user.token!);
     } else {
       print('❌ Authentication failed - cannot proceed');
       return;

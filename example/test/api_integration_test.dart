@@ -45,7 +45,7 @@ void main() async {
       print('✅ Login successful!');
       print('   Token: ${user.token!.substring(0, 20)}...');
       print('   User ID: ${user.id}');
-      client.setAuthToken(user.token!);
+      ApiClient.setAuthToken(user.token!);
     } else {
       print('❌ Login failed - no token received');
       return;
@@ -276,7 +276,7 @@ void main() async {
     print('→ Logging out...');
     try {
       await authService.logout();
-      client.clearAuthToken();
+      ApiClient.clearAuthToken();
       print('✅ Logout successful!');
     } catch (e) {
       print('⚠️  Logout error: $e');

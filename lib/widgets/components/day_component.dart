@@ -57,7 +57,8 @@ class _DayComponentState extends State<DayComponent> {
 
   void _updateValue() {
     if (_day != null && _month != null && _year != null) {
-      final formatted = '${_year!.toString().padLeft(4, '0')}-${_month!.toString().padLeft(2, '0')}-${_day!.toString().padLeft(2, '0')}';
+      // Form.io expects DD/MM/YYYY format for day component
+      final formatted = '${_day!.toString().padLeft(2, '0')}/${_month!.toString().padLeft(2, '0')}/${_year!.toString().padLeft(4, '0')}';
       widget.onChanged(formatted);
     } else {
       widget.onChanged(null);
@@ -67,12 +68,24 @@ class _DayComponentState extends State<DayComponent> {
   @override
   void initState() {
     super.initState();
-    if (widget.value != null) {
-      final parts = widget.value!.split('-');
-      if (parts.length == 3) {
-        _year = int.tryParse(parts[0]);
-        _month = int.tryParse(parts[1]);
-        _day = int.tryParse(parts[2]);
+    if (widget.value != null && widget.value!.isNotEmpty) {
+      // Try parsing DD/MM/YYYY format first (Form.io format)
+      if (widget.value!.contains('/')) {
+        final parts = widget.value!.split('/');
+        if (parts.length == 3) {
+          _day = int.tryParse(parts[0]);
+          _month = int.tryParse(parts[1]);
+          _year = int.tryParse(parts[2]);
+        }
+      }
+      // Fallback to YYYY-MM-DD format (ISO format)
+      else if (widget.value!.contains('-')) {
+        final parts = widget.value!.split('-');
+        if (parts.length >= 3) {
+          _year = int.tryParse(parts[0]);
+          _month = int.tryParse(parts[1]);
+          _day = int.tryParse(parts[2].split('T').first); // Handle ISO datetime
+        }
       }
     }
   }
