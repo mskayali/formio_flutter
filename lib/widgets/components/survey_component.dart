@@ -79,12 +79,14 @@ class SurveyComponent extends StatelessWidget {
                   Padding(padding: const EdgeInsets.all(8.0), child: Text(row['label'] ?? '')),
                   ..._columns.map((col) {
                     final colValue = col['value']?.toString() ?? '';
-                    return Radio<String>(
-                      value: colValue,
+                    return RadioGroup<String>(
                       groupValue: _selectedFor(rowKey),
                       onChanged: (value) {
                         if (value != null) _update(rowKey, value);
                       },
+                      child: Radio<String>(
+                        value: colValue,
+                      ),
                     );
                   }),
                 ],

@@ -11,6 +11,7 @@ import '../models/component.dart';
 import '../models/file_data.dart';
 import '../models/file_typedefs.dart';
 import '../models/formio_localizations.dart';
+import 'base_component.dart';
 // Complex
 import 'components/address_component.dart';
 // Display
@@ -65,19 +66,12 @@ import 'components/unknown_component.dart';
 import 'components/url_component.dart';
 import 'components/well_component.dart';
 
-typedef FormioComponentBuilder = Widget Function({
-  required ComponentModel component,
-  required dynamic value,
-  required ValueChanged<dynamic> onChanged,
-  Map<String, dynamic>? formData,
-  FilePickerCallback? onFilePick,
-  DatePickerCallback? onDatePick,
-  TimePickerCallback? onTimePick,
-});
-
 class ComponentFactory {
   /// Global locale configuration for all components
   static FormioLocalizations _locale = const DefaultFormioLocalizations();
+
+  /// Registry of custom component builders
+  static final Map<String, FormioComponentBuilder> _customComponents = {};
 
   /// Get current locale
   static FormioLocalizations get locale => _locale;
@@ -85,6 +79,71 @@ class ComponentFactory {
   /// Set global locale for all components
   static void setLocale(FormioLocalizations newLocale) {
     _locale = newLocale;
+  }
+
+  /// Initializes the ComponentFactory with custom component builders.
+  ///
+  /// Use this method to register custom component types or override
+  /// the default implementation of existing components.
+  ///
+  /// Example:
+  /// ```dart
+  /// void main() {
+  ///   ComponentFactory.initialize({
+  ///     'textfield': FunctionComponentBuilder((context) {
+  ///       return MyCustomTextField(
+  ///         component: context.component,
+  ///         value: context.value,
+  ///         onChanged: context.onChanged,
+  ///       );
+  ///     }),
+  ///     'mycustomtype': FunctionComponentBuilder((context) {
+  ///       return MyCustomComponent(
+  ///         component: context.component,
+  ///         value: context.value,
+  ///         onChanged: context.onChanged,
+  ///       );
+  ///     }),
+  ///   });
+  ///
+  ///   runApp(MyApp());
+  /// }
+  /// ```
+  ///
+  /// [componentBuilders] A map of component type strings to their builders.
+  static void initialize(Map<String, FormioComponentBuilder> componentBuilders) {
+    _customComponents.addAll(componentBuilders);
+  }
+
+  /// Registers a single custom component builder.
+  ///
+  /// Example:
+  /// ```dart
+  /// ComponentFactory.register('textfield', MyCustomTextFieldBuilder());
+  /// ```
+  ///
+  /// [type] The component type identifier (e.g., 'textfield', 'number').
+  /// [builder] The component builder implementation.
+  static void register(String type, FormioComponentBuilder builder) {
+    _customComponents[type] = builder;
+  }
+
+  /// Removes a custom component builder registration.
+  ///
+  /// After unregistering, the component will fall back to the default
+  /// implementation if available.
+  ///
+  /// [type] The component type identifier to unregister.
+  static void unregister(String type) {
+    _customComponents.remove(type);
+  }
+
+  /// Checks if a custom component builder is registered for the given type.
+  ///
+  /// [type] The component type identifier.
+  /// Returns true if a custom builder is registered.
+  static bool isRegistered(String type) {
+    return _customComponents.containsKey(type);
   }
 
   /// Creates the appropriate widget for a given component.
@@ -97,6 +156,23 @@ class ComponentFactory {
     DatePickerCallback? onDatePick,
     TimePickerCallback? onTimePick,
   }) {
+    // Check if a custom component builder is registered for this type
+    final customBuilder = _customComponents[component.type];
+    if (customBuilder != null) {
+      return customBuilder.build(
+        FormioComponentBuildContext(
+          component: component,
+          value: value,
+          onChanged: onChanged,
+          formData: formData,
+          onFilePick: onFilePick,
+          onDatePick: onDatePick,
+          onTimePick: onTimePick,
+        ),
+      );
+    }
+
+    // Fall back to default component implementations
     switch (component.type) {
       // Basic
       case 'textfield':

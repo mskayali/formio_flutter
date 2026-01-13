@@ -4,11 +4,57 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:formio/formio.dart';
+import 'package:formio/models/form.dart';
+import 'package:formio/models/formio_localizations.dart';
+import 'package:formio/network/api_client.dart';
+import 'package:formio/services/form_service.dart';
+import 'package:formio/widgets/component_factory.dart';
+import 'package:formio/widgets/form_renderer.dart';
 
+import 'custom_rating_component.dart';
+import 'custom_textfield.dart';
 import 'tr_localization.dart';
 
 void main() {
+  // ========================================
+  // DEMO: Custom Component Registration
+  // ========================================
+  // This demonstrates the plugin system for registering custom components.
+  // You can override default components or add completely new component types.
+
+  // Example 1: Override the default 'textfield' component with a custom styled version
+  ComponentFactory.register(
+    'textfield',
+    const CustomTextFieldBuilder(),
+  );
+
+  // Example 2: Register a new custom component type 'rating'
+  ComponentFactory.register(
+    'rating',
+    const RatingComponentBuilder(),
+  );
+
+  // Alternative: Use FunctionComponentBuilder for simple cases
+  // ComponentFactory.register(
+  //   'rating',
+  //   FunctionComponentBuilder((context) {
+  //     return CustomRatingComponent(
+  //       component: context.component,
+  //       value: context.value,
+  //       onChanged: context.onChanged,
+  //     );
+  //   }),
+  // );
+
+  // Or use initialize() to register multiple at once:
+  // ComponentFactory.initialize({
+  //   'textfield': const CustomTextFieldBuilder(),
+  //   'rating': const RatingComponentBuilder(),
+  // });
+
+  // ========================================
+  // Locale Configuration
+  // ========================================
   // Use TurkishFormioLocalizations for Turkish, or create your own by implementing FormioLocalizations
   ComponentFactory.setLocale(const DefaultFormioLocalizations());
 

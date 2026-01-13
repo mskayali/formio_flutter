@@ -46,46 +46,48 @@ class RadioComponent extends StatelessWidget {
     final error = _validator();
 
     if (component.disabled) {
-      // Render disabled state without RadioGroup (static display)
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (!component.hideLabel) Text(component.label, style: Theme.of(context).textTheme.labelSmall),
-          ..._values.map((option) {
-            final optionLabel = option['label'] ?? '';
-            final optionValue = option['value'];
+      // Render disabled state with RadioGroup but no-op onChanged
+      return RadioGroup<dynamic>(
+        groupValue: value,
+        onChanged: (_) {}, // no-op callback for disabled state
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (!component.hideLabel) Text(component.label, style: Theme.of(context).textTheme.labelSmall),
+            ..._values.map((option) {
+              final optionLabel = option['label'] ?? '';
+              final optionValue = option['value'];
 
-            return RadioListTile<dynamic>(
-              key: ValueKey('${component.key}_$optionValue'),
-              value: optionValue,
-              groupValue: value,
-              onChanged: null,
-              title: Text(optionLabel.toString()),
-              contentPadding: EdgeInsets.zero,
-            );
-          }),
-          if (error != null)
-            Padding(
-              padding: const EdgeInsets.only(left: 12, top: 4),
-              child: Text(
-                error,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                  fontSize: 12,
+              return RadioListTile<dynamic>(
+                key: ValueKey('${component.key}_$optionValue'),
+                value: optionValue,
+                title: Text(optionLabel.toString()),
+                contentPadding: EdgeInsets.zero,
+              );
+            }),
+            if (error != null)
+              Padding(
+                padding: const EdgeInsets.only(left: 12, top: 4),
+                child: Text(
+                  error,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                    fontSize: 12,
+                  ),
                 ),
               ),
-            ),
-          if (component.description != null && component.description!.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(left: 12, top: 4),
-              child: Text(
-                component.description!,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).hintColor,
-                    ),
+            if (component.description != null && component.description!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(left: 12, top: 4),
+                child: Text(
+                  component.description!,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).hintColor,
+                      ),
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       );
     }
 
@@ -105,10 +107,6 @@ class RadioComponent extends StatelessWidget {
             return RadioListTile<dynamic>(
               key: ValueKey('${component.key}_$optionValue'),
               value: optionValue,
-              groupValue: value,
-              onChanged: (newValue) {
-                onChanged(newValue);
-              },
               title: Text(optionLabel.toString()),
               contentPadding: EdgeInsets.zero,
             );

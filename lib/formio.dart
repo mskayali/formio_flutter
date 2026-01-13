@@ -8,7 +8,7 @@
 ///
 /// Example usage:
 /// ```dart
-/// import 'package:formio/formio.dart';
+/// import 'package:flutter_formio/flutter_formio.dart';
 /// ```
 
 library formio;
@@ -19,6 +19,7 @@ library formio;
 export 'core/constants.dart';
 export 'core/exceptions.dart';
 export 'core/utils.dart';
+export 'core/validators.dart';
 
 // Models
 export 'models/action.dart';
@@ -44,6 +45,7 @@ export 'services/submission_service.dart';
 export 'services/user_service.dart';
 
 // UI
+export 'widgets/base_component.dart';
 export 'widgets/component_factory.dart';
 export 'widgets/components/checkbox_component.dart';
 export 'widgets/components/text_field_component.dart';

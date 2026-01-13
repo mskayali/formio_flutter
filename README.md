@@ -71,7 +71,7 @@ dependencies:
 ### 1. Basic Form Rendering
 
 ```dart
-import 'package:formio/formio.dart';
+import 'package:flutter_formio/flutter_formio.dart';
 
 // Set your Form.io server URL
 ApiClient.setBaseUrl(Uri.parse('https://examples.form.io'));
@@ -121,7 +121,7 @@ MaterialApp(
 ### 3. Internationalization (i18n)
 
 ```dart
-import 'package:formio/formio.dart';
+import 'package:flutter_formio/flutter_formio.dart';
 
 void main() {
   // Set global locale (before MaterialApp)
