@@ -6,7 +6,7 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_formio/flutter_formio.dart';
+import 'package:formio/flutter_formio.dart';
 
 
 class WellComponent extends StatelessWidget {

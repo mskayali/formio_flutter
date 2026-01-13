@@ -5,7 +5,7 @@
 ///
 /// Example usage:
 /// ```dart
-/// import 'package:flutter_formio/flutter_formio.dart';
+/// import 'package:formio/flutter_formio.dart';
 ///
 /// void main() {
 ///   // Initialize JS evaluator for calculations

@@ -5,7 +5,7 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_formio/flutter_formio.dart';
+import 'package:formio/flutter_formio.dart';
 
 class FormComponent extends StatefulWidget {
   /// The Form.io component definition.

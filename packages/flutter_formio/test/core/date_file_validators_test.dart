@@ -1,8 +1,8 @@
 // ignore_for_file: depend_on_referenced_packages
 
+import 'package:formio/flutter_formio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../formio.dart';
 
 void main() {
   group('Date/Time Validators', () {

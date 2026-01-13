@@ -5,53 +5,17 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_formio/flutter_formio.dart';
-import 'package:flutter_formio/src/widgets/components/text_area_component.dart';
+import 'package:formio/flutter_formio.dart';
+import 'package:formio/src/widgets/components/text_area_component.dart';
 
 // Complex
-import 'components/address_component.dart';
 // Display
-import 'components/alert_component.dart';
-import 'components/captcha_component.dart';
-import 'components/columns_component.dart';
-import 'components/container_component.dart';
-import 'components/content_component.dart';
-import 'components/currency_component.dart';
 // Custom
-import 'components/custom_component.dart';
-import 'components/data_grid_component.dart';
-import 'components/data_map_component.dart';
-import 'components/datasource_component.dart';
-import 'components/datatable_component.dart';
 // Advanced
-import 'components/day_component.dart';
-import 'components/dynamic_wizard_component.dart';
-import 'components/edit_grid_component.dart';
-import 'components/fieldset_component.dart';
 // Premium
-import 'components/file_component.dart';
-import 'components/form_component.dart';
 // Data
-import 'components/hidden_component.dart';
-import 'components/html_element_component.dart';
-import 'components/nested_form_component.dart';
 // Layout
-import 'components/panel_component.dart';
-import 'components/phone_number_component.dart';
-import 'components/review_page_component.dart';
-import 'components/select_boxes_component.dart';
-import 'components/signature_component.dart';
-import 'components/sketchpad_component.dart';
-import 'components/survey_component.dart';
-import 'components/table_component.dart';
-import 'components/tabs_component.dart';
-import 'components/tagpad_component.dart';
-import 'components/tags_component.dart';
 // Basic
-import 'components/time_component.dart';
-import 'components/unknown_component.dart';
-import 'components/url_component.dart';
-import 'components/well_component.dart';
 
 class ComponentFactory {
   /// Global locale configuration for all components
