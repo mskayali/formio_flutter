@@ -7,6 +7,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../core/conditional_evaluator.dart';
 import '../../models/component.dart';
 import '../../models/file_typedefs.dart';
 import '../component_factory.dart';
@@ -53,6 +54,19 @@ class PanelComponent extends StatelessWidget {
     onChanged(updated);
   }
 
+  /// Check if a child component should be shown based on its conditional logic.
+  bool _shouldShowChild(ComponentModel child) {
+    final conditional = child.conditional;
+    // Merge global formData with panel's local value
+    // This allows conditionals to reference sibling components within the panel
+    final mergedData = <String, dynamic>{
+      ...?formData,
+      ...value, // Panel's children values are stored here
+    };
+
+    return ConditionalEvaluator.shouldShow(conditional, mergedData);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -63,20 +77,7 @@ class PanelComponent extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: _children.where((child) {
-            // Optional pre-check for conditional inside child
-            final condition = child.conditional;
-            if (condition == null || condition['when'] == null) return true;
-
-            final controllingKey = condition['when'];
-            final expectedValue = condition['eq'];
-            final actualValue = value[controllingKey];
-
-            final matches = actualValue?.toString() == expectedValue?.toString();
-            final shouldShow = condition['show'] == 'true' ? matches : !matches;
-
-            return shouldShow;
-          }).map((child) {
+          children: _children.where(_shouldShowChild).map((child) {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 6),
               child: ComponentFactory.build(

@@ -60,15 +60,23 @@ class ConditionalEvaluator {
     // Get the value of the field specified in 'when'
     final fieldValue = _getNestedValue(formData, when.toString());
 
+    debugPrint('🔍 Conditional: when=$when, eq=$eq, show=$show');
+    debugPrint('🔍 Field value: $fieldValue (type: ${fieldValue?.runtimeType})');
+
     // Check if the field value matches the expected value
     final matches = _valuesMatch(fieldValue, eq);
+
+    debugPrint('🔍 Matches: $matches');
 
     // Determine whether to show based on the 'show' flag
     // If show is true (default), show when matches
     // If show is false, show when doesn't match
     final shouldShowWhenMatched = show == null || show == true || show == 'true';
 
-    return shouldShowWhenMatched ? matches : !matches;
+    final result = shouldShowWhenMatched ? matches : !matches;
+    debugPrint('🔍 Result: $result');
+
+    return result;
   }
 
   /// Evaluates a JSONLogic conditional.
@@ -120,10 +128,30 @@ class ConditionalEvaluator {
   }
 
   /// Checks if two values match, with special handling for different types.
+  ///
+  /// Special handling for selectboxes:
+  /// - selectboxes values are Maps like {"1": false, "5": true}
+  /// - When checking eq: "5", we need to see if key "5" is true in the Map
   static bool _valuesMatch(dynamic value1, dynamic value2) {
     // Handle null cases
     if (value1 == null && value2 == null) return true;
     if (value1 == null || value2 == null) return false;
+
+    // Special handling for selectboxes (Map values)
+    // selectboxes value is like: {"1": false, "2": true, "5": true}
+    // When eq is "5", check if value1["5"] == true
+    if (value1 is Map<String, dynamic>) {
+      final key = value2.toString();
+      final mapValue = value1[key];
+      if (mapValue is bool) {
+        return mapValue;
+      }
+      // Also handle string "true"/"false"
+      if (mapValue is String) {
+        return mapValue.toLowerCase() == 'true';
+      }
+      return false;
+    }
 
     // Direct equality check
     if (value1 == value2) return true;

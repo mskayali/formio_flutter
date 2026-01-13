@@ -7,7 +7,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:formio/widgets/components/date_component.dart';
 
-import '../core/conditional_evaluator.dart';
 import '../models/component.dart';
 import '../models/file_data.dart';
 import '../models/file_typedefs.dart';
@@ -98,14 +97,6 @@ class ComponentFactory {
     DatePickerCallback? onDatePick,
     TimePickerCallback? onTimePick,
   }) {
-    // Check conditional logic using the new ConditionalEvaluator
-    if (formData != null) {
-      final conditional = component.raw['conditional'] as Map<String, dynamic>?;
-      if (!ConditionalEvaluator.shouldShow(conditional, formData)) {
-        return const SizedBox.shrink();
-      }
-    }
-
     switch (component.type) {
       // Basic
       case 'textfield':
