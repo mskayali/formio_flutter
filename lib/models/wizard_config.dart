@@ -2,6 +2,7 @@
 ///
 /// Wizard forms in Form.io use panels as pages, allowing multi-step
 /// form navigation with validation between steps.
+library;
 
 import 'component.dart';
 

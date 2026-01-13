@@ -1,44 +1,54 @@
 /// Mobile/Desktop implementation of JavaScript evaluator using flutter_js.
 ///
 /// Uses QuickJS engine on all non-web platforms.
+library;
 
 import 'package:flutter_js/flutter_js.dart';
+import 'package:flutter/foundation.dart';
+
+JavascriptRuntime? _singletonRuntime;
+
+JavascriptRuntime _getOrInitRuntime() {
+  return _singletonRuntime ??= getJavascriptRuntime();
+}
+
+void disposeRuntime() {
+  _singletonRuntime?.dispose();
+  _singletonRuntime = null;
+}
 
 dynamic evaluateJS(
   String code,
   Map<String, dynamic> context, {
   int timeoutMs = 5000,
 }) {
-  JavascriptRuntime? runtime;
-  
   try {
-    // Create JavaScript runtime
-    runtime = getJavascriptRuntime();
-    
+    // Get or initialize persistent JavaScript runtime
+    final runtime = _getOrInitRuntime();
+
     // Inject context variables
     _injectContext(runtime, context);
-    
+
     // Wrap code to capture result
     final wrappedCode = '''
       (function() {
-        ${code};
+        $code;
         return typeof result !== 'undefined' ? result : 
                typeof valid !== 'undefined' ? valid :
                typeof value !== 'undefined' ? value : null;
       })()
     ''';
-    
-    // Evaluate with timeout
+
+    // Evaluate
+    // Note: flutter_js doesn't support built-in timeout in evaluate(),
+    // it's usually handled by the caller or specialized implementations.
     final jsResult = runtime.evaluate(wrappedCode);
-    
+
     // Convert to Dart
     return _convertToDart(jsResult);
   } catch (e) {
-    print('JavaScript evaluation error (mobile): $e');
+    debugPrint('JavaScript evaluation error (mobile): $e');
     return null;
-  } finally {
-    // Clean up runtime
-    runtime?.dispose();
   }
 }
 
@@ -61,9 +71,7 @@ String _convertToJS(dynamic value) {
     return '[$items]';
   }
   if (value is Map) {
-    final entries = value.entries
-        .map((e) => "'${e.key}': ${_convertToJS(e.value)}")
-        .join(', ');
+    final entries = value.entries.map((e) => "'${e.key}': ${_convertToJS(e.value)}").join(', ');
     return '{$entries}';
   }
   return 'null';
@@ -74,22 +82,22 @@ dynamic _convertToDart(JsEvalResult jsResult) {
   if (jsResult.isError) {
     throw Exception(jsResult.stringResult);
   }
-  
+
   // Get the raw result string
   final resultString = jsResult.stringResult;
-  
+
   // Try to parse as different types
   if (resultString == 'null' || resultString == 'undefined') {
     return null;
   }
-  
+
   if (resultString == 'true') return true;
   if (resultString == 'false') return false;
-  
+
   // Try parsing as number
   final numResult = num.tryParse(resultString);
   if (numResult != null) return numResult;
-  
+
   // Return as string
   return resultString;
 }

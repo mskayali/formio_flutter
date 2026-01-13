@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
 
+import '../widgets/component_factory.dart';
 import 'constants.dart';
 
 /// A set of utility functions used throughout the Form.io Flutter integration.
@@ -9,8 +10,6 @@ import 'constants.dart';
 /// Common utility functions used throughout the Form.io Flutter SDK.
 ///
 /// Includes validators, date/number formatting helpers, and safe JSON helpers.
-
-
 
 class FormioUtils {
   /// Checks if a given value is considered "null" or empty.
@@ -58,14 +57,12 @@ class FormioUtils {
     return result;
   }
 
-
-
-/// Validates that a required field is not empty or null.
+  /// Validates that a required field is not empty or null.
   ///
   /// Returns an error message if the field is empty, otherwise null.
   String? validateRequired(String? input, String fieldName) {
     if (input == null || input.trim().isEmpty) {
-      return '$fieldName is required.';
+      return ComponentFactory.locale.getRequiredMessage(fieldName);
     }
     return null;
   }
@@ -104,8 +101,4 @@ class FormioUtils {
     if (json == null) return null;
     return json.containsKey(key) ? json[key] : null;
   }
-
 }
-
-
-

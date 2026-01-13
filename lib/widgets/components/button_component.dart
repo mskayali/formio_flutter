@@ -2,10 +2,12 @@
 ///
 /// Supports configurable action types (submit, reset, etc.), label, theme,
 /// and disabled state. Button logic is handled externally via the [onPressed] callback.
+library;
 
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 
 /// Defines the type of action the button performs.
 enum ButtonAction { submit, reset, custom, unknown }
@@ -20,10 +22,10 @@ class ButtonComponent extends StatelessWidget {
   /// Whether the button is currently disabled.
   final bool isDisabled;
 
-  const ButtonComponent({Key? key, required this.component, required this.onPressed, this.isDisabled = false}) : super(key: key);
+  const ButtonComponent({super.key, required this.component, required this.onPressed, this.isDisabled = false});
 
   /// Extracts the button label from the component definition.
-  String get _label => component.label.isNotEmpty ? component.label : (component.raw['label'] ?? 'Submit').toString();
+  String get _label => component.label.isNotEmpty ? component.label : (component.raw['label'] ?? ComponentFactory.locale.submit).toString();
 
   /// Determines the action type of the button.
   // ButtonAction get _action {

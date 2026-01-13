@@ -2,6 +2,7 @@
 ///
 /// This widget is not visible in the UI but still participates in the form's data.
 /// The value is stored and passed along with the form submission.
+library;
 
 import 'package:flutter/widgets.dart';
 
@@ -17,18 +18,12 @@ class HiddenComponent extends StatelessWidget {
   /// Callback triggered to set or update the value (if necessary).
   final ValueChanged<dynamic> onChanged;
 
-  const HiddenComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  const HiddenComponent({super.key, required this.component, required this.value, required this.onChanged});
 
   /// Determines the value to use: current value, defaultValue, or a fixed value.
-  dynamic get _resolvedValue => value ?? component.defaultValue ?? component.raw['value'];
 
   @override
   Widget build(BuildContext context) {
-    // Automatically trigger value change if needed
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      onChanged(_resolvedValue);
-    });
-
     // No visible widget is returned
     return const SizedBox.shrink();
   }

@@ -2,10 +2,12 @@
 ///
 /// Validates email format and supports label, placeholder, required constraint,
 /// and a default value.
+library;
 
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 
 class EmailComponent extends StatelessWidget {
   /// The Form.io component definition.
@@ -17,13 +19,10 @@ class EmailComponent extends StatelessWidget {
   /// Callback triggered when the email is updated.
   final ValueChanged<String> onChanged;
 
-  const EmailComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  const EmailComponent({super.key, required this.component, required this.value, required this.onChanged});
 
   /// Whether the field is marked as required.
   bool get _isRequired => component.required;
-
-  /// Placeholder hint for the input.
-  String? get _placeholder => component.raw['placeholder'];
 
   /// Regular expression for basic email validation.
   static final _emailRegex = RegExp(r'^[\w\.\-]+@([\w\-]+\.)+[a-zA-Z]{2,}$');
@@ -33,7 +32,7 @@ class EmailComponent extends StatelessWidget {
     final text = (input ?? '').trim();
 
     if (_isRequired && text.isEmpty) {
-      return '${component.label} is required.';
+      return ComponentFactory.locale.getRequiredMessage(component.label);
     }
 
     if (text.isNotEmpty && !_emailRegex.hasMatch(text)) {
@@ -45,12 +44,34 @@ class EmailComponent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      initialValue: value ?? component.defaultValue?.toString(),
-      decoration: InputDecoration(labelText: component.label, hintText: _placeholder ?? 'example@example.com', border: const OutlineInputBorder()),
-      keyboardType: TextInputType.emailAddress,
-      onChanged: onChanged,
-      validator: _validator,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextFormField(
+          initialValue: value ?? component.defaultValue?.toString(),
+          enabled: !component.disabled,
+          decoration: InputDecoration(
+            labelText: component.hideLabel ? null : component.label,
+            hintText: component.placeholder ?? 'example@example.com',
+            prefixText: component.prefix,
+            suffixText: component.suffix,
+          ),
+          keyboardType: TextInputType.emailAddress,
+          onChanged: onChanged,
+          validator: _validator,
+        ),
+        if (component.description != null && component.description!.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 4, left: 12),
+            child: Text(
+              component.description!,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).hintColor,
+                  ),
+            ),
+          ),
+      ],
     );
   }
 }

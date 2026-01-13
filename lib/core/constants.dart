@@ -2,6 +2,7 @@
 ///
 /// This includes base API URL, headers, timeouts, and other global definitions
 /// needed across services and utilities.
+library;
 
 class AppConstants {
   /// Base URL for your Form.io project or instance.

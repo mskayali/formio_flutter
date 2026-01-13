@@ -2,10 +2,12 @@
 ///
 /// Provides separate fields for address1, address2, city, state, country, and zip code.
 /// Returns data as a Map<String, String>.
+library;
 
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 
 class AddressComponent extends StatefulWidget {
   /// The Form.io component definition for the address.
@@ -18,11 +20,11 @@ class AddressComponent extends StatefulWidget {
   final ValueChanged<Map<String, dynamic>> onChanged;
 
   const AddressComponent({
-    Key? key,
+    super.key,
     required this.component,
     required this.value,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   State<AddressComponent> createState() => _AddressComponentState();
@@ -72,12 +74,9 @@ class _AddressComponentState extends State<AddressComponent> {
         decoration: InputDecoration(
           labelText: label,
           hintText: _getPlaceholder(key),
-          border: const OutlineInputBorder(),
         ),
         onChanged: (val) => _updateField(key, val),
-        validator: required
-            ? (val) => (val == null || val.isEmpty) ? '$label is required.' : null
-            : null,
+        validator: required ? (val) => (val == null || val.isEmpty) ? ComponentFactory.locale.getRequiredMessage(label) : null : null,
       ),
     );
   }

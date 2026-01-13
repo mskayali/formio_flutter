@@ -3,10 +3,12 @@
 ///
 /// Displays a vertical list of options, supports default value,
 /// required validation, and value change handling.
+library;
 
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 
 class RadioComponent extends StatelessWidget {
   /// The Form.io component definition.
@@ -19,23 +21,22 @@ class RadioComponent extends StatelessWidget {
   final ValueChanged<dynamic> onChanged;
 
   const RadioComponent({
-    Key? key,
+    super.key,
     required this.component,
     required this.value,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   /// Whether the field is marked as required.
   bool get _isRequired => component.required;
 
   /// List of values the user can select from.
-  List<Map<String, dynamic>> get _values =>
-      List<Map<String, dynamic>>.from(component.raw['values'] ?? []);
+  List<Map<String, dynamic>> get _values => List<Map<String, dynamic>>.from(component.raw['values'] ?? []);
 
   /// Validates selection based on requirement.
   String? _validator() {
     if (_isRequired && (value == null || value.toString().isEmpty)) {
-      return '${component.label} is required.';
+      return ComponentFactory.locale.getRequiredMessage(component.label);
     }
     return null;
   }
@@ -44,37 +45,97 @@ class RadioComponent extends StatelessWidget {
   Widget build(BuildContext context) {
     final error = _validator();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(component.label, style: Theme.of(context).textTheme.labelSmall),
-        ..._values.map((option) {
-          final optionLabel = option['label'] ?? '';
-          final optionValue = option['value'];
+    if (component.disabled) {
+      // Render disabled state without RadioGroup (static display)
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (!component.hideLabel) Text(component.label, style: Theme.of(context).textTheme.labelSmall),
+          ..._values.map((option) {
+            final optionLabel = option['label'] ?? '';
+            final optionValue = option['value'];
 
-          return RadioListTile(
-            key: ValueKey('${component.key}_$optionValue'), // Ensure rebuild
-            value: optionValue,
-            groupValue: value,
-            title: Text(optionLabel.toString()),
-            onChanged: (dynamic newValue) {
-              onChanged(newValue);
-            },
-            contentPadding: EdgeInsets.zero,
-          );
-        }),
-        if (error != null)
-          Padding(
-            padding: const EdgeInsets.only(left: 12, top: 4),
-            child: Text(
-              error,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
-                fontSize: 12,
+            return RadioListTile<dynamic>(
+              key: ValueKey('${component.key}_$optionValue'),
+              value: optionValue,
+              groupValue: value,
+              onChanged: null,
+              title: Text(optionLabel.toString()),
+              contentPadding: EdgeInsets.zero,
+            );
+          }),
+          if (error != null)
+            Padding(
+              padding: const EdgeInsets.only(left: 12, top: 4),
+              child: Text(
+                error,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                  fontSize: 12,
+                ),
               ),
             ),
-          ),
-      ],
+          if (component.description != null && component.description!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(left: 12, top: 4),
+              child: Text(
+                component.description!,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).hintColor,
+                    ),
+              ),
+            ),
+        ],
+      );
+    }
+
+    return RadioGroup<dynamic>(
+      groupValue: value,
+      onChanged: (newValue) {
+        onChanged(newValue);
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (!component.hideLabel) Text(component.label, style: Theme.of(context).textTheme.labelSmall),
+          ..._values.map((option) {
+            final optionLabel = option['label'] ?? '';
+            final optionValue = option['value'];
+
+            return RadioListTile<dynamic>(
+              key: ValueKey('${component.key}_$optionValue'),
+              value: optionValue,
+              groupValue: value,
+              onChanged: (newValue) {
+                onChanged(newValue);
+              },
+              title: Text(optionLabel.toString()),
+              contentPadding: EdgeInsets.zero,
+            );
+          }),
+          if (error != null)
+            Padding(
+              padding: const EdgeInsets.only(left: 12, top: 4),
+              child: Text(
+                error,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          if (component.description != null && component.description!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(left: 12, top: 4),
+              child: Text(
+                component.description!,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).hintColor,
+                    ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

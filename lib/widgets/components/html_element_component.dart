@@ -3,20 +3,28 @@
 ///
 /// This component is read-only and used for displaying custom HTML
 /// such as paragraphs, headers, separators, and basic formatting.
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 
 import '../../models/component.dart';
+import '../../core/interpolation_utils.dart';
 
 class HtmlElementComponent extends StatelessWidget {
   /// The Form.io component definition.
   final ComponentModel component;
 
-  const HtmlElementComponent({Key? key, required this.component}) : super(key: key);
+  /// Complete form data for interpolation
+  final Map<String, dynamic>? formData;
 
-  /// Raw HTML content to display.
-  String get _htmlContent => component.raw['tag'] == 'hr' ? '<hr/>' : component.raw['content']?.toString() ?? '';
+  const HtmlElementComponent({super.key, required this.component, this.formData});
+
+  /// Raw HTML content to display with interpolation support.
+  String get _htmlContent => InterpolationUtils.interpolate(
+        component.raw['tag'] == 'hr' ? '<hr/>' : component.raw['content']?.toString() ?? '',
+        formData,
+      );
 
   /// Optional CSS class (unused by default).
   // String? get _cssClass => component.raw['className'];

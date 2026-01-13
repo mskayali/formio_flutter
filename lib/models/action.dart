@@ -7,6 +7,7 @@
 /// - Role assignments
 /// - Save to database
 /// - Login/Logout actions
+library;
 
 class ActionModel {
   /// Unique identifier of the action.

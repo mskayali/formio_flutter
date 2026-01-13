@@ -3,10 +3,12 @@
 ///
 /// Supports default value, required validation, min/max, and basic formatting.
 /// It accepts only numerical input and represents currency values like USD, EUR, etc.
+library;
 
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 
 class CurrencyComponent extends StatelessWidget {
   /// The Form.io component definition.
@@ -18,7 +20,7 @@ class CurrencyComponent extends StatelessWidget {
   /// Callback triggered when the currency value changes.
   final ValueChanged<num?> onChanged;
 
-  const CurrencyComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  const CurrencyComponent({super.key, required this.component, required this.value, required this.onChanged});
 
   /// Whether this field is marked as required.
   bool get _isRequired => component.required;
@@ -46,7 +48,7 @@ class CurrencyComponent extends StatelessWidget {
     final parsed = _parse(input ?? '');
 
     if (_isRequired && parsed == null) {
-      return '${component.label} is required.';
+      return ComponentFactory.locale.getRequiredMessage(component.label);
     }
 
     if (parsed != null) {
@@ -67,12 +69,11 @@ class CurrencyComponent extends StatelessWidget {
 
     return TextFormField(
       initialValue: initialText,
-      keyboardType: TextInputType.numberWithOptions(decimal: true),
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
       decoration: InputDecoration(
         labelText: component.label,
-        hintText: _placeholder ?? '${_currencySymbol}0.00',
-        prefixText: _currencySymbol,
-        border: const OutlineInputBorder(),
+        hintText: _placeholder ?? '0.00',
+        prefixText: '$_currencySymbol ',
       ),
       onChanged: (input) => onChanged(_parse(input)),
       validator: _validator,

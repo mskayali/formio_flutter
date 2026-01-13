@@ -3,10 +3,12 @@
 ///
 /// Each tab can contain one or more form components. Tabs are switched
 /// dynamically and data for each tab is tracked independently.
+library;
 
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../../models/file_typedefs.dart';
 import '../component_factory.dart';
 
 class TabsComponent extends StatefulWidget {
@@ -16,10 +18,28 @@ class TabsComponent extends StatefulWidget {
   /// Form value map for all child components across tabs.
   final Map<String, dynamic> value;
 
+  /// Complete form data for interpolation and logic
+  final Map<String, dynamic>? formData;
+
+  /// Callbacks
+  final FilePickerCallback? onFilePick;
+
+  final DatePickerCallback? onDatePick;
+  final TimePickerCallback? onTimePick;
+
   /// Callback triggered when any child component's value changes.
   final ValueChanged<Map<String, dynamic>> onChanged;
 
-  const TabsComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  const TabsComponent({
+    super.key,
+    required this.component,
+    required this.value,
+    this.formData,
+    this.onFilePick,
+    this.onDatePick,
+    this.onTimePick,
+    required this.onChanged,
+  });
 
   @override
   State<TabsComponent> createState() => _TabsComponentState();
@@ -60,7 +80,7 @@ class _TabsComponentState extends State<TabsComponent> with TickerProviderStateM
           controller: _tabController,
           isScrollable: true,
           labelColor: Theme.of(context).colorScheme.primary,
-          unselectedLabelColor: Colors.grey,
+          unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
           tabs: _tabLabels.map((label) => Tab(text: label)).toList(),
         ),
         const SizedBox(height: 12),
@@ -73,15 +93,22 @@ class _TabsComponentState extends State<TabsComponent> with TickerProviderStateM
               return SingleChildScrollView(
                 padding: const EdgeInsets.all(8),
                 child: Column(
-                  children:
-                      components
-                          .map(
-                            (comp) => Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 6),
-                              child: ComponentFactory.build(component: comp, value: widget.value[comp.key], onChanged: (val) => _updateField(comp.key, val)),
-                            ),
-                          )
-                          .toList(),
+                  children: components
+                      .map(
+                        (comp) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: ComponentFactory.build(
+                            component: comp,
+                            value: widget.value[comp.key],
+                            onChanged: (val) => _updateField(comp.key, val),
+                            formData: widget.formData,
+                            onFilePick: widget.onFilePick,
+                            onDatePick: widget.onDatePick,
+                            onTimePick: widget.onTimePick,
+                          ),
+                        ),
+                      )
+                      .toList(),
                 ),
               );
             }),

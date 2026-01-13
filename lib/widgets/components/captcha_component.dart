@@ -5,10 +5,12 @@
 /// a placeholder with optional integration logic. For production, you
 /// should integrate with Firebase App Check, a backend verifier, or
 /// use `webview_flutter` for full reCAPTCHA rendering.
+library;
 
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 
 class CaptchaComponent extends StatelessWidget {
   /// The Form.io component definition.
@@ -20,7 +22,7 @@ class CaptchaComponent extends StatelessWidget {
   /// Callback triggered when CAPTCHA token is updated.
   final ValueChanged<String?> onChanged;
 
-  const CaptchaComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  const CaptchaComponent({super.key, required this.component, required this.value, required this.onChanged});
 
   /// CAPTCHA type (e.g., 'reCaptcha2' or 'reCaptcha3').
   String get _captchaType => component.raw['type'] ?? 'reCaptcha2';
@@ -45,7 +47,8 @@ class CaptchaComponent extends StatelessWidget {
           height: 100,
           width: double.infinity,
           alignment: Alignment.center,
-          decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade400), borderRadius: BorderRadius.circular(6), color: Colors.grey.shade100),
+          decoration:
+              BoxDecoration(border: Border.all(color: Theme.of(context).colorScheme.outline), borderRadius: BorderRadius.circular(6), color: Theme.of(context).colorScheme.surfaceContainerHighest),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [const Icon(Icons.privacy_tip, size: 32), Text('CAPTCHA ($_captchaType) integration required', textAlign: TextAlign.center)],
@@ -63,7 +66,7 @@ class CaptchaComponent extends StatelessWidget {
         if (hasError)
           Padding(
             padding: const EdgeInsets.only(top: 6),
-            child: Text('${component.label} is required.', style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12)),
+            child: Text(ComponentFactory.locale.getRequiredMessage(component.label), style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12)),
           ),
       ],
     );

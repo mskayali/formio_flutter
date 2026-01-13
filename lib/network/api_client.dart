@@ -5,6 +5,9 @@ class ApiClient {
   /// Static base URL shared across all instances.
   static Uri _baseUrl = Uri.parse('https://your-formio-url.com');
 
+  /// Static auth token shared across all instances.
+  static String? _authToken;
+
   /// Dio instance used for making HTTP requests.
   late final Dio dio;
 
@@ -16,23 +19,35 @@ class ApiClient {
   /// Returns the currently set base URL.
   static Uri get baseUrl => _baseUrl;
 
-  /// Creates a new instance of [ApiClient] using the shared base URL.
+  /// Sets the auth token for all current and future ApiClient instances.
+  static void setAuthToken(String token) {
+    _authToken = token;
+  }
+
+  /// Clears the auth token from all instances.
+  static void clearAuthToken() {
+    _authToken = null;
+  }
+
+  /// Creates a new instance of [ApiClient] using the shared base URL and token.
   ApiClient() {
     dio = Dio(BaseOptions(
       baseUrl: _baseUrl.toString(),
       headers: {'Content-Type': 'application/json'},
     ));
-    
+
+    // Add interceptor to inject auth token on each request
+    dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) {
+        if (_authToken != null) {
+          options.headers['x-jwt-token'] = _authToken;
+        }
+        handler.next(options);
+      },
+    ));
+
     // Add cURL logger for debugging HTTP requests
     dio.interceptors.add(CurlLoggerDioInterceptor(printOnSuccess: true));
-  }
-
-  void setAuthToken(String token) {
-    dio.options.headers['x-jwt-token'] = token;
-  }
-
-  void clearAuthToken() {
-    dio.options.headers.remove('x-jwt-token');
   }
 
   Future<Response<Map<String, dynamic>>> get(

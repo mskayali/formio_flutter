@@ -2,6 +2,7 @@
 ///
 /// Submissions are the actual form data submitted by users, along with metadata
 /// such as IDs, timestamps, and user info.
+library;
 
 class SubmissionModel {
   /// Unique identifier of the submission in Form.io.

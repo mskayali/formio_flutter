@@ -2,6 +2,7 @@
 ///
 /// This class is used to deserialize the JSON structure of a Form.io form
 /// and access its components, metadata, and path for submission.
+library;
 
 import 'component.dart';
 
@@ -50,6 +51,6 @@ class FormModel {
   }
   @override
   String toString() {
-    return  '${runtimeType}: ${toJson()}';
+    return  '$runtimeType: ${toJson()}';
   }
 }

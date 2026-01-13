@@ -1,6 +1,7 @@
 /// A Flutter widget that renders a multi-line text area based on a Form.io "textarea" component.
 ///
 /// Supports placeholder, label, default value, rows configuration, and comprehensive validation.
+library;
 
 import 'package:flutter/material.dart';
 
@@ -18,11 +19,11 @@ class TextAreaComponent extends StatelessWidget {
   final ValueChanged<String> onChanged;
 
   const TextAreaComponent({
-    Key? key,
+    super.key,
     required this.component,
     required this.value,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   /// Retrieves the placeholder text.
   String? get _placeholder => component.raw['placeholder'];
@@ -42,7 +43,6 @@ class TextAreaComponent extends StatelessWidget {
       decoration: InputDecoration(
         labelText: component.label,
         hintText: _placeholder,
-        border: const OutlineInputBorder(),
       ),
       onChanged: onChanged,
       validator: FormioValidators.fromConfig(_validateConfig, component.label),

@@ -15,6 +15,24 @@ All 41 Form.io components are fully implemented:
 - **Data**: Select, SelectBoxes, Checkbox, Radio, Button
 - **Special**: File, Signature, Hidden, HTML, Content, Alert, Form
 
+### ✅ Full Flutter Theme Support
+- **100% ThemeData integration** - All components respect `inputDecorationTheme` and `colorScheme`
+- **Zero hardcoded styles** - Border radius, colors, and borders from theme
+- **Live theme switching** - Change themes at runtime (see example app)
+- **Consistent UI** - Components automatically match your design system
+
+### ✅ Internationalization (i18n)
+- **60+ customizable strings** - All user-facing text translatable
+- **Built-in locales**: English (default), Turkish
+- **Easy custom locales** - Create your own language support
+- **Global configuration** - Set once via `ComponentFactory.setLocale()`
+
+### ✅ Custom Widget Callbacks
+- **Custom pickers** - Use Material, Cupertino, or your own date/time pickers
+- **Custom file picker** - Integrate any file picker package
+- **Custom HTTP client** - Use dio, http, or custom networking
+- **100% optional** - Defaults work out of the box
+
 ### ✅ Comprehensive Validation System
 - Required, Pattern (regex), Min/Max Length
 - Min/Max Words, Min/Max Numeric Values  
@@ -70,7 +88,87 @@ FormRenderer(
 )
 ```
 
-### 2. Wizard (Multi-Page) Forms
+### 2. Theme Customization
+
+```dart
+import 'package:flutter/material.dart';
+
+MaterialApp(
+  theme: ThemeData(
+    colorScheme: ColorScheme.fromSeed(seedColor: Colors.purple),
+    inputDecorationTheme: InputDecorationTheme(
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20), // Rounded inputs!
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20),
+        borderSide: BorderSide(color: Colors.purple, width: 2),
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20), // Rounded buttons!
+        ),
+      ),
+    ),
+  ),
+  home: MyFormPage(),
+)
+// All form components automatically use this theme!
+```
+
+### 3. Internationalization (i18n)
+
+```dart
+import 'package:formio/formio.dart';
+
+void main() {
+  // Set global locale (before MaterialApp)
+  ComponentFactory.setLocale(FormioLocale.tr()); // Turkish
+  
+  // Or create custom locale
+  ComponentFactory.setLocale(FormioLocale(
+    submit: 'إرسال',      // Arabic
+    cancel: 'إلغاء',
+    clear: 'مسح',
+    // ... 60+ customizable strings
+  ));
+  
+  runApp(MyApp());
+}
+```
+
+### 4. Custom Widget Callbacks
+
+```dart
+import 'package:file_picker/file_picker.dart';
+
+FormRenderer(
+  form: form,
+  
+  // Optional: Use your own file picker
+  onFilePick: ({required allowMultiple, allowedExtensions}) async {
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: allowMultiple,
+      type: allowedExtensions != null ? FileType.custom : FileType.any,
+      allowedExtensions: allowedExtensions,
+    );
+    return result?.files.map((f) => FileData(
+      name: f.name,
+      bytes: f.bytes,
+      path: f.path,
+    )).toList();
+  },
+  
+  // Optional: Use Cupertino date picker
+  onDatePick: ({required initialDate, required firstDate, required lastDate}) async {
+    return await showCupertinoDatePicker(...);
+  },
+)
+```
+
+### 5. Wizard (Multi-Page) Forms
 
 ```dart
 final wizardConfig = WizardConfig.fromJson({

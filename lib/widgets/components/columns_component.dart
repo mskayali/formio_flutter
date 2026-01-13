@@ -3,10 +3,12 @@
 ///
 /// Each column can contain multiple child components. This is used
 /// for creating side-by-side form layouts in a responsive row.
+library;
 
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../../models/file_typedefs.dart';
 import '../component_factory.dart';
 
 class ColumnsComponent extends StatelessWidget {
@@ -16,10 +18,28 @@ class ColumnsComponent extends StatelessWidget {
   /// Current value map that contains values of all nested components.
   final Map<String, dynamic> value;
 
+  /// Complete form data for interpolation and logic
+  final Map<String, dynamic>? formData;
+
+  /// Callbacks
+  final FilePickerCallback? onFilePick;
+
+  final DatePickerCallback? onDatePick;
+  final TimePickerCallback? onTimePick;
+
   /// Callback triggered when any nested component in any column updates its value.
   final ValueChanged<Map<String, dynamic>> onChanged;
 
-  const ColumnsComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  const ColumnsComponent({
+    super.key,
+    required this.component,
+    required this.value,
+    this.formData,
+    this.onFilePick,
+    this.onDatePick,
+    this.onTimePick,
+    required this.onChanged,
+  });
 
   /// Parses the column layout structure from the raw JSON.
   List<List<ComponentModel>> get _columns {
@@ -43,25 +63,31 @@ class ColumnsComponent extends StatelessWidget {
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children:
-          columns.map((colComponents) {
-            return Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                child: Column(
-                  children:
-                      colComponents
-                          .map(
-                            (comp) => Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 6),
-                              child: ComponentFactory.build(component: comp, value: value[comp.key], onChanged: (val) => _updateField(comp.key, val)),
-                            ),
-                          )
-                          .toList(),
-                ),
-              ),
-            );
-          }).toList(),
+      children: columns.map((colComponents) {
+        return Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: Column(
+              children: colComponents
+                  .map(
+                    (comp) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: ComponentFactory.build(
+                        component: comp,
+                        value: value[comp.key],
+                        onChanged: (val) => _updateField(comp.key, val),
+                        formData: formData,
+                        onFilePick: onFilePick,
+                        onDatePick: onDatePick,
+                        onTimePick: onTimePick,
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }

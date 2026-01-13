@@ -2,6 +2,7 @@
 ///
 /// Handles login operations and token retrieval for secure communication
 /// with protected Form.io endpoints.
+library;
 
 import '../models/user.dart';
 import '../network/api_client.dart';

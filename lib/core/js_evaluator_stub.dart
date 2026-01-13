@@ -3,6 +3,7 @@
 /// This file is used when neither dart:html nor dart:io is available.
 /// In practice, this should never be used since all Flutter targets
 /// support either web or mobile/desktop.
+library;
 
 dynamic evaluateJS(
   String code,
@@ -11,3 +12,5 @@ dynamic evaluateJS(
 }) {
   throw UnsupportedError('JavaScript evaluation not supported on this platform');
 }
+
+void disposeRuntime() {}

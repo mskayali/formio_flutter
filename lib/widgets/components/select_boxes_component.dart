@@ -3,10 +3,12 @@
 ///
 /// Each checkbox represents a boolean value for a labeled option.
 /// The result is stored as a map of `{ optionKey: true/false }`.
+library;
 
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 
 class SelectBoxesComponent extends StatelessWidget {
   /// The Form.io component definition.
@@ -18,7 +20,7 @@ class SelectBoxesComponent extends StatelessWidget {
   /// Callback triggered when any option is toggled.
   final ValueChanged<Map<String, bool>> onChanged;
 
-  const SelectBoxesComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  const SelectBoxesComponent({super.key, required this.component, required this.value, required this.onChanged});
 
   /// Whether the component is required (at least one must be selected).
   bool get _isRequired => component.required;
@@ -31,7 +33,7 @@ class SelectBoxesComponent extends StatelessWidget {
     if (_isRequired) {
       final hasAnyChecked = value.values.any((v) => v == true);
       if (!hasAnyChecked) {
-        return '${component.label} is required.';
+        return ComponentFactory.locale.getRequiredMessage(component.label);
       }
     }
     return null;

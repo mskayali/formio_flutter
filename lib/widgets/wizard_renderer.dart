@@ -2,6 +2,7 @@
 ///
 /// Wizard forms display one panel/page at a time with navigation buttons.
 /// Each page must pass validation before proceeding to the next page.
+library;
 
 import 'package:flutter/material.dart';
 
@@ -36,14 +37,14 @@ class WizardRenderer extends StatefulWidget {
   final bool allowPreviousNavigation;
 
   const WizardRenderer({
-    Key? key,
+    super.key,
     required this.wizardConfig,
     this.initialData,
     this.onPageChanged,
     required this.onSubmit,
     this.showProgress = true,
     this.allowPreviousNavigation = true,
-  }) : super(key: key);
+  });
 
   @override
   State<WizardRenderer> createState() => _WizardRendererState();
@@ -75,8 +76,7 @@ class _WizardRendererState extends State<WizardRenderer> {
   bool get _isFirstPage => _currentPageIndex == 0;
 
   /// Check if we're on the last page
-  bool get _isLastPage =>
-      _currentPageIndex == widget.wizardConfig.pageCount - 1;
+  bool get _isLastPage => _currentPageIndex == widget.wizardConfig.pageCount - 1;
 
   /// Validate current page
   bool _validateCurrentPage() {
@@ -133,12 +133,7 @@ class _WizardRendererState extends State<WizardRenderer> {
         final formKey = _pageFormKeys[i];
         if (formKey?.currentState?.validate() == false) {
           // Can't jump forward if intermediate pages are invalid
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Please complete all previous steps first.'),
-            ),
-          );
-          return;
+          throw Exception('Please complete all previous steps first.');
         }
       }
     }
@@ -168,12 +163,10 @@ class _WizardRendererState extends State<WizardRenderer> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: components.map((componentJson) {
-            final component =
-                ComponentModel.fromJson(componentJson as Map<String, dynamic>);
+            final component = ComponentModel.fromJson(componentJson as Map<String, dynamic>);
 
             // Check conditional logic
-            if (!ConditionalEvaluator.shouldShow(
-                component.conditional, _formData)) {
+            if (!ConditionalEvaluator.shouldShow(component.conditional, _formData)) {
               return const SizedBox.shrink();
             }
 

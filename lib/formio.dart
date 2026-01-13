@@ -23,7 +23,11 @@ export 'core/utils.dart';
 // Models
 export 'models/action.dart';
 export 'models/component.dart';
+export 'models/file_data.dart';
+export 'models/file_typedefs.dart';
 export 'models/form.dart';
+export 'models/formio_locale.dart';
+export 'models/formio_localizations.dart';
 export 'models/role.dart';
 export 'models/submission.dart';
 export 'models/user.dart';
@@ -31,9 +35,6 @@ export 'models/user.dart';
 // Networking
 export 'network/api_client.dart';
 export 'network/endpoints.dart';
-
-// State
-export 'providers/form_provider.dart';
 
 // Services
 export 'services/action_service.dart';
@@ -48,4 +49,4 @@ export 'widgets/components/checkbox_component.dart';
 export 'widgets/components/text_field_component.dart';
 
 // Renderer
-export  'widgets/form_renderer.dart';
+export 'widgets/form_renderer.dart';

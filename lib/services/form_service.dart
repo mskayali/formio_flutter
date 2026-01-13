@@ -2,8 +2,10 @@
 ///
 /// Provides methods to fetch form definitions from the Form.io backend,
 /// either as a list of available forms or a single form by its path or ID.
+library;
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '../models/form.dart';
 import '../network/api_client.dart';
@@ -21,7 +23,7 @@ class FormService {
   ///
   /// Returns a list of [FormModel] objects.
   ///
-  /// Throws [DioError] on failure.
+  /// Throws [DioException] on failure.
   Future<List<FormModel>> fetchForms() async {
     try {
       final response = await client.dio.get('/form');
@@ -29,25 +31,24 @@ class FormService {
         final data = response.data as List<dynamic>;
         return data.map((json) => FormModel.fromJson(json as Map<String, dynamic>)).toList();
       }
-      
+
       // handle response
     } on DioException catch (e) {
-      print('DioException occurred:');
-      print('Type: ${e.type}');
-      print('Message: ${e.message}');
-      print('Request: ${e.requestOptions.method} ${e.requestOptions.uri}');
+      debugPrint('DioException occurred:');
+      debugPrint('Type: ${e.type}');
+      debugPrint('Message: ${e.message}');
+      debugPrint('Request: ${e.requestOptions.method} ${e.requestOptions.uri}');
       if (e.response != null) {
-        print('Status code: ${e.response?.statusCode}');
-        print('Data: ${e.response?.data}');
-        print('Headers: ${e.response?.headers}');
+        debugPrint('Status code: ${e.response?.statusCode}');
+        debugPrint('Data: ${e.response?.data}');
+        debugPrint('Headers: ${e.response?.headers}');
       } else {
-        print('Underlying error: ${e.error}');
+        debugPrint('Underlying error: ${e.error}');
       }
     } catch (e) {
-      print('Other exception: $e');
+      debugPrint('Other exception: $e');
     }
     throw 'Failed to fetch forms';
-
   }
 
   /// Fetches a single form using its path or ID from Form.io.
@@ -58,7 +59,7 @@ class FormService {
   ///
   /// Returns a [FormModel] object.
   ///
-  /// Throws [DioError] on failure.
+  /// Throws [DioException] on failure.
   Future<FormModel> getFormByPath(String pathOrId) async {
     final response = await client.dio.get('/form/$pathOrId');
     return FormModel.fromJson(response.data as Map<String, dynamic>);
@@ -72,7 +73,7 @@ class FormService {
   ///
   /// Returns the created [FormModel] with server-generated ID.
   ///
-  /// Throws [DioError] on failure.
+  /// Throws [DioException] on failure.
   Future<FormModel> createForm(FormModel form) async {
     final response = await client.dio.post('/form', data: form.toJson());
     return FormModel.fromJson(response.data as Map<String, dynamic>);
@@ -87,7 +88,7 @@ class FormService {
   ///
   /// Returns the updated [FormModel].
   ///
-  /// Throws [DioError] on failure.
+  /// Throws [DioException] on failure.
   Future<FormModel> updateForm(String formId, FormModel form) async {
     final response = await client.dio.put('/form/$formId', data: form.toJson());
     return FormModel.fromJson(response.data as Map<String, dynamic>);
@@ -99,7 +100,7 @@ class FormService {
   ///
   /// [formId] is the unique ID of the form to delete.
   ///
-  /// Throws [DioError] on failure.
+  /// Throws [DioException] on failure.
   Future<void> deleteForm(String formId) async {
     await client.dio.delete('/form/$formId');
   }

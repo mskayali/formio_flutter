@@ -3,25 +3,39 @@
 ///
 /// Handles file selection, preview, and basic validation.
 /// Upload logic (to Form.io or custom storage) must be handled externally.
+///
+/// Users must provide their own file picking implementation via [onFilePick].
+library;
 
-import 'dart:io';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
+import '../../models/file_data.dart';
+import '../../models/file_typedefs.dart';
 
 class FileComponent extends StatelessWidget {
   /// The Form.io file component definition.
   final ComponentModel component;
 
-  /// Currently selected file paths (may be local or uploaded URLs).
-  final List<String> value;
+  /// Currently selected files.
+  final List<FileData> value;
 
   /// Callback triggered when files are selected or cleared.
-  final ValueChanged<List<String>> onChanged;
+  final OnFileChanged onChanged;
 
-  const FileComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  /// Optional callback for file picking.
+  /// If not provided, the component will display a message asking users
+  /// to configure file picking.
+  final FilePickerCallback? onFilePick;
+
+  const FileComponent({
+    super.key,
+    required this.component,
+    required this.value,
+    required this.onChanged,
+    this.onFilePick,
+  });
 
   /// Whether multiple file selection is allowed.
   bool get _isMultiple => component.raw['multiple'] == true;
@@ -36,20 +50,23 @@ class FileComponent extends StatelessWidget {
   }
 
   Future<void> _pickFiles(BuildContext context) async {
-    final result = await FilePicker.platform.pickFiles(
+    if (onFilePick == null) {
+      // _showConfigurationMessage(context);
+      throw Exception('File picker not configured. Please provide an onFilePick callback to FileComponent.');
+    }
+
+    final result = await onFilePick!(
       allowMultiple: _isMultiple,
-      type: FileType.custom,
       allowedExtensions: _acceptedExtensions.isNotEmpty ? _acceptedExtensions.map((e) => e.replaceAll(RegExp(r'[^\w]'), '')).toList() : null,
     );
 
     if (result != null) {
-      final paths = result.paths.whereType<String>().toList();
-      onChanged(paths);
+      onChanged(result);
     }
   }
 
-  void _removeFile(String path) {
-    final updated = List<String>.from(value)..remove(path);
+  void _removeFile(FileData file) {
+    final updated = List<FileData>.from(value)..remove(file);
     onChanged(updated);
   }
 
@@ -65,11 +82,12 @@ class FileComponent extends StatelessWidget {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children:
-              value.map((filePath) {
-                final fileName = filePath.split(Platform.pathSeparator).last;
-                return Chip(label: Text(fileName), onDeleted: () => _removeFile(filePath));
-              }).toList(),
+          children: value.map((fileData) {
+            return Chip(
+              label: Text(fileData.name),
+              onDeleted: () => _removeFile(fileData),
+            );
+          }).toList(),
         ),
         const SizedBox(height: 8),
         OutlinedButton.icon(
@@ -80,7 +98,13 @@ class FileComponent extends StatelessWidget {
         if (hasError)
           Padding(
             padding: const EdgeInsets.only(top: 6),
-            child: Text('${component.label} is required.', style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12)),
+            child: Text(
+              ComponentFactory.locale.getRequiredMessage(component.label),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+                fontSize: 12,
+              ),
+            ),
           ),
       ],
     );

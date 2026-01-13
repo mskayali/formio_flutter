@@ -2,6 +2,7 @@
 ///
 /// Handles user CRUD operations, distinct from authentication.
 /// Use AuthService for login/register/logout operations.
+library;
 
 import '../models/user.dart';
 import '../network/api_client.dart';

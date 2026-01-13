@@ -1,10 +1,12 @@
 /// A Flutter widget that renders a tags/chips input based on a Form.io "tags" component.
 ///
 /// Allows users to add and remove tags. Supports storing as array or delimited string.
+library;
 
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 
 class TagsComponent extends StatefulWidget {
   /// The Form.io component definition.
@@ -17,11 +19,11 @@ class TagsComponent extends StatefulWidget {
   final ValueChanged<dynamic> onChanged;
 
   const TagsComponent({
-    Key? key,
+    super.key,
     required this.component,
     required this.value,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   State<TagsComponent> createState() => _TagsComponentState();
@@ -38,6 +40,15 @@ class _TagsComponentState extends State<TagsComponent> {
     _tags = _parseTags(widget.value);
   }
 
+  @override
+  void didUpdateWidget(TagsComponent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Sync with external value changes
+    if (widget.value != oldWidget.value) {
+      _tags = _parseTags(widget.value);
+    }
+  }
+
   /// Gets the delimiter from component config (default: ',').
   String get _delimiter => widget.component.raw['delimeter']?.toString() ?? ',';
 
@@ -45,9 +56,7 @@ class _TagsComponentState extends State<TagsComponent> {
   String get _storeAs => widget.component.raw['storeas']?.toString() ?? 'string';
 
   /// Gets max tags limit (0 = unlimited).
-  int get _maxTags => widget.component.raw['maxTags'] is int
-      ? widget.component.raw['maxTags'] as int
-      : 0;
+  int get _maxTags => widget.component.raw['maxTags'] is int ? widget.component.raw['maxTags'] as int : 0;
 
   /// Placeholder text.
   String? get _placeholder => widget.component.raw['placeholder']?.toString();
@@ -153,10 +162,7 @@ class _TagsComponentState extends State<TagsComponent> {
           enabled: !reachedMaxTags,
           decoration: InputDecoration(
             labelText: reachedMaxTags ? 'Maximum tags reached' : 'Add tag',
-            hintText: reachedMaxTags
-                ? null
-                : _placeholder ?? 'Type and press Enter or comma',
-            border: const OutlineInputBorder(),
+            hintText: reachedMaxTags ? null : _placeholder ?? 'Type and press Enter or comma',
             suffixIcon: _controller.text.isNotEmpty
                 ? IconButton(
                     icon: const Icon(Icons.add),
@@ -165,16 +171,24 @@ class _TagsComponentState extends State<TagsComponent> {
                 : null,
           ),
           onChanged: (value) {
-            // Trigger rebuild to show/hide add button
-            setState(() {});
+            // Auto-add tag when user types comma or delimiter
+            if (value.endsWith(_delimiter) || value.endsWith(',')) {
+              final tagText = value.substring(0, value.length - 1).trim();
+              if (tagText.isNotEmpty) {
+                _addTag(tagText);
+                return;
+              }
+            }
+            // Only rebuild if add button visibility should change
+            if ((value.isEmpty) != (_controller.text.isEmpty)) {
+              setState(() {});
+            }
           },
           onFieldSubmitted: (value) {
             _addTag(value);
             _focusNode.requestFocus();
           },
-          validator: _isRequired && _tags.isEmpty
-              ? (_) => '${widget.component.label} is required.'
-              : null,
+          validator: _isRequired && _tags.isEmpty ? (_) => ComponentFactory.locale.getRequiredMessage(widget.component.label) : null,
         ),
         if (_maxTags > 0)
           Padding(

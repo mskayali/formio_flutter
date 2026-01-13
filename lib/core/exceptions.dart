@@ -2,6 +2,7 @@
 ///
 /// These exceptions help with better error handling during API communication,
 /// form parsing, submission processing, and more.
+library;
 
 /// Base class for all custom API-related errors.
 class ApiException implements Exception {

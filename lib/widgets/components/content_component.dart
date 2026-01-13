@@ -2,20 +2,29 @@
 ///
 /// Used to display non-interactive information, such as instructions, notes,
 /// or markdown/HTML-based explanations inside the form.
+library;
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_html/flutter_html.dart';
 
 import '../../models/component.dart';
+import '../../core/interpolation_utils.dart';
 
 class ContentComponent extends StatelessWidget {
   /// The Form.io component definition.
   final ComponentModel component;
 
-  const ContentComponent({Key? key, required this.component}) : super(key: key);
+  /// Complete form data for interpolation
+  final Map<String, dynamic>? formData;
 
-  /// Extracts the raw HTML or text content from the component.
-  String get _content => component.raw['html'] ?? '';
+  const ContentComponent({super.key, required this.component, this.formData});
+
+  /// Extracts the raw HTML or text content from the component and performs interpolation.
+  String get _content => InterpolationUtils.interpolate(
+        component.raw['html'] ?? '',
+        formData,
+      );
 
   /// Optional CSS class name from Form.io (ignored in this implementation).
   // String? get _cssClass => component.raw['className'];

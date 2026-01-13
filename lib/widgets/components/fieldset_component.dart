@@ -2,10 +2,12 @@
 /// based on a Form.io "fieldset" component.
 ///
 /// Displays child form fields inside a visual group with an optional legend/title.
+library;
 
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../../models/file_typedefs.dart';
 import '../component_factory.dart';
 
 class FieldSetComponent extends StatelessWidget {
@@ -15,10 +17,28 @@ class FieldSetComponent extends StatelessWidget {
   /// Current form values inside the fieldset.
   final Map<String, dynamic> value;
 
+  /// Complete form data for interpolation and logic
+  final Map<String, dynamic>? formData;
+
+  /// Callbacks
+  final FilePickerCallback? onFilePick;
+
+  final DatePickerCallback? onDatePick;
+  final TimePickerCallback? onTimePick;
+
   /// Callback triggered when a nested field updates its value.
   final ValueChanged<Map<String, dynamic>> onChanged;
 
-  const FieldSetComponent({Key? key, required this.component, required this.value, required this.onChanged}) : super(key: key);
+  const FieldSetComponent({
+    super.key,
+    required this.component,
+    required this.value,
+    this.formData,
+    this.onFilePick,
+    this.onDatePick,
+    this.onTimePick,
+    required this.onChanged,
+  });
 
   /// List of child components inside the fieldset.
   List<ComponentModel> get _children {
@@ -40,7 +60,7 @@ class FieldSetComponent extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 12),
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade400), borderRadius: BorderRadius.circular(6)),
+      decoration: BoxDecoration(border: Border.all(color: Theme.of(context).colorScheme.outline), borderRadius: BorderRadius.circular(6)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -48,7 +68,15 @@ class FieldSetComponent extends StatelessWidget {
           ..._children.map(
             (child) => Padding(
               padding: const EdgeInsets.symmetric(vertical: 6),
-              child: ComponentFactory.build(component: child, value: value[child.key], onChanged: (val) => _updateChild(child.key, val)),
+              child: ComponentFactory.build(
+                component: child,
+                value: value[child.key],
+                onChanged: (val) => _updateChild(child.key, val),
+                formData: formData,
+                onFilePick: onFilePick,
+                onDatePick: onDatePick,
+                onTimePick: onTimePick,
+              ),
             ),
           ),
         ],
