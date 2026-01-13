@@ -14,8 +14,26 @@ class ComponentModel {
   /// Display label shown on the UI.
   final String label;
 
+  /// Whether to hide the label.
+  final bool hideLabel;
+
+  /// Placeholder text for input fields.
+  final String? placeholder;
+
   /// Whether this component is required to be filled by the user.
   final bool required;
+
+  /// Whether the component is disabled.
+  final bool disabled;
+
+  /// Description/help text shown below the field.
+  final String? description;
+
+  /// Prefix text/icon for the input.
+  final String? prefix;
+
+  /// Suffix text/icon for the input.
+  final String? suffix;
 
   /// The default value for the component, if any.
   final dynamic defaultValue;
@@ -27,7 +45,13 @@ class ComponentModel {
     required this.type,
     required this.key,
     required this.label,
+    this.hideLabel = false,
+    this.placeholder,
     required this.required,
+    this.disabled = false,
+    this.description,
+    this.prefix,
+    this.suffix,
     this.defaultValue,
     required this.raw,
   });
@@ -37,12 +61,18 @@ class ComponentModel {
 
     // Create a copy of the JSON to avoid mutating the original
     final rawCopy = Map<String, dynamic>.from(json);
-    
+
     return ComponentModel(
       type: json['type']?.toString() ?? 'unknown',
       key: json['key']?.toString() ?? '',
       label: json['label']?.toString() ?? '',
+      hideLabel: json['hideLabel'] == true,
+      placeholder: json['placeholder']?.toString(),
       required: validate?['required'] == true || validate?['required'] == 'true',
+      disabled: json['disabled'] == true,
+      description: json['description']?.toString(),
+      prefix: json['prefix']?.toString(),
+      suffix: json['suffix']?.toString(),
       defaultValue: json['defaultValue'],
       raw: rawCopy,
     );

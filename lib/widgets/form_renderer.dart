@@ -125,7 +125,7 @@ class _FormRendererState extends State<FormRenderer> {
         final isEmpty = value == null || (value is String && value.trim().isEmpty) || (value is Map && value.isEmpty) || (value is List && value.isEmpty);
 
         if (isEmpty) {
-          _errors[component.key] = '${component.label} is required.';
+          _errors[component.key] = ComponentFactory.locale.getRequiredMessage(component.label);
           isValid = false;
         }
       }

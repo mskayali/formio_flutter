@@ -201,7 +201,7 @@ class _DataGridComponentState extends State<DataGridComponent> {
           Padding(
             padding: const EdgeInsets.only(top: 6),
             child: Text(
-              '${widget.component.label} is required.',
+              ComponentFactory.locale.getRequiredMessage(widget.component.label),
               style: TextStyle(color: colorScheme.error, fontSize: 12),
             ),
           ),

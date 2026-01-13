@@ -6,6 +6,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 
 class CheckboxComponent extends StatelessWidget {
   /// The Form.io component definition.
@@ -24,17 +25,35 @@ class CheckboxComponent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CheckboxListTile(
-      title: Text(component.label),
-      value: value,
-      onChanged: (val) {
-        if (val != null) {
-          onChanged(val);
-        }
-      },
-      controlAffinity: ListTileControlAffinity.leading,
-      contentPadding: EdgeInsets.zero,
-      subtitle: _isRequired && !value ? Text('${component.label} is required.', style: TextStyle(color: Theme.of(context).colorScheme.error)) : null,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CheckboxListTile(
+          title: component.hideLabel ? null : Text(component.label),
+          value: value,
+          onChanged: component.disabled
+              ? null
+              : (val) {
+                  if (val != null) {
+                    onChanged(val);
+                  }
+                },
+          controlAffinity: ListTileControlAffinity.leading,
+          contentPadding: EdgeInsets.zero,
+          subtitle: _isRequired && !value ? Text(ComponentFactory.locale.getRequiredMessage(component.label), style: TextStyle(color: Theme.of(context).colorScheme.error)) : null,
+        ),
+        if (component.description != null && component.description!.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(left: 12),
+            child: Text(
+              component.description!,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).hintColor,
+                  ),
+            ),
+          ),
+      ],
     );
   }
 }

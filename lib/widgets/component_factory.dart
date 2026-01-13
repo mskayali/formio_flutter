@@ -11,7 +11,7 @@ import '../core/conditional_evaluator.dart';
 import '../models/component.dart';
 import '../models/file_data.dart';
 import '../models/file_typedefs.dart';
-import '../models/formio_locale.dart';
+import '../models/formio_localizations.dart';
 // Complex
 import 'components/address_component.dart';
 // Display
@@ -78,22 +78,14 @@ typedef FormioComponentBuilder = Widget Function({
 
 class ComponentFactory {
   /// Global locale configuration for all components
-  static FormioLocale _locale = const FormioLocale();
+  static FormioLocalizations _locale = const DefaultFormioLocalizations();
 
   /// Get current locale
-  static FormioLocale get locale => _locale;
-
-  /// Custom builders registry (Form.io Extensibility)
-  static final Map<String, FormioComponentBuilder> _customBuilders = {};
+  static FormioLocalizations get locale => _locale;
 
   /// Set global locale for all components
-  static void setLocale(FormioLocale newLocale) {
+  static void setLocale(FormioLocalizations newLocale) {
     _locale = newLocale;
-  }
-
-  /// Registers a custom component builder for a specific component type (standard or custom).
-  static void registerCustomComponent(String type, FormioComponentBuilder builder) {
-    _customBuilders[type] = builder;
   }
 
   /// Creates the appropriate widget for a given component.
@@ -112,19 +104,6 @@ class ComponentFactory {
       if (!ConditionalEvaluator.shouldShow(conditional, formData)) {
         return const SizedBox.shrink();
       }
-    }
-
-    // Check custom builders first
-    if (_customBuilders.containsKey(component.type)) {
-      return _customBuilders[component.type]!(
-        component: component,
-        value: value,
-        onChanged: onChanged,
-        formData: formData,
-        onFilePick: onFilePick,
-        onDatePick: onDatePick,
-        onTimePick: onTimePick,
-      );
     }
 
     switch (component.type) {

@@ -5,6 +5,7 @@
 library;
 
 import 'package:flutter/foundation.dart';
+import '../widgets/component_factory.dart';
 import 'validators_js_loader.dart';
 
 class FormioValidators {
@@ -12,20 +13,23 @@ class FormioValidators {
   ///
   /// Returns error message if validation fails, null otherwise.
   static String? required(dynamic value, {String? fieldName}) {
+    final locale = ComponentFactory.locale;
+    final name = fieldName ?? 'This field';
+
     if (value == null) {
-      return '${fieldName ?? "This field"} is required.';
+      return locale.getRequiredMessage(name);
     }
 
     if (value is String && value.trim().isEmpty) {
-      return '${fieldName ?? "This field"} is required.';
+      return locale.getRequiredMessage(name);
     }
 
     if (value is List && value.isEmpty) {
-      return '${fieldName ?? "This field"} is required.';
+      return locale.getRequiredMessage(name);
     }
 
     if (value is Map && value.isEmpty) {
-      return '${fieldName ?? "This field"} is required.';
+      return locale.getRequiredMessage(name);
     }
 
     return null;

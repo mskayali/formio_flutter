@@ -7,6 +7,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 
 class TimeComponent extends StatefulWidget {
   /// The Form.io component definition.
@@ -72,7 +73,7 @@ class _TimeComponentState extends State<TimeComponent> {
         if (hasError)
           Padding(
             padding: const EdgeInsets.only(top: 6),
-            child: Text('${widget.component.label} is required.', style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12)),
+            child: Text(ComponentFactory.locale.getRequiredMessage(widget.component.label), style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12)),
           ),
       ],
     );

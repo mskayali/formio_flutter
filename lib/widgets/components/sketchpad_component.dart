@@ -262,7 +262,7 @@ class _SketchpadComponentState extends State<SketchpadComponent> {
           Padding(
             padding: const EdgeInsets.only(top: 6),
             child: Text(
-              '${widget.component.label} is required.',
+              ComponentFactory.locale.getRequiredMessage(widget.component.label),
               style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12),
             ),
           ),

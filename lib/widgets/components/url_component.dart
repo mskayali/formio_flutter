@@ -6,6 +6,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 
 class UrlComponent extends StatelessWidget {
   /// The Form.io component definition.
@@ -39,7 +40,7 @@ class UrlComponent extends StatelessWidget {
   /// Validates the URL format.
   String? _validateUrl(String? val) {
     if (val == null || val.isEmpty) {
-      return _isRequired ? '${component.label} is required.' : null;
+      return _isRequired ? ComponentFactory.locale.getRequiredMessage(component.label) : null;
     }
 
     if (!_urlRegex.hasMatch(val)) {

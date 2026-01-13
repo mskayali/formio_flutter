@@ -10,6 +10,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 
 class CaptchaComponent extends StatelessWidget {
   /// The Form.io component definition.
@@ -65,7 +66,7 @@ class CaptchaComponent extends StatelessWidget {
         if (hasError)
           Padding(
             padding: const EdgeInsets.only(top: 6),
-            child: Text('${component.label} is required.', style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12)),
+            child: Text(ComponentFactory.locale.getRequiredMessage(component.label), style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12)),
           ),
       ],
     );

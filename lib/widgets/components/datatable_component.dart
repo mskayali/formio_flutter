@@ -232,7 +232,7 @@ class _DataTableComponentState extends State<DataTableComponent> {
           Padding(
             padding: const EdgeInsets.only(top: 6),
             child: Text(
-              '${widget.component.label} selection is required.',
+              '${widget.component.label} ${ComponentFactory.locale.isRequired}.',
               style: TextStyle(
                 color: Theme.of(context).colorScheme.error,
                 fontSize: 12,

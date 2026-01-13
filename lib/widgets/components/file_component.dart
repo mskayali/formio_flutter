@@ -10,6 +10,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 import '../../models/file_data.dart';
 import '../../models/file_typedefs.dart';
 
@@ -98,7 +99,7 @@ class FileComponent extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 6),
             child: Text(
-              '${component.label} is required.',
+              ComponentFactory.locale.getRequiredMessage(component.label),
               style: TextStyle(
                 color: Theme.of(context).colorScheme.error,
                 fontSize: 12,

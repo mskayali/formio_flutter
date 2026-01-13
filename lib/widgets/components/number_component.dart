@@ -7,6 +7,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 
 class NumberComponent extends StatelessWidget {
   /// The Form.io component definition.
@@ -30,7 +31,7 @@ class NumberComponent extends StatelessWidget {
   num? get _max => component.raw['validate']?['max'];
 
   /// Returns placeholder text, if available.
-  String? get _placeholder => component.raw['placeholder'];
+  String? get _placeholder => component.placeholder;
 
   /// Parses a string to a numeric value, handling empty or invalid input.
   num? _parse(String input) {
@@ -44,7 +45,7 @@ class NumberComponent extends StatelessWidget {
     final parsed = _parse(input ?? '');
 
     if (_isRequired && parsed == null) {
-      return '${component.label} is required.';
+      return ComponentFactory.locale.getRequiredMessage(component.label);
     }
 
     if (parsed != null) {
@@ -61,12 +62,34 @@ class NumberComponent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      initialValue: value?.toString() ?? component.defaultValue?.toString(),
-      decoration: InputDecoration(labelText: component.label, hintText: _placeholder),
-      keyboardType: TextInputType.number,
-      onChanged: (input) => onChanged(_parse(input)),
-      validator: _validator,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextFormField(
+          initialValue: value?.toString() ?? component.defaultValue?.toString(),
+          enabled: !component.disabled,
+          decoration: InputDecoration(
+            labelText: component.hideLabel ? null : component.label,
+            hintText: _placeholder,
+            prefixText: component.prefix,
+            suffixText: component.suffix,
+          ),
+          keyboardType: TextInputType.number,
+          onChanged: (input) => onChanged(_parse(input)),
+          validator: _validator,
+        ),
+        if (component.description != null && component.description!.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 4, left: 12),
+            child: Text(
+              component.description!,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).hintColor,
+                  ),
+            ),
+          ),
+      ],
     );
   }
 }

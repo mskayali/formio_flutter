@@ -7,6 +7,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 
 class SelectComponent extends StatefulWidget {
   /// The Form.io component definition.
@@ -62,9 +63,6 @@ class _SelectComponentState extends State<SelectComponent> {
   /// Whether the field is marked as required.
   bool get _isRequired => widget.component.required;
 
-  /// Placeholder shown when no value is selected.
-  String? get _placeholder => widget.component.raw['placeholder'];
-
   /// Returns the list of available options.
   List<Map<String, dynamic>> get _values {
     if (_dataSrc == 'values') {
@@ -76,7 +74,7 @@ class _SelectComponentState extends State<SelectComponent> {
   /// Validates if a required selection is made.
   String? _validator() {
     if (_isRequired && (widget.value == null || widget.value.toString().isEmpty)) {
-      return '${widget.component.label} is required.';
+      return ComponentFactory.locale.getRequiredMessage(widget.component.label);
     }
     return null;
   }
@@ -87,20 +85,28 @@ class _SelectComponentState extends State<SelectComponent> {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
+        if (!widget.component.hideLabel)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Text(
+              widget.component.label,
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
+          ),
         InputDecorator(
           key: ValueKey(widget.component.key),
           decoration: InputDecoration(
-            labelText: widget.component.label,
             errorText: validationError ?? _error,
             suffixIcon: _isLoading ? const Padding(padding: EdgeInsets.all(12), child: SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))) : null,
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<dynamic>(
               isExpanded: true,
-              hint: Text(_placeholder ?? 'Select...'),
+              hint: Text(widget.component.placeholder ?? 'Select...'),
               value: widget.value,
-              onChanged: widget.onChanged,
+              onChanged: widget.component.disabled ? null : widget.onChanged,
               items: _values.map((option) {
                 final label = option['label']?.toString() ?? '';
                 final val = option['value'];
@@ -112,6 +118,16 @@ class _SelectComponentState extends State<SelectComponent> {
             ),
           ),
         ),
+        if (widget.component.description != null && widget.component.description!.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 4, left: 12),
+            child: Text(
+              widget.component.description!,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).hintColor,
+                  ),
+            ),
+          ),
       ],
     );
   }

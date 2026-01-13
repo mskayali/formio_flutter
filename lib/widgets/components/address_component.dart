@@ -7,6 +7,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 
 class AddressComponent extends StatefulWidget {
   /// The Form.io component definition for the address.
@@ -75,7 +76,7 @@ class _AddressComponentState extends State<AddressComponent> {
           hintText: _getPlaceholder(key),
         ),
         onChanged: (val) => _updateField(key, val),
-        validator: required ? (val) => (val == null || val.isEmpty) ? '$label is required.' : null : null,
+        validator: required ? (val) => (val == null || val.isEmpty) ? ComponentFactory.locale.getRequiredMessage(label) : null : null,
       ),
     );
   }

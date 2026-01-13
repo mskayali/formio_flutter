@@ -3,28 +3,14 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:formio/formio.dart';
 
-void main() {
-  // 1. Configure global locale (optional - defaults to English)
-  // ComponentFactory.setLocale(FormioLocale.tr());
+import 'tr_localization.dart';
 
-  // 2. Register Custom Components (demonstrating extensibility)
-  ComponentFactory.registerCustomComponent('mycustom', ({required component, required value, required onChanged, formData, onFilePick, onDatePick, onTimePick}) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.blue.shade50, border: Border.all(color: Colors.blue), borderRadius: BorderRadius.circular(8)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Custom Component: ${component.label}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
-          const SizedBox(height: 8),
-          Text('Value: $value'),
-          ElevatedButton(onPressed: () => onChanged('Updated from Custom!'), child: const Text('Update Value')),
-        ],
-      ),
-    );
-  });
+void main() {
+  // Use TurkishFormioLocalizations for Turkish, or create your own by implementing FormioLocalizations
+  ComponentFactory.setLocale(const DefaultFormioLocalizations());
 
   runApp(const MyApp());
 }
@@ -38,6 +24,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   bool _isRedTheme = true;
+  bool _isTurkish = false;
 
   ThemeData get _redRoundedTheme => ThemeData(
     colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
@@ -73,6 +60,17 @@ class _MyAppState extends State<MyApp> {
           });
         },
         currentTheme: _isRedTheme ? 'Red Rounded' : 'Purple Square',
+        onLanguageToggle: () {
+          setState(() {
+            _isTurkish = !_isTurkish;
+            if (_isTurkish) {
+              ComponentFactory.setLocale(const TurkishFormioLocalizations());
+            } else {
+              ComponentFactory.setLocale(const DefaultFormioLocalizations());
+            }
+          });
+        },
+        currentLanguage: _isTurkish ? 'TR' : 'EN',
       ),
     );
   }
@@ -81,8 +79,10 @@ class _MyAppState extends State<MyApp> {
 class FormListPage extends StatefulWidget {
   final VoidCallback onThemeToggle;
   final String currentTheme;
+  final VoidCallback onLanguageToggle;
+  final String currentLanguage;
 
-  const FormListPage({super.key, required this.onThemeToggle, required this.currentTheme});
+  const FormListPage({super.key, required this.onThemeToggle, required this.currentTheme, required this.onLanguageToggle, required this.currentLanguage});
 
   @override
   State<FormListPage> createState() => _FormListPageState();
@@ -92,6 +92,7 @@ class _FormListPageState extends State<FormListPage> {
   List<FormModel> forms = [];
   bool isLoading = true;
   String? errorMessage;
+  bool _loadFromAssets = false;
 
   @override
   void initState() {
@@ -106,16 +107,28 @@ class _FormListPageState extends State<FormListPage> {
     });
 
     try {
-      ApiClient.setBaseUrl(Uri.parse('https://examples.form.io'));
-      final formService = FormService(ApiClient());
-      final fetchedForms = await formService.fetchForms();
+      if (_loadFromAssets) {
+        final String response = await rootBundle.loadString('assets/example.json');
+        final List<dynamic> data = jsonDecode(response);
+        final fetchedForms = data.map((e) => FormModel.fromJson(e)).toList();
 
-      setState(() {
-        forms = fetchedForms;
-        isLoading = false;
-      });
+        setState(() {
+          forms = fetchedForms;
+          isLoading = false;
+        });
+        print('✅ Loaded ${forms.length} forms from assets');
+      } else {
+        ApiClient.setBaseUrl(Uri.parse('https://examples.form.io'));
+        final formService = FormService(ApiClient());
+        final fetchedForms = await formService.fetchForms();
 
-      print('✅ Loaded ${forms.length} forms from API');
+        setState(() {
+          forms = fetchedForms;
+          isLoading = false;
+        });
+
+        print('✅ Loaded ${forms.length} forms from API');
+      }
     } catch (e) {
       setState(() {
         errorMessage = 'Failed to load forms: $e';
@@ -132,6 +145,17 @@ class _FormListPageState extends State<FormListPage> {
         title: const Text('Form.io Live Demo'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
+          IconButton(
+            icon: Icon(_loadFromAssets ? Icons.cloud_download : Icons.storage),
+            onPressed: () {
+              setState(() {
+                _loadFromAssets = !_loadFromAssets;
+              });
+              _loadForms();
+            },
+            tooltip: _loadFromAssets ? 'Switch to API' : 'Switch to Assets',
+          ),
+          TextButton(onPressed: widget.onLanguageToggle, child: Text(widget.currentLanguage, style: const TextStyle(fontWeight: FontWeight.bold))),
           IconButton(icon: const Icon(Icons.palette), onPressed: widget.onThemeToggle, tooltip: 'Switch Theme: ${widget.currentTheme}'),
           IconButton(icon: const Icon(Icons.refresh), onPressed: _loadForms, tooltip: 'Reload forms'),
         ],
@@ -142,7 +166,12 @@ class _FormListPageState extends State<FormListPage> {
 
   Widget _buildBody() {
     if (isLoading) {
-      return const Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [CircularProgressIndicator(), SizedBox(height: 16), Text('Loading forms from API...')]));
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [const CircularProgressIndicator(), const SizedBox(height: 16), Text(_loadFromAssets ? 'Loading forms from Assets...' : 'Loading forms from API...')],
+        ),
+      );
     }
 
     if (errorMessage != null) {

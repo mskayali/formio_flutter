@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 import '../../models/file_typedefs.dart';
 
 class DateTimeComponent extends StatefulWidget {
@@ -101,7 +102,7 @@ class _DateTimeComponentState extends State<DateTimeComponent> {
   /// Validates the input based on requirement.
   String? _validator(String? input) {
     if (_isRequired && (input == null || input.isEmpty)) {
-      return '${widget.component.label} is required.';
+      return ComponentFactory.locale.getRequiredMessage(widget.component.label);
     }
     return null;
   }

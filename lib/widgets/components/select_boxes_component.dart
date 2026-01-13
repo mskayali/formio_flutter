@@ -8,6 +8,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 
 class SelectBoxesComponent extends StatelessWidget {
   /// The Form.io component definition.
@@ -32,7 +33,7 @@ class SelectBoxesComponent extends StatelessWidget {
     if (_isRequired) {
       final hasAnyChecked = value.values.any((v) => v == true);
       if (!hasAnyChecked) {
-        return '${component.label} is required.';
+        return ComponentFactory.locale.getRequiredMessage(component.label);
       }
     }
     return null;

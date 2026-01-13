@@ -6,6 +6,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 
 class TagsComponent extends StatefulWidget {
   /// The Form.io component definition.
@@ -187,7 +188,7 @@ class _TagsComponentState extends State<TagsComponent> {
             _addTag(value);
             _focusNode.requestFocus();
           },
-          validator: _isRequired && _tags.isEmpty ? (_) => '${widget.component.label} is required.' : null,
+          validator: _isRequired && _tags.isEmpty ? (_) => ComponentFactory.locale.getRequiredMessage(widget.component.label) : null,
         ),
         if (_maxTags > 0)
           Padding(

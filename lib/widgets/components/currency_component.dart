@@ -8,6 +8,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 
 class CurrencyComponent extends StatelessWidget {
   /// The Form.io component definition.
@@ -47,7 +48,7 @@ class CurrencyComponent extends StatelessWidget {
     final parsed = _parse(input ?? '');
 
     if (_isRequired && parsed == null) {
-      return '${component.label} is required.';
+      return ComponentFactory.locale.getRequiredMessage(component.label);
     }
 
     if (parsed != null) {

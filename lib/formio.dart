@@ -27,6 +27,7 @@ export 'models/file_data.dart';
 export 'models/file_typedefs.dart';
 export 'models/form.dart';
 export 'models/formio_locale.dart';
+export 'models/formio_localizations.dart';
 export 'models/role.dart';
 export 'models/submission.dart';
 export 'models/user.dart';

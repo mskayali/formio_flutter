@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 import '../../models/file_typedefs.dart';
 
 class DateComponent extends StatefulWidget {
@@ -148,7 +149,7 @@ class _DateComponentState extends State<DateComponent> {
         if (_isRequired && _selectedDateTime == null)
           Padding(
             padding: const EdgeInsets.only(top: 6),
-            child: Text('${widget.component.label} is required.', style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12)),
+            child: Text(ComponentFactory.locale.getRequiredMessage(widget.component.label), style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12)),
           ),
       ],
     );

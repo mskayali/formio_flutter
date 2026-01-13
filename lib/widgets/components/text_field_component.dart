@@ -26,23 +26,39 @@ class TextFieldComponent extends StatelessWidget {
     required this.onChanged,
   });
 
-  /// Retrieves a placeholder value if available in the raw JSON.
-  String? get _placeholder => component.raw['placeholder'];
-
   /// Gets validation config from component.
   Map<String, dynamic>? get _validateConfig => component.raw['validate'];
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      key: ValueKey(component.key),
-      initialValue: value ?? component.defaultValue?.toString(),
-      decoration: InputDecoration(
-        labelText: component.label,
-        hintText: _placeholder,
-      ),
-      onChanged: onChanged,
-      validator: FormioValidators.fromConfig(_validateConfig, component.label),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextFormField(
+          key: ValueKey(component.key),
+          initialValue: value ?? component.defaultValue?.toString(),
+          enabled: !component.disabled,
+          decoration: InputDecoration(
+            labelText: component.hideLabel ? null : component.label,
+            hintText: component.placeholder,
+            prefixText: component.prefix,
+            suffixText: component.suffix,
+          ),
+          onChanged: onChanged,
+          validator: FormioValidators.fromConfig(_validateConfig, component.label),
+        ),
+        if (component.description != null && component.description!.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 4, left: 12),
+            child: Text(
+              component.description!,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).hintColor,
+                  ),
+            ),
+          ),
+      ],
     );
   }
 }

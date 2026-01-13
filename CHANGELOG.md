@@ -137,30 +137,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## Migration Guide
-
-### Upgrading from 0.9.x to 1.0.0
-
-#### Validation Changes
-
-**Before (0.9.x):**
-```dart
-validator: _isRequired 
-  ? (val) => (val == null || val.isEmpty) 
-      ? '${component.label} is required.' 
-      : null 
-  : null
-```
-
-**After (1.0.0):**
-```dart
-validator: FormioValidators.fromConfig(
-  component.raw['validate'],
-  component.label,
-  formData: _formData, // For cross-field validation
-)
-```
-
 #### Component JSON Changes
 
 No breaking changes to component JSON structure. All existing forms are compatible.

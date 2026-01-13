@@ -10,6 +10,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 
 class TagpadComponent extends StatefulWidget {
   /// The Form.io component definition.
@@ -123,7 +124,7 @@ class _TagpadComponentState extends State<TagpadComponent> {
           focusNode: _focusNode,
           decoration: InputDecoration(
             hintText: _placeholder ?? 'Type and press Enter to add tag',
-            errorText: hasError ? '${widget.component.label} is required.' : null,
+            errorText: hasError ? ComponentFactory.locale.getRequiredMessage(widget.component.label) : null,
             suffixIcon: _controller.text.isNotEmpty
                 ? IconButton(
                     icon: const Icon(Icons.add),

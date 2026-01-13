@@ -8,6 +8,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 
 class PhoneNumberComponent extends StatelessWidget {
   /// The Form.io component definition.
@@ -24,9 +25,6 @@ class PhoneNumberComponent extends StatelessWidget {
   /// Whether the field is marked as required.
   bool get _isRequired => component.required;
 
-  /// Optional placeholder for the input field.
-  String? get _placeholder => component.raw['placeholder'];
-
   /// Regular expression for basic phone number format validation.
   static final _phoneRegex = RegExp(r'^[\d\-\+\s\(\)]+$');
 
@@ -35,7 +33,7 @@ class PhoneNumberComponent extends StatelessWidget {
     final text = (input ?? '').trim();
 
     if (_isRequired && text.isEmpty) {
-      return '${component.label} is required.';
+      return ComponentFactory.locale.getRequiredMessage(component.label);
     }
 
     if (text.isNotEmpty && !_phoneRegex.hasMatch(text)) {
@@ -47,12 +45,34 @@ class PhoneNumberComponent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      initialValue: value ?? component.defaultValue?.toString(),
-      decoration: InputDecoration(labelText: component.label, hintText: _placeholder ?? '+1 (555) 123-4567'),
-      keyboardType: TextInputType.phone,
-      onChanged: onChanged,
-      validator: _validator,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextFormField(
+          initialValue: value ?? component.defaultValue?.toString(),
+          enabled: !component.disabled,
+          decoration: InputDecoration(
+            labelText: component.hideLabel ? null : component.label,
+            hintText: component.placeholder ?? '+1 (555) 123-4567',
+            prefixText: component.prefix,
+            suffixText: component.suffix,
+          ),
+          keyboardType: TextInputType.phone,
+          onChanged: onChanged,
+          validator: _validator,
+        ),
+        if (component.description != null && component.description!.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 4, left: 12),
+            child: Text(
+              component.description!,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).hintColor,
+                  ),
+            ),
+          ),
+      ],
     );
   }
 }

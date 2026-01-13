@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import '../../models/component.dart';
+import '../component_factory.dart';
 import '../../models/formio_locale.dart';
 
 class SignatureComponent extends StatefulWidget {
@@ -143,7 +144,7 @@ class _SignatureComponentState extends State<SignatureComponent> {
           Padding(
             padding: const EdgeInsets.only(top: 6),
             child: Text(
-              '${widget.component.label} is required.',
+              ComponentFactory.locale.getRequiredMessage(widget.component.label),
               style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12),
             ),
           ),
