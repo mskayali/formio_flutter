@@ -1,9 +1,10 @@
 // Comprehensive Form.io API Integration Test
 // Run with: dart run test/api_test_robust.dart
 
-// ignore_for_file: avoid_print
+// ignore_for_file: depend_on_referenced_packages, avoid_print
 
 import 'dart:io';
+
 import 'package:dio/dio.dart';
 
 class TestApiClient {
@@ -46,21 +47,18 @@ class TestResults {
   }
 
   void summary() {
-    print('\n${'=' * 60}');
-    print('📊 TEST SUMMARY');
-    print('=' * 60);
-    print('✅ Passed: $passed');
-    print('❌ Failed: $failed');
-    print('⏭️  Skipped: $skipped');
-    print('📈 Total: ${passed + failed + skipped}');
     final successRate = passed / (passed + failed) * 100;
-    print('🎯 Success Rate: ${successRate.toStringAsFixed(1)}%');
+    print('');
+    print('Test Results:');
+    print('Passed: $passed');
+    print('Failed: $failed');
+    print('Skipped: $skipped');
+    print('Success Rate: ${successRate.toStringAsFixed(2)}%');
+    print('');
   }
 }
 
 void main() async {
-  print('🚀 Form.io API Integration Test Suite\n');
-  print('Testing against: https://examples.form.io');
 
   // Configuration - Replace with your Form.io server credentials
   const baseUrl = 'https://examples.form.io';
@@ -78,8 +76,6 @@ void main() async {
     // ========================================================================
     // TEST GROUP 1: Authentication
     // ========================================================================
-    print('🔐 TEST GROUP 1: Authentication');
-    print('─' * 60);
 
     // Test 1.1: Login
     try {
@@ -93,8 +89,6 @@ void main() async {
       if (authToken != null && userId != null) {
         client.setAuthToken(authToken);
         results.pass('Login with credentials');
-        print('      Token: ${authToken.substring(0, 30)}...');
-        print('      User ID: $userId');
       } else {
         results.fail('Login', 'No token or user ID in response');
       }
@@ -108,7 +102,6 @@ void main() async {
         final response = await client.dio.get('/current');
         if (response.statusCode == 200) {
           results.pass('Get current user');
-          print('      Email: ${response.data['data']?['email']}');
         } else {
           results.fail('Get current user', 'Status: ${response.statusCode}');
         }
@@ -122,8 +115,6 @@ void main() async {
     // ========================================================================
     // TEST GROUP 2: Form Operations
     // ========================================================================
-    print('\n📋 TEST GROUP 2: Form Operations');
-    print('─' * 60);
 
     // Test 2.1: List Forms
     List<dynamic> forms = [];
@@ -132,7 +123,6 @@ void main() async {
       if (response.statusCode == 200 && response.data is List) {
         forms = response.data as List;
         results.pass('List all forms');
-        print('      Retrieved: ${forms.length} forms');
 
         // Find a non-system form for testing
         testForm = forms.firstWhere(
@@ -141,7 +131,6 @@ void main() async {
         );
 
         if (testForm != null) {
-          print('      Test form: ${testForm['title']} (${testForm['path']})');
         }
       } else {
         results.fail('List forms', 'Invalid response');
@@ -157,8 +146,6 @@ void main() async {
         final response = await client.dio.get('/form/$formId');
         if (response.statusCode == 200) {
           results.pass('Get form by ID');
-          print('      ID: $formId');
-          print('      Components: ${(response.data['components'] as List?)?.length ?? 0}');
         } else {
           results.fail('Get form by ID', 'Status: ${response.statusCode}');
         }
@@ -172,8 +159,6 @@ void main() async {
     // ========================================================================
     // TEST GROUP 3: Submission Operations
     // ========================================================================
-    print('\n📨 TEST GROUP 3: Submission Operations');
-    print('─' * 60);
 
     String? submissionId;
     String? testFormPath;
@@ -195,7 +180,6 @@ void main() async {
         if (response.statusCode == 201 || response.statusCode == 200) {
           submissionId = response.data['_id'];
           results.pass('Create submission');
-          print('      ID: $submissionId');
         } else {
           results.fail('Create submission', 'Status: ${response.statusCode}');
         }
@@ -212,7 +196,6 @@ void main() async {
 
         if (response.statusCode == 200 && response.data is List) {
           results.pass('List submissions');
-          print('      Count: ${(response.data as List).length}');
         } else {
           results.fail('List submissions', 'Invalid response');
         }

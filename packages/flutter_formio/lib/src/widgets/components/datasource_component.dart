@@ -38,25 +38,23 @@ class DataSourceComponent extends StatefulWidget {
 }
 
 class _DataSourceComponentState extends State<DataSourceComponent> {
-  bool _isLoading = false;
-  String? _error;
 
   @override
   void initState() {
     super.initState();
     
-    print('🔍 DataSourceComponent.initState()');
-    print('   Component key: ${widget.component.key}');
+    // print('🔍 DataSourceComponent.initState()');
+    // print('   Component key: ${widget.component.key}');
     
     // Fetch on init if trigger.init is true (default)
     final trigger = widget.component.raw['trigger'] as Map<String, dynamic>?;
     final shouldFetchOnInit = trigger?['init'] ?? true;
     
     if (shouldFetchOnInit) {
-      print('   ✅ Fetching on init');
+      // print('   ✅ Fetching on init');
       WidgetsBinding.instance.addPostFrameCallback((_) => _fetchData());
     } else {
-      print('   ❌ NOT fetching on init (trigger.init = false)');
+      // print('   ❌ NOT fetching on init (trigger.init = false)');
     }
   }
 
@@ -71,8 +69,8 @@ class _DataSourceComponentState extends State<DataSourceComponent> {
       final newValue = widget.formData?[refreshOn];
       
       if (oldValue != newValue) {
-        print('🔄 DataSource: Field "$refreshOn" changed from "$oldValue" to "$newValue"');
-        print('   Triggering re-fetch...');
+        // print('🔄 DataSource: Field "$refreshOn" changed from "$oldValue" to "$newValue"');
+        // print('   Triggering re-fetch...');
         _fetchData();
       }
     }
@@ -80,8 +78,6 @@ class _DataSourceComponentState extends State<DataSourceComponent> {
 
   Future<void> _fetchData() async {
     setState(() {
-      _isLoading = true;
-      _error = null;
     });
 
     try {
@@ -98,10 +94,10 @@ class _DataSourceComponentState extends State<DataSourceComponent> {
       final method = fetchConfig['method']?.toString() ?? 'get';
       final headers = _buildHeaders(fetchConfig['headers']);
       
-      print('🌐 DataSource fetching:');
-      print('   URL: $url');
-      print('   Method: $method');
-      print('   Headers: $headers');
+      // print('🌐 DataSource fetching:');
+      // print('   URL: $url');
+      // print('   Method: $method');
+      // print('   Headers: $headers');
 
       // Make HTTP request
       final dio = Dio();
@@ -110,23 +106,20 @@ class _DataSourceComponentState extends State<DataSourceComponent> {
         options: Options(method: method.toUpperCase(), headers: headers),
       );
 
-      print('   ✅ Response received (${response.statusCode})');
+      // print('   ✅ Response received (${response.statusCode})');
 
       // Transform data using mapFunction
       final mapFunction = fetchConfig['mapFunction']?.toString();
       final transformedData = await _transformData(response.data, mapFunction);
 
-      print('   ✅ Data transformed: $transformedData');
+      // print('   ✅ Data transformed: $transformedData');
 
       // Store in form state
       widget.onChanged(transformedData);
       
-      setState(() => _isLoading = false);
     } catch (e) {
-      print('   ❌ Error: $e');
+      // print('   ❌ Error: $e');
       setState(() {
-        _error = e.toString();
-        _isLoading = false;
       });
     }
   }
@@ -155,13 +148,13 @@ class _DataSourceComponentState extends State<DataSourceComponent> {
 
   Future<dynamic> _transformData(dynamic responseData, String? mapFunction) async {
     if (mapFunction == null || mapFunction.isEmpty) {
-      print('   No mapFunction - returning raw response');
+      // print('   No mapFunction - returning raw response');
       return responseData;
     }
 
-    print('   mapFunction specified: $mapFunction');
-    print('   ⚠️  JavaScript execution not yet implemented');
-    print('   Returning raw response data for now');
+    // print('   mapFunction specified: $mapFunction');
+    // print('   ⚠️  JavaScript execution not yet implemented');
+    // print('   Returning raw response data for now');
     
     // TODO: Implement JavaScript evaluation using flutter_js
     // For now, return raw response data

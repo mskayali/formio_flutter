@@ -39,7 +39,7 @@ class ConditionalEvaluator {
     if (conditional.containsKey('custom')) {
       // JavaScript custom code is not supported in Dart
       // Log a warning and default to showing the component
-      // print('Warning: JavaScript custom conditionals are not supported. Component will be shown by default.');
+      print('Warning: JavaScript custom conditionals are not supported. Component will be shown by default.');
       return true;
     }
 
@@ -66,13 +66,13 @@ class ConditionalEvaluator {
     // Get the value of the field specified in 'when'
     final fieldValue = _getNestedValue(formData, when.toString());
 
-    // print('🔍 Conditional: when=$when, eq=$eq, show=$show');
-    // print('🔍 Field value: $fieldValue (type: ${fieldValue?.runtimeType})');
+    print('🔍 Conditional: when=$when, eq=$eq, show=$show');
+    print('🔍 Field value: $fieldValue (type: ${fieldValue?.runtimeType})');
 
     // Check if the field value matches the expected value
     final matches = _valuesMatch(fieldValue, eq);
 
-    // print('🔍 Matches: $matches');
+    print('🔍 Matches: $matches');
 
     // Determine whether to show based on the 'show' flag
     // If show is true (default), show when matches
@@ -80,7 +80,7 @@ class ConditionalEvaluator {
     final shouldShowWhenMatched = show == null || show == true || show == 'true';
 
     final result = shouldShowWhenMatched ? matches : !matches;
-    // print('🔍 Result: $result');
+    print('🔍 Result: $result');
 
     return result;
   }
@@ -109,9 +109,9 @@ class ConditionalEvaluator {
     }
 
     // Debug output
-    print('🔍 Evaluating conditions array:');
-    print('   Show: $show, Conjunction: $conjunction');
-    print('   Form data: $formData');
+    // print('🔍 Evaluating conditions array:');
+    // print('   Show: $show, Conjunction: $conjunction');
+    // print('   Form data: $formData');
 
     // Evaluate each condition
     final results = conditionsList.map((condition) {
@@ -125,11 +125,11 @@ class ConditionalEvaluator {
 
       final fieldValue = _getNestedValue(formData, component.toString());
       
-      print('   Component: $component, Operator: $operator, Expected: $expectedValue, Actual: $fieldValue');
+      // print('   Component: $component, Operator: $operator, Expected: $expectedValue, Actual: $fieldValue');
 
       // Evaluate based on operator
       final result = _evaluateOperator(operator, fieldValue, expectedValue);
-      print('   Result: $result');
+      // print('   Result: $result');
       
       return result;
     }).toList();
@@ -145,7 +145,7 @@ class ConditionalEvaluator {
     final shouldShowWhenMatched = show == null || show == true || show == 'true';
 
     final finalResult = shouldShowWhenMatched ? allConditionsMet : !allConditionsMet;
-    print('   Final result: $finalResult (allConditionsMet: $allConditionsMet, shouldShowWhenMatched: $shouldShowWhenMatched)');
+    // print('   Final result: $finalResult (allConditionsMet: $allConditionsMet, shouldShowWhenMatched: $shouldShowWhenMatched)');
 
     return finalResult;
   }
@@ -198,7 +198,7 @@ class ConditionalEvaluator {
       // For other types, treat as truthy if not empty
       return true;
     } catch (e) {
-      // print('Error evaluating JSONLogic conditional: $e');
+      print('Error evaluating JSONLogic conditional: $e');
       // Default to showing the component if evaluation fails
       return true;
     }

@@ -78,7 +78,8 @@ class CalculationEvaluator {
     } catch (e) {
       // Silently fail in production, log in development
       if (const bool.fromEnvironment('dart.vm.product') == false) {
-        print('Calculation error for key ${component?.key}: $e');
+
+        throw Exception('Calculation error for key ${component?.key}: $e');
       }
       return null;
     }
@@ -115,7 +116,7 @@ class CalculationEvaluator {
     } catch (e) {
       // Silently fail in production, log in development
       if (const bool.fromEnvironment('dart.vm.product') == false) {
-        print('Error evaluating JSONLogic calculation for key ${component?.key}: $e');
+        throw Exception('Error evaluating JSONLogic calculation for key ${component?.key}: $e');
       }
       return null;
     }

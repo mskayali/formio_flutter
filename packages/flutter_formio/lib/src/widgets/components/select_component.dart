@@ -9,6 +9,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:formio_api/formio_api.dart';
+
 import '../component_factory.dart';
 
 class SelectComponent extends StatefulWidget {
@@ -45,18 +46,18 @@ class _SelectComponentState extends State<SelectComponent> {
   void initState() {
     super.initState();
     
-    print('🔍 SelectComponent.initState()');
-    print('   Component key: ${widget.component.key}');
-    print('   Component raw: ${widget.component.raw}');
-    print('   Component dataSrc: ${widget.component.raw['dataSrc']}');
-    print('   Detected dataSrc: $_dataSrc');
+    // print('🔍 SelectComponent.initState()');
+    // print('   Component key: ${widget.component.key}');
+    // print('   Component raw: ${widget.component.raw}');
+    // print('   Component dataSrc: ${widget.component.raw['dataSrc']}');
+    // print('   Detected dataSrc: $_dataSrc');
     
     // Fetch options if dataSrc is resource
     if (_dataSrc == 'resource') {
-      print('   ✅ Fetching resource options...');
+      // print('   ✅ Fetching resource options...');
       _fetchResourceOptions();
     } else {
-      print('   ❌ NOT fetching (dataSrc is not "resource")');
+      // print('   ❌ NOT fetching (dataSrc is not "resource")');
     }
   }
 
@@ -125,7 +126,7 @@ class _SelectComponentState extends State<SelectComponent> {
         _error = 'Failed to load options';
         _isLoading = false;
       });
-      print('Error fetching resource options: $e');
+      // print('Error fetching resource options: $e');
     }
   }
 

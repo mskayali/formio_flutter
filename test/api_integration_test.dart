@@ -2,6 +2,8 @@
 // Run with: dart run test/api_integration_test.dart
 
 // ignore_for_file: avoid_print
+// ignore_for_file: depend_on_referenced_packages
+
 
 import 'dart:io';
 

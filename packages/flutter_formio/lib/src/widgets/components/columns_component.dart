@@ -73,7 +73,7 @@ class _ColumnsComponentState extends State<ColumnsComponent> {
     // Merge widget.value and formData for complete form context
     final completeFormData = {...formData, ...widget.value};
 
-    print('🔍 ColumnsComponent rebuilding with formData: $completeFormData');
+    // print('🔍 ColumnsComponent rebuilding with formData: $completeFormData');
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,10 +90,10 @@ class _ColumnsComponentState extends State<ColumnsComponent> {
                     
                     // Debug output
                     if (conditional != null) {
-                      print('🔍 Column component "${comp.key}" conditional check:');
-                      print('   Conditional: $conditional');
-                      print('   FormData: $completeFormData');
-                      print('   Should show: $shouldShow');
+                      // print('🔍 Column component "${comp.key}" conditional check:');
+                      // print('   Conditional: $conditional');
+                      // print('   FormData: $completeFormData');
+                      // print('   Should show: $shouldShow');
                     }
                     
                     return shouldShow;

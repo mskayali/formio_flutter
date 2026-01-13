@@ -1,7 +1,7 @@
 name: formio
 description: A comprehensive Flutter package for rendering Form.io forms with 98% feature parity - includes all components, validation, wizard forms, calculated values, JavaScript support, and full API integration.
-version: 1.1.0
-homepage: https://github.com/your-username/formio_flutter
+version: 2.0.0
+homepage: https://github.com/mskayali/formio_flutter
 repository: https://github.com/mskayali/formio_flutter
 issue_tracker: https://github.com/mskayali/formio_flutter/issues
 
@@ -10,5 +10,5 @@ environment:
   flutter: ">=3.10.0"
 
 dependencies:
-  formio_flutter: ^1.1.0
+  flutter_formio: ^2.0.1
   formio_api: ^2.0.0
