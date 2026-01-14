@@ -19,6 +19,7 @@ void main() {
 
   // Example 1: Override the default 'textfield' component with a custom styled version
   ComponentFactory.register('textfield', const CustomTextFieldBuilder());
+  ComponentFactory.register('button', const CustomSubmitButtonBuilder());
 
   // Example 2: Register a new custom component type 'rating'
   ComponentFactory.register('rating', const RatingComponentBuilder());
@@ -312,6 +313,7 @@ class _FormDetailPageState extends State<FormDetailPage> {
           FormRenderer(
             form: widget.form,
             initialData: formData,
+            apiClient: ApiClient(),
             onChanged: (data) {
               setState(() => formData = data);
               print('📝 Form data changed: ${data.keys.join(', ')}');
