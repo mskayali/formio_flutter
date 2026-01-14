@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:formio_api/formio_api.dart';
 import 'package:sticky_headers/sticky_headers.dart';
 
-class SurveyComponent extends StatelessWidget {
+class SurveyComponent extends StatefulWidget {
   /// The Form.io component definition.
   final ComponentModel component;
 
@@ -21,22 +21,58 @@ class SurveyComponent extends StatelessWidget {
 
   const SurveyComponent({super.key, required this.component, required this.value, required this.onChanged});
 
+  @override
+  State<SurveyComponent> createState() => _SurveyComponentState();
+}
+
+class _SurveyComponentState extends State<SurveyComponent> {
+  late ScrollController _headerScrollController;
+  late ScrollController _contentScrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _headerScrollController = ScrollController();
+    _contentScrollController = ScrollController();
+
+    // Synchronize header scroll with content
+    _headerScrollController.addListener(() {
+      if (_contentScrollController.hasClients && _contentScrollController.offset != _headerScrollController.offset) {
+        _contentScrollController.jumpTo(_headerScrollController.offset);
+      }
+    });
+
+    // Synchronize content scroll with header
+    _contentScrollController.addListener(() {
+      if (_headerScrollController.hasClients && _headerScrollController.offset != _contentScrollController.offset) {
+        _headerScrollController.jumpTo(_contentScrollController.offset);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _headerScrollController.dispose();
+    _contentScrollController.dispose();
+    super.dispose();
+  }
+
   /// Whether at least one answer is required.
-  bool get _isRequired => component.required;
+  bool get _isRequired => widget.component.required;
 
   /// The list of rows/questions in the survey.
-  List<Map<String, dynamic>> get _rows => List<Map<String, dynamic>>.from(component.raw['questions'] ?? []);
+  List<Map<String, dynamic>> get _rows => List<Map<String, dynamic>>.from(widget.component.raw['questions'] ?? []);
 
   /// The list of answer options (columns).
-  List<Map<String, dynamic>> get _columns => List<Map<String, dynamic>>.from(component.raw['values'] ?? []);
+  List<Map<String, dynamic>> get _columns => List<Map<String, dynamic>>.from(widget.component.raw['values'] ?? []);
 
   /// Returns the current selected value for a given row/question.
-  String? _selectedFor(String rowKey) => value[rowKey];
+  String? _selectedFor(String rowKey) => widget.value[rowKey];
 
   /// Validates if all required questions are answered.
   String? _validator() {
     if (_isRequired) {
-      final answered = value.entries.where((e) => e.value.isNotEmpty).length;
+      final answered = widget.value.entries.where((e) => e.value.isNotEmpty).length;
       if (answered < _rows.length) {
         return 'Please complete all survey questions.';
       }
@@ -46,9 +82,9 @@ class SurveyComponent extends StatelessWidget {
 
   /// Updates the answer for a given question.
   void _update(String questionKey, String answerValue) {
-    final updated = Map<String, String>.from(value);
+    final updated = Map<String, String>.from(widget.value);
     updated[questionKey] = answerValue;
-    onChanged(updated);
+    widget.onChanged(updated);
   }
 
   @override
@@ -58,14 +94,15 @@ class SurveyComponent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(component.label, style: Theme.of(context).textTheme.labelSmall),
+        Text(widget.component.label, style: Theme.of(context).textTheme.labelSmall),
         const SizedBox(height: 8),
 
-        // Wrap entire table with StickyHeader for page-level sticky behavior
+        // StickyHeader with synchronized horizontal scrolling
         StickyHeader(
           header: Container(
             color: Theme.of(context).colorScheme.surface,
             child: SingleChildScrollView(
+              controller: _headerScrollController,
               scrollDirection: Axis.horizontal,
               child: Container(
                 decoration: BoxDecoration(
@@ -111,6 +148,7 @@ class SurveyComponent extends StatelessWidget {
             ),
           ),
           content: SingleChildScrollView(
+            controller: _contentScrollController,
             scrollDirection: Axis.horizontal,
             child: Container(
               decoration: BoxDecoration(
