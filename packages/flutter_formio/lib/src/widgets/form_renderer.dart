@@ -114,16 +114,125 @@ class _FormRendererState extends State<FormRenderer> {
     }
   }
 
+  /// Recursively search for a field value in formData, including nested maps.
+  /// This handles cases where panel/columns components store their values nested.
+  dynamic _getFieldValue(String key) {
+    // First check top-level
+    if (_formData.containsKey(key)) {
+      return _formData[key];
+    }
+
+    // Recursively search in nested maps at any depth
+    return _searchInMap(_formData, key);
+  }
+
+  /// Helper to recursively search for a key in a nested map structure.
+  dynamic _searchInMap(Map<String, dynamic> map, String key) {
+    for (final value in map.values) {
+      if (value is Map<String, dynamic>) {
+        // Check if this map contains the key
+        if (value.containsKey(key)) {
+          return value[key];
+        }
+        // Recursively search deeper
+        final found = _searchInMap(value, key);
+        if (found != null) {
+          return found;
+        }
+      }
+    }
+    return null;
+  }
+
+  /// Recursively collect all components including nested ones from layout components.
+  List<ComponentModel> _getAllComponents(List<ComponentModel> components) {
+    final result = <ComponentModel>[];
+    for (final component in components) {
+      result.add(component);
+
+      // Handle layout components with children (panel, fieldset, well, etc.)
+      final childComponents = component.raw['components'] as List?;
+      if (childComponents != null) {
+        final children = childComponents.map((c) => ComponentModel.fromJson(c as Map<String, dynamic>)).toList();
+        result.addAll(_getAllComponents(children));
+      }
+
+      // Handle columns specifically
+      final columns = component.raw['columns'] as List?;
+      if (columns != null) {
+        for (final col in columns) {
+          final colComponents = (col as Map<String, dynamic>)['components'] as List? ?? [];
+          final children = colComponents.map((c) => ComponentModel.fromJson(c as Map<String, dynamic>)).toList();
+          result.addAll(_getAllComponents(children));
+        }
+      }
+
+      // Handle tabs specifically
+      final tabs = component.raw['tabs'] as List?;
+      if (tabs != null) {
+        for (final tab in tabs) {
+          final tabComponents = (tab as Map<String, dynamic>)['components'] as List? ?? [];
+          final children = tabComponents.map((c) => ComponentModel.fromJson(c as Map<String, dynamic>)).toList();
+          result.addAll(_getAllComponents(children));
+        }
+      }
+
+      // Handle table rows
+      final rows = component.raw['rows'] as List?;
+      if (rows != null) {
+        for (final row in rows) {
+          for (final cell in (row as List)) {
+            final cellComponents = (cell as Map<String, dynamic>)['components'] as List? ?? [];
+            final children = cellComponents.map((c) => ComponentModel.fromJson(c as Map<String, dynamic>)).toList();
+            result.addAll(_getAllComponents(children));
+          }
+        }
+      }
+    }
+    return result;
+  }
+
   bool _validateForm() {
     bool isValid = true;
     _errors.clear();
 
-    for (final component in widget.form.components) {
-      if (_shouldShowComponent(component) && component.required) {
-        final value = _formData[component.key];
-        final isEmpty = value == null || (value is String && value.trim().isEmpty) || (value is Map && value.isEmpty) || (value is List && value.isEmpty);
+    // Get all components recursively including nested ones
+    final allComponents = _getAllComponents(widget.form.components);
 
-        if (isEmpty) {
+    for (final component in allComponents) {
+      if (!_shouldShowComponent(component)) continue;
+
+      final value = _getFieldValue(component.key);
+      final isEmpty = value == null || (value is String && value.trim().isEmpty) || (value is Map && value.isEmpty) || (value is List && value.isEmpty);
+
+      // Check component.required property
+      if (component.required && isEmpty) {
+        _errors[component.key] = ComponentFactory.locale.getRequiredMessage(component.label);
+        isValid = false;
+        continue;
+      }
+
+      // Check validate.required from raw JSON (some components use this format)
+      final validateConfig = component.raw['validate'] as Map<String, dynamic>?;
+      if (validateConfig != null && validateConfig['required'] == true && isEmpty && !_errors.containsKey(component.key)) {
+        _errors[component.key] = ComponentFactory.locale.getRequiredMessage(component.label);
+        isValid = false;
+      }
+
+      // Check fields.required for composite components (e.g., day component with day/month/year)
+      final fields = component.raw['fields'] as Map<String, dynamic>?;
+      if (fields != null && !_errors.containsKey(component.key)) {
+        // Check if any field is required
+        bool hasRequiredField = false;
+        for (final fieldConfig in fields.values) {
+          if (fieldConfig is Map && fieldConfig['required'] == true) {
+            hasRequiredField = true;
+            break;
+          }
+        }
+
+        // If fields are required, validate the component value
+        if (hasRequiredField && isEmpty) {
           _errors[component.key] = ComponentFactory.locale.getRequiredMessage(component.label);
           isValid = false;
         }
@@ -136,7 +245,12 @@ class _FormRendererState extends State<FormRenderer> {
 
   Future<void> _handleSubmit() async {
     final isValid = _validateForm();
-    if (!isValid) return;
+    if (!isValid) {
+      // Collect all error messages and call onError callback
+      final errorMessages = _errors.values.where((e) => e != null).join(', ');
+      widget.onError?.call(errorMessages.isNotEmpty ? errorMessages : 'Validation failed');
+      return;
+    }
 
     setState(() => _isSubmitting = true);
 
