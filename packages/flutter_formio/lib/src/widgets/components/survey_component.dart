@@ -59,41 +59,85 @@ class SurveyComponent extends StatelessWidget {
       children: [
         Text(component.label, style: Theme.of(context).textTheme.labelSmall),
         const SizedBox(height: 8),
-        Table(
-          columnWidths: const {0: FlexColumnWidth(2)},
-          border: TableBorder.all(color: Theme.of(context).colorScheme.outline),
-          children: [
-            // Header Row
-            TableRow(
+        // Wrap table in horizontal scroll for mobile responsiveness
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: MediaQuery.of(context).size.width,
+            ),
+            child: Table(
+              columnWidths: const {0: FixedColumnWidth(200)}, // Fixed width for question column
+              border: TableBorder.all(color: Theme.of(context).colorScheme.outline),
+              defaultColumnWidth: const IntrinsicColumnWidth(flex: 1.0),
               children: [
-                const Padding(padding: EdgeInsets.all(8.0), child: Text('')),
-                ..._columns.map((col) => Padding(padding: const EdgeInsets.all(8.0), child: Text(col['label'] ?? '', textAlign: TextAlign.center))),
+                // Header Row
+                TableRow(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  ),
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    ..._columns.map((col) => Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            col['label'] ?? '',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                          ),
+                        )),
+                  ],
+                ),
+                // Question Rows
+                ..._rows.map((row) {
+                  final rowKey = row['value'] ?? '';
+                  return TableRow(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Text(
+                          row['label'] ?? '',
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                      ),
+                      ..._columns.map((col) {
+                        final colValue = col['value']?.toString() ?? '';
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                          child: RadioGroup<String>(
+                            groupValue: _selectedFor(rowKey),
+                            onChanged: (value) {
+                              if (value != null) _update(rowKey, value);
+                            },
+                            child: Radio<String>(
+                              value: colValue,
+                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              visualDensity: VisualDensity.compact,
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
+                  );
+                }),
               ],
             ),
-            // Question Rows
-            ..._rows.map((row) {
-              final rowKey = row['value'] ?? '';
-              return TableRow(
-                children: [
-                  Padding(padding: const EdgeInsets.all(8.0), child: Text(row['label'] ?? '')),
-                  ..._columns.map((col) {
-                    final colValue = col['value']?.toString() ?? '';
-                    return RadioGroup<String>(
-                      groupValue: _selectedFor(rowKey),
-                      onChanged: (value) {
-                        if (value != null) _update(rowKey, value);
-                      },
-                      child: Radio<String>(
-                        value: colValue,
-                      ),
-                    );
-                  }),
-                ],
-              );
-            }),
-          ],
+          ),
         ),
-        if (error != null) Padding(padding: const EdgeInsets.only(top: 6), child: Text(error, style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12))),
+        if (error != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              error,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+                fontSize: 12,
+              ),
+            ),
+          ),
       ],
     );
   }
