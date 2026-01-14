@@ -312,6 +312,7 @@ class _FormDetailPageState extends State<FormDetailPage> {
           FormRenderer(
             form: widget.form,
             initialData: formData,
+            apiClient: ApiClient(),
             onChanged: (data) {
               setState(() => formData = data);
               print('📝 Form data changed: ${data.keys.join(', ')}');

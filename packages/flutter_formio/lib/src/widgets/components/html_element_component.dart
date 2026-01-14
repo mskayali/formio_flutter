@@ -8,6 +8,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:formio_api/formio_api.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HtmlElementComponent extends StatelessWidget {
   /// The Form.io component definition.
@@ -16,7 +17,10 @@ class HtmlElementComponent extends StatelessWidget {
   /// Complete form data for interpolation
   final Map<String, dynamic>? formData;
 
-  const HtmlElementComponent({super.key, required this.component, this.formData});
+  /// Whether to enable clicking on links.
+  final bool enableLinks;
+
+  const HtmlElementComponent({super.key, required this.component, this.formData, this.enableLinks = true});
 
   /// Raw HTML content to display with interpolation support.
   String get _htmlContent => InterpolationUtils.interpolate(
@@ -42,6 +46,11 @@ class HtmlElementComponent extends StatelessWidget {
           'h1': Style(fontSize: FontSize.xxLarge),
           'p': Style(fontSize: FontSize.medium),
           'hr': Style(margin: Margins.only(top: 12, bottom: 12)),
+        },
+        onLinkTap: (url, _, __) {
+          if (enableLinks && url != null) {
+            launchUrl(Uri.parse(url));
+          }
         },
       ),
     );

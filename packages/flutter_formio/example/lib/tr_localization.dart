@@ -96,6 +96,12 @@ class TurkishFormioLocalizations implements FormioLocalizations {
   String get no => 'Hayır';
   @override
   String get actions => 'İşlemler';
+  @override
+  String get day => 'Gün';
+  @override
+  String get month => 'Ay';
+  @override
+  String get year => 'Yıl';
 
   @override
   String get typeAndPressEnter => 'Yazın ve Enter\'a basın';

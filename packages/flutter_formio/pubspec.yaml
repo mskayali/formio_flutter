@@ -20,6 +20,7 @@ dependencies:
   flutter_js: ^0.8.5
   intl: ^0.18.1
   url_launcher: ^6.3.2
+  sticky_headers: ^0.3.0
 
 dev_dependencies:
   flutter_test:

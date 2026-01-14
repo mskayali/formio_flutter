@@ -6,6 +6,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:formio_api/formio_api.dart';
+import 'package:sticky_headers/sticky_headers.dart';
 
 class SurveyComponent extends StatelessWidget {
   /// The Form.io component definition.
@@ -59,41 +60,137 @@ class SurveyComponent extends StatelessWidget {
       children: [
         Text(component.label, style: Theme.of(context).textTheme.labelSmall),
         const SizedBox(height: 8),
-        Table(
-          columnWidths: const {0: FlexColumnWidth(2)},
-          border: TableBorder.all(color: Theme.of(context).colorScheme.outline),
-          children: [
-            // Header Row
-            TableRow(
-              children: [
-                const Padding(padding: EdgeInsets.all(8.0), child: Text('')),
-                ..._columns.map((col) => Padding(padding: const EdgeInsets.all(8.0), child: Text(col['label'] ?? '', textAlign: TextAlign.center))),
-              ],
-            ),
-            // Question Rows
-            ..._rows.map((row) {
-              final rowKey = row['value'] ?? '';
-              return TableRow(
-                children: [
-                  Padding(padding: const EdgeInsets.all(8.0), child: Text(row['label'] ?? '')),
-                  ..._columns.map((col) {
-                    final colValue = col['value']?.toString() ?? '';
-                    return RadioGroup<String>(
-                      groupValue: _selectedFor(rowKey),
-                      onChanged: (value) {
-                        if (value != null) _update(rowKey, value);
-                      },
-                      child: Radio<String>(
-                        value: colValue,
+
+        // Wrap entire table with StickyHeader for page-level sticky behavior
+        StickyHeader(
+          header: Container(
+            color: Theme.of(context).colorScheme.surface,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  border: Border.all(color: Theme.of(context).colorScheme.outline),
+                ),
+                child: Row(
+                  children: [
+                    // Empty cell for question column
+                    Container(
+                      width: 200,
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          right: BorderSide(color: Theme.of(context).colorScheme.outline),
+                        ),
                       ),
-                    );
-                  }),
-                ],
-              );
-            }),
-          ],
+                      child: const Text('', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    // Header cells for each option
+                    ..._columns.map((col) => Container(
+                          width: 80,
+                          padding: const EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            border: Border(
+                              right: BorderSide(color: Theme.of(context).colorScheme.outline),
+                            ),
+                          ),
+                          child: Text(
+                            col['label'] ?? '',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 11,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        )),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          content: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  left: BorderSide(color: Theme.of(context).colorScheme.outline),
+                  right: BorderSide(color: Theme.of(context).colorScheme.outline),
+                  bottom: BorderSide(color: Theme.of(context).colorScheme.outline),
+                ),
+              ),
+              child: Column(
+                children: _rows.map((row) {
+                  final rowKey = row['value'] ?? '';
+                  return Container(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(color: Theme.of(context).colorScheme.outline),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        // Question cell
+                        Container(
+                          width: 200,
+                          padding: const EdgeInsets.all(12.0),
+                          decoration: BoxDecoration(
+                            border: Border(
+                              right: BorderSide(color: Theme.of(context).colorScheme.outline),
+                            ),
+                          ),
+                          child: Text(
+                            row['label'] ?? '',
+                            style: const TextStyle(fontSize: 13),
+                          ),
+                        ),
+                        // Radio cells for each option
+                        ..._columns.map((col) {
+                          final colValue = col['value']?.toString() ?? '';
+                          return Container(
+                            width: 80,
+                            padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                right: BorderSide(color: Theme.of(context).colorScheme.outline),
+                              ),
+                            ),
+                            child: Center(
+                              child: RadioGroup<String>(
+                                groupValue: _selectedFor(rowKey),
+                                onChanged: (value) {
+                                  if (value != null) _update(rowKey, value);
+                                },
+                                child: Radio<String>(
+                                  value: colValue,
+                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  visualDensity: VisualDensity.compact,
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
         ),
-        if (error != null) Padding(padding: const EdgeInsets.only(top: 6), child: Text(error, style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12))),
+
+        if (error != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              error,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+                fontSize: 12,
+              ),
+            ),
+          ),
       ],
     );
   }

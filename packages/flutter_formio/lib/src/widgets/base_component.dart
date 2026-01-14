@@ -7,7 +7,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:formio/formio.dart';
 
-
 /// Configuration for building a Form.io component widget.
 ///
 /// This class encapsulates all the parameters needed to build a component,
@@ -39,10 +38,15 @@ class FormioComponentBuildContext {
     required this.value,
     required this.onChanged,
     this.formData,
+    this.onSubmit,
     this.onFilePick,
     this.onDatePick,
     this.onTimePick,
   });
+
+  /// Optional callback to trigger form submission.
+  /// Set [saveToServer] to false if you only want to trigger the success callback with data.
+  final void Function()? onSubmit;
 }
 
 /// Base interface for all Form.io component builders.
