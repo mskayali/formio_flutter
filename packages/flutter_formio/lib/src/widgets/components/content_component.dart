@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:formio_api/formio_api.dart';
 
+import 'package:url_launcher/url_launcher.dart';
+
 class ContentComponent extends StatelessWidget {
   /// The Form.io component definition.
   final ComponentModel component;
@@ -15,7 +17,10 @@ class ContentComponent extends StatelessWidget {
   /// Complete form data for interpolation
   final Map<String, dynamic>? formData;
 
-  const ContentComponent({super.key, required this.component, this.formData});
+  /// Whether to enable clicking on links.
+  final bool enableLinks;
+
+  const ContentComponent({super.key, required this.component, this.formData, this.enableLinks = true});
 
   /// Extracts the raw HTML or text content from the component and performs interpolation.
   String get _content => InterpolationUtils.interpolate(
@@ -34,7 +39,15 @@ class ContentComponent extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Html(data: _content, style: {'p': Style(fontSize: FontSize.medium), 'h2': Style(fontSize: FontSize.larger, fontWeight: FontWeight.w600)}),
+      child: Html(
+        data: _content,
+        style: {'p': Style(fontSize: FontSize.medium), 'h2': Style(fontSize: FontSize.larger, fontWeight: FontWeight.w600)},
+        onLinkTap: (url, _, __) {
+          if (enableLinks && url != null) {
+            launchUrl(Uri.parse(url));
+          }
+        },
+      ),
     );
   }
 }

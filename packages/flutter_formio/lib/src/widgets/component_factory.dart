@@ -106,6 +106,7 @@ class ComponentFactory {
     FilePickerCallback? onFilePick,
     DatePickerCallback? onDatePick,
     TimePickerCallback? onTimePick,
+    bool enableLinks = true,
   }) {
     // Check if a custom component builder is registered for this type
     final customBuilder = _customComponents[component.type];
@@ -263,9 +264,9 @@ class ComponentFactory {
           onTimePick: onTimePick,
         );
       case 'htmlelement':
-        return HtmlElementComponent(component: component, formData: formData);
+        return HtmlElementComponent(component: component, formData: formData, enableLinks: enableLinks);
       case 'content':
-        return ContentComponent(component: component, formData: formData);
+        return ContentComponent(component: component, formData: formData, enableLinks: enableLinks);
       case 'alert':
         return AlertComponent(component: component, formData: formData);
       case 'fieldset':

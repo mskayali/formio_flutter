@@ -6,6 +6,8 @@
 /// 3. JavaScript: Custom JavaScript code (not supported in Dart)
 ///
 /// This evaluator handles both simple and JSONLogic conditions.
+// ignore_for_file: avoid_print
+
 library;
 
 import 'package:jsonlogic/jsonlogic.dart';

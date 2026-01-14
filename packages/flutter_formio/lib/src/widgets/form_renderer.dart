@@ -30,6 +30,9 @@ class FormRenderer extends StatefulWidget {
   final FilePickerCallback? onFilePick;
   final DatePickerCallback? onDatePick;
   final TimePickerCallback? onTimePick;
+  
+  /// Whether to enable clicking on links in Content/HTML components.
+  final bool enableLinks;
 
   const FormRenderer({
     super.key,
@@ -41,6 +44,7 @@ class FormRenderer extends StatefulWidget {
     this.onFilePick,
     this.onDatePick,
     this.onTimePick,
+    this.enableLinks = true,
   });
 
   @override
@@ -164,6 +168,8 @@ class _FormRendererState extends State<FormRenderer> {
       );
     }
 
+  final Widget fieldWidget; // No change needed for this variable decl if it existed, but context shows full replacement block
+
     final fieldWidget = ComponentFactory.build(
       component: component,
       value: _formData[component.key],
@@ -172,6 +178,7 @@ class _FormRendererState extends State<FormRenderer> {
       onFilePick: widget.onFilePick,
       onDatePick: widget.onDatePick,
       onTimePick: widget.onTimePick,
+      enableLinks: widget.enableLinks,
     );
 
     final errorText = _errors[component.key];

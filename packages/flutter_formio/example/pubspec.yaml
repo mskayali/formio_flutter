@@ -65,3 +65,7 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+dependency_overrides:
+  formio_api:
+    path: ../../formio_api
