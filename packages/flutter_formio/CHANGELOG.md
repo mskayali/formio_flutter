@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.3] - 2026-01-14
+
+### Added
+
+- Added `enableLinks` parameter to `HtmlElementComponent` for controlling link interactivity
+  - Matching behavior with `ContentComponent`
+  - Defaults to `true` for backward compatibility
+  - Imported `url_launcher` package for link handling
+
+### Fixed
+
+- Fixed duplicate `fieldWidget` variable declaration in `form_renderer.dart`
+- Cleaned up example code: Removed undefined `CustomSubmitButtonBuilder` registration
+
 ## [2.0.2] - 2026-01-13
 
 ### Added

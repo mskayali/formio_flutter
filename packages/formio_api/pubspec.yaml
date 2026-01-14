@@ -1,6 +1,6 @@
 name: formio_api
 description: Pure Dart client for Form.io REST API - models, services, and network layer for Form.io integration
-version: 2.0.2
+version: 2.0.3
 repository: https://github.com/mskayali/formio_flutter
 issue_tracker: https://github.com/mskayali/formio_flutter/issues
 

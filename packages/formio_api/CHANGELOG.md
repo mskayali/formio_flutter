@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.3] - 2026-01-14
+
+### Fixed
+
+- Code cleanup: Removed obsolete TODO comments in `datasource_service.dart`
+
 ## [2.0.2] - 2026-01-13
 
 ### Added
