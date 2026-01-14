@@ -7,7 +7,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:formio/formio.dart';
 
-
 /// Configuration for building a Form.io component widget.
 ///
 /// This class encapsulates all the parameters needed to build a component,

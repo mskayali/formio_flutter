@@ -104,7 +104,7 @@ class _DayComponentState extends State<DayComponent> {
             Expanded(
               child: DropdownButtonFormField<int>(
                 initialValue: _day,
-                decoration: const InputDecoration(labelText: 'Day'),
+                decoration: InputDecoration(labelText: ComponentFactory.locale.day),
                 items: List.generate(31, (i) => i + 1).map((d) => DropdownMenuItem(value: d, child: Text(d.toString()))).toList(),
                 onChanged: (val) {
                   setState(() => _day = val);
@@ -118,7 +118,7 @@ class _DayComponentState extends State<DayComponent> {
             Expanded(
               child: DropdownButtonFormField<int>(
                 initialValue: _month,
-                decoration: const InputDecoration(labelText: 'Month'),
+                decoration: InputDecoration(labelText: ComponentFactory.locale.month),
                 items: List.generate(12, (i) => i + 1).map((m) => DropdownMenuItem(value: m, child: Text(m.toString()))).toList(),
                 onChanged: (val) {
                   setState(() => _month = val);
@@ -132,7 +132,7 @@ class _DayComponentState extends State<DayComponent> {
             Expanded(
               child: DropdownButtonFormField<int>(
                 initialValue: _year,
-                decoration: const InputDecoration(labelText: 'Year'),
+                decoration: InputDecoration(labelText: ComponentFactory.locale.year),
                 items: List.generate(_endYear - _startYear + 1, (i) => _endYear - i).map((y) => DropdownMenuItem(value: y, child: Text(y.toString()))).toList(),
                 onChanged: (val) {
                   setState(() => _year = val);

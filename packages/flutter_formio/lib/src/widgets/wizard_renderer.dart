@@ -7,7 +7,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:formio/formio.dart';
 
-
 /// Callback type for page changes in wizard
 typedef OnWizardPageChanged = void Function(int pageIndex);
 
@@ -255,7 +254,7 @@ class _WizardRendererState extends State<WizardRenderer> {
             ElevatedButton.icon(
               onPressed: _goToPreviousPage,
               icon: const Icon(Icons.arrow_back),
-              label: const Text('Previous'),
+              label: Text(ComponentFactory.locale.previous),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.grey,
               ),
@@ -267,7 +266,7 @@ class _WizardRendererState extends State<WizardRenderer> {
           ElevatedButton.icon(
             onPressed: _goToNextPage,
             icon: Icon(_isLastPage ? Icons.check : Icons.arrow_forward),
-            label: Text(_isLastPage ? 'Submit' : 'Next'),
+            label: Text(_isLastPage ? ComponentFactory.locale.submit : ComponentFactory.locale.next),
             style: ElevatedButton.styleFrom(
               backgroundColor: _isLastPage ? Colors.green : null,
             ),

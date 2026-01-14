@@ -83,6 +83,9 @@ abstract class FormioLocalizations {
   String get yes;
   String get no;
   String get actions;
+  String get day;
+  String get month;
+  String get year;
 
   // Input Helpers
   String get typeAndPressEnter;
@@ -229,6 +232,12 @@ class DefaultFormioLocalizations implements FormioLocalizations {
   String get no => 'No';
   @override
   String get actions => 'Actions';
+  @override
+  String get day => 'Day';
+  @override
+  String get month => 'Month';
+  @override
+  String get year => 'Year';
 
   @override
   String get typeAndPressEnter => 'Type and press Enter';

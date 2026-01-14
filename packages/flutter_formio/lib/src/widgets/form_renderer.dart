@@ -14,7 +14,6 @@ import 'package:formio/formio.dart';
 
 import 'form_data_provider.dart';
 
-
 typedef OnFormChanged = void Function(Map<String, dynamic> data);
 typedef OnFormSubmitted = void Function(Map<String, dynamic> data);
 typedef OnFormSubmitFailed = void Function(String error);
@@ -160,7 +159,7 @@ class _FormRendererState extends State<FormRenderer> {
     if (component.type == 'button' && (component.raw['action'] == 'submit' || component.raw['action'] == null)) {
       return ElevatedButton(
         onPressed: _isSubmitting ? null : _handleSubmit,
-        child: _isSubmitting ? const CircularProgressIndicator() : Text(component.label.isNotEmpty ? component.label : 'Submit'),
+        child: _isSubmitting ? const CircularProgressIndicator() : Text(component.label.isNotEmpty ? component.label : ComponentFactory.locale.submit),
       );
     }
 
