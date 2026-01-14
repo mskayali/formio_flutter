@@ -63,6 +63,9 @@ class _SurveyComponentState extends State<SurveyComponent> {
   /// The list of rows/questions in the survey.
   List<Map<String, dynamic>> get _rows => List<Map<String, dynamic>>.from(widget.component.raw['questions'] ?? []);
 
+  /// Whether any row has a non-empty label.
+  bool get _hasVisibleLabels => _rows.any((row) => (row['label'] ?? '').toString().trim().isNotEmpty);
+
   /// The list of answer options (columns).
   List<Map<String, dynamic>> get _columns => List<Map<String, dynamic>>.from(widget.component.raw['values'] ?? []);
 
@@ -111,17 +114,18 @@ class _SurveyComponentState extends State<SurveyComponent> {
                 ),
                 child: Row(
                   children: [
-                    // Empty cell for question column
-                    Container(
-                      width: 200,
-                      padding: const EdgeInsets.all(8.0),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          right: BorderSide(color: Theme.of(context).colorScheme.outline),
+                    // Question column header - only show if any row has a label
+                    if (_hasVisibleLabels)
+                      Container(
+                        width: 200,
+                        padding: const EdgeInsets.all(12.0),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            right: BorderSide(color: Theme.of(context).colorScheme.outline),
+                          ),
                         ),
+                        child: const Text('', style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
-                      child: const Text('', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
                     // Header cells for each option
                     ..._columns.map((col) => Container(
                           width: 80,
@@ -169,20 +173,21 @@ class _SurveyComponentState extends State<SurveyComponent> {
                     ),
                     child: Row(
                       children: [
-                        // Question cell
-                        Container(
-                          width: 200,
-                          padding: const EdgeInsets.all(12.0),
-                          decoration: BoxDecoration(
-                            border: Border(
-                              right: BorderSide(color: Theme.of(context).colorScheme.outline),
+                        // Question cell - only show if any row has a label
+                        if (_hasVisibleLabels)
+                          Container(
+                            width: 200,
+                            padding: const EdgeInsets.all(12.0),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                right: BorderSide(color: Theme.of(context).colorScheme.outline),
+                              ),
+                            ),
+                            child: Text(
+                              row['label'] ?? '',
+                              style: const TextStyle(fontSize: 13),
                             ),
                           ),
-                          child: Text(
-                            row['label'] ?? '',
-                            style: const TextStyle(fontSize: 13),
-                          ),
-                        ),
                         // Radio cells for each option
                         ..._columns.map((col) {
                           final colValue = col['value']?.toString() ?? '';
