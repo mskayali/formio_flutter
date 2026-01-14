@@ -173,6 +173,7 @@ class _WizardRendererState extends State<WizardRenderer> {
                 value: _formData[component.key],
                 onChanged: (value) => _onComponentChanged(component.key, value),
                 formData: _formData,
+                onSubmit: _submitWizard,
               ),
             );
           }).toList(),

@@ -30,6 +30,10 @@ class FormRenderer extends StatefulWidget {
   final DatePickerCallback? onDatePick;
   final TimePickerCallback? onTimePick;
 
+  /// Optional API client to use for submissions.
+  /// If null, a default [ApiClient] will be created.
+  final ApiClient? apiClient;
+
   const FormRenderer({
     super.key,
     required this.form,
@@ -40,6 +44,7 @@ class FormRenderer extends StatefulWidget {
     this.onFilePick,
     this.onDatePick,
     this.onTimePick,
+    this.apiClient,
   });
 
   @override
@@ -49,12 +54,13 @@ class FormRenderer extends StatefulWidget {
 class _FormRendererState extends State<FormRenderer> {
   late Map<String, dynamic> _formData;
   final Map<String, String?> _errors = {};
-  final _submissionService = SubmissionService(ApiClient());
+  late final SubmissionService? _submissionService;
   bool _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
+    _submissionService = widget.apiClient != null ? SubmissionService(widget.apiClient!) : null;
     _formData = widget.initialData != null ? Map<String, dynamic>.from(widget.initialData!) : {};
 
     // Calculate initial values for calculated fields
@@ -135,7 +141,9 @@ class _FormRendererState extends State<FormRenderer> {
     setState(() => _isSubmitting = true);
 
     try {
-      await _submissionService.submit(widget.form.path, _formData);
+      if (widget.form.path.isNotEmpty && _submissionService != null) {
+        await _submissionService!.submit(widget.form.path, _formData);
+      }
       widget.onSubmit?.call(_formData);
     } catch (e) {
       final error = e is ApiException ? e.message : 'Unknown error';
@@ -157,6 +165,17 @@ class _FormRendererState extends State<FormRenderer> {
     }
 
     if (component.type == 'button' && (component.raw['action'] == 'submit' || component.raw['action'] == null)) {
+      // If a custom button builder is registered, use it
+      if (ComponentFactory.isRegistered('button')) {
+        return ComponentFactory.build(
+          component: component,
+          value: null,
+          onChanged: (_) {}, // Custom buttons can use onSubmit trigger
+          formData: _formData,
+          onSubmit: _handleSubmit,
+        );
+      }
+      // Default submit button
       return ElevatedButton(
         onPressed: _isSubmitting ? null : _handleSubmit,
         child: _isSubmitting ? const CircularProgressIndicator() : Text(component.label.isNotEmpty ? component.label : ComponentFactory.locale.submit),
@@ -168,6 +187,7 @@ class _FormRendererState extends State<FormRenderer> {
       value: _formData[component.key],
       onChanged: (value) => _updateField(component.key, value),
       formData: _formData,
+      onSubmit: _handleSubmit,
       onFilePick: widget.onFilePick,
       onDatePick: widget.onDatePick,
       onTimePick: widget.onTimePick,
