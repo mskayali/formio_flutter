@@ -146,20 +146,22 @@ class ComponentFactory {
       case 'checkbox':
         return CheckboxComponent(component: component, value: value == true, onChanged: onChanged);
       case 'radio':
-        return RadioComponent(component: component, value: value, onChanged: onChanged);
+        final radioValue = value != null ? value.toString() : null;
+        return RadioComponent(component: component, value: radioValue, onChanged: onChanged);
       case 'select':
+        final selectValue = value != null ? value.toString() : null;
         return SelectComponent(
           component: component,
-          value: value,
+          value: selectValue,
           onChanged: onChanged,
           formData: formData,
         );
       case 'selectboxes':
-        return SelectBoxesComponent(component: component, value: value is Map<String, bool> ? value : <String, bool>{}, onChanged: onChanged);
+        final selectBoxesValue = value is Map ? Map<String, bool>.fromEntries((value).entries.map((e) => MapEntry(e.key.toString(), e.value == true))) : <String, bool>{};
+        return SelectBoxesComponent(component: component, value: selectBoxesValue, onChanged: onChanged);
       case 'button':
         return ButtonComponent(component: component, onPressed: () {}, isDisabled: false);
 
-      // Advanced
       case 'date':
         return DateComponent(
           component: component,
@@ -187,7 +189,8 @@ class ComponentFactory {
       case 'tags':
         return TagsComponent(component: component, value: value, onChanged: onChanged);
       case 'survey':
-        return SurveyComponent(component: component, value: value is Map<String, String> ? value : <String, String>{}, onChanged: onChanged);
+        final surveyValue = value is Map ? Map<String, String>.fromEntries((value).entries.map((e) => MapEntry(e.key.toString(), e.value.toString()))) : <String, String>{};
+        return SurveyComponent(component: component, value: surveyValue, onChanged: onChanged);
       case 'signature':
         return SignatureComponent(component: component, value: value, onChanged: onChanged);
 
@@ -212,7 +215,8 @@ class ComponentFactory {
           onTimePick: onTimePick,
         );
       case 'datamap':
-        return DataMapComponent(component: component, value: value is Map<String, String> ? value : {}, onChanged: onChanged);
+        final dataMapValue = value is Map ? Map<String, String>.fromEntries((value).entries.map((e) => MapEntry(e.key.toString(), e.value.toString()))) : <String, String>{};
+        return DataMapComponent(component: component, value: dataMapValue, onChanged: onChanged);
       case 'datagrid':
         return DataGridComponent(
           component: component,

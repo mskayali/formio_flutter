@@ -29,7 +29,7 @@ class FormRenderer extends StatefulWidget {
   final FilePickerCallback? onFilePick;
   final DatePickerCallback? onDatePick;
   final TimePickerCallback? onTimePick;
-  
+
   /// Whether to enable clicking on links in Content/HTML components.
   final bool enableLinks;
 
@@ -69,6 +69,11 @@ class _FormRendererState extends State<FormRenderer> {
 
     // Calculate initial values for calculated fields
     _updateCalculatedFields();
+
+    if (kDebugMode) {
+      print('🚀 FormRenderer initialized with ${_formData.length} initial values');
+      print('🚀 Initial form data keys: ${_formData.keys.join(', ')}');
+    }
   }
 
   /// Updates all calculated fields based on current form data.
@@ -300,11 +305,23 @@ class _FormRendererState extends State<FormRenderer> {
       );
     }
 
-  // final Widget fieldWidget; // No change needed for this variable decl if it existed, but context shows full replacement block
+    // final Widget fieldWidget; // No change needed for this variable decl if it existed, but context shows full replacement block
+
+    // Layout components (panel, columns, well, fieldset, table, tabs) are containers
+    // that don't have their own value. They need the full formData so their children
+    // can look up their values correctly.
+    const layoutComponentTypes = ['panel', 'columns', 'well', 'fieldset', 'table', 'tabs'];
+    final isLayoutComponent = layoutComponentTypes.contains(component.type);
+
+    final componentValue = isLayoutComponent ? _formData : _formData[component.key];
+
+    if (kDebugMode) {
+      print('🔧 Building component "${component.key}" (${component.type}) with value: ${isLayoutComponent ? "{...full formData...}" : componentValue}');
+    }
 
     final fieldWidget = ComponentFactory.build(
       component: component,
-      value: _formData[component.key],
+      value: componentValue,
       onChanged: (value) => _updateField(component.key, value),
       formData: _formData,
       onSubmit: _handleSubmit,

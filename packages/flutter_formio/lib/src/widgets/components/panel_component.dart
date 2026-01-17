@@ -5,9 +5,9 @@
 /// an optional title and collapsible behavior (if configured).
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:formio/formio.dart';
-
 
 class PanelComponent extends StatelessWidget {
   /// The Form.io panel definition.
@@ -75,11 +75,22 @@ class PanelComponent extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: _children.where(_shouldShowChild).map((child) {
+            // Layout components (panel, columns, well, fieldset, table, tabs) are containers
+            // that don't have their own value. They need the full formData (our 'value' param)
+            // so their children can look up their values correctly.
+            const layoutComponentTypes = ['panel', 'columns', 'well', 'fieldset', 'table', 'tabs'];
+            final isLayoutComponent = layoutComponentTypes.contains(child.type);
+
+            final childValue = isLayoutComponent ? value : value[child.key];
+
+            if (kDebugMode) {
+              print('  📦 Panel child "${child.key}" (${child.type}) receiving value: ${isLayoutComponent ? "{...formData...}" : childValue}');
+            }
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 6),
               child: ComponentFactory.build(
                 component: child,
-                value: value[child.key],
+                value: childValue,
                 onChanged: (val) => _updateField(child.key, val),
                 formData: formData,
                 onFilePick: onFilePick,

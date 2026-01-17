@@ -5,6 +5,7 @@
 /// for creating side-by-side form layouts in a responsive row.
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:formio/formio.dart';
 
@@ -66,10 +67,10 @@ class _ColumnsComponentState extends State<ColumnsComponent> {
   @override
   Widget build(BuildContext context) {
     final columns = _columns;
-    
+
     // Get formData from FormDataProvider - this causes rebuild when formData changes!
     final formData = FormDataProvider.of(context);
-    
+
     // Merge widget.value and formData for complete form context
     final completeFormData = {...formData, ...widget.value};
 
@@ -82,37 +83,45 @@ class _ColumnsComponentState extends State<ColumnsComponent> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6),
             child: Column(
-              children: colComponents
-                  .where((comp) {
-                    // Check if component should be shown based on conditional logic
-                    final conditional = comp.raw['conditional'] as Map<String, dynamic>?;
-                    final shouldShow = ConditionalEvaluator.shouldShow(conditional, completeFormData);
-                    
-                    // Debug output
-                    if (conditional != null) {
-                      // print('🔍 Column component "${comp.key}" conditional check:');
-                      // print('   Conditional: $conditional');
-                      // print('   FormData: $completeFormData');
-                      // print('   Should show: $shouldShow');
-                    }
-                    
-                    return shouldShow;
-                  })
-                  .map(
-                    (comp) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      child: ComponentFactory.build(
-                        component: comp,
-                        value: widget.value[comp.key],
-                        onChanged: (val) => _updateField(comp.key, val),
-                        formData: completeFormData,
-                        onFilePick: widget.onFilePick,
-                        onDatePick: widget.onDatePick,
-                        onTimePick: widget.onTimePick,
-                      ),
+              children: colComponents.where((comp) {
+                // Check if component should be shown based on conditional logic
+                final conditional = comp.raw['conditional'] as Map<String, dynamic>?;
+                final shouldShow = ConditionalEvaluator.shouldShow(conditional, completeFormData);
+
+                // Debug output
+                if (conditional != null) {
+                  // print('🔍 Column component "${comp.key}" conditional check:');
+                  // print('   Conditional: $conditional');
+                  // print('   FormData: $completeFormData');
+                  // print('   Should show: $shouldShow');
+                }
+
+                return shouldShow;
+              }).map(
+                (comp) {
+                  // Layout components need full formData
+                  const layoutComponentTypes = ['panel', 'columns', 'well', 'fieldset', 'table', 'tabs'];
+                  final isLayoutComponent = layoutComponentTypes.contains(comp.type);
+                  final componentValue = isLayoutComponent ? widget.value : widget.value[comp.key];
+
+                  if (kDebugMode && isLayoutComponent) {
+                    print('  📊 Column child "${comp.key}" (${comp.type}) receiving value: {...formData...}');
+                  }
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: ComponentFactory.build(
+                      component: comp,
+                      value: componentValue,
+                      onChanged: (val) => _updateField(comp.key, val),
+                      formData: completeFormData,
+                      onFilePick: widget.onFilePick,
+                      onDatePick: widget.onDatePick,
+                      onTimePick: widget.onTimePick,
                     ),
-                  )
-                  .toList(),
+                  );
+                },
+              ).toList(),
             ),
           ),
         );
