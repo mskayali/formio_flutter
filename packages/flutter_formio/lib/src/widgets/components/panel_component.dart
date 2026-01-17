@@ -45,9 +45,24 @@ class PanelComponent extends StatelessWidget {
     return components.map((c) => ComponentModel.fromJson(c)).toList();
   }
 
-  void _updateField(String key, dynamic val) {
+  void _updateField(String childKey, dynamic val) {
+    // Layout components (panel, columns, etc.) return the full formData with changes merged in.
+    // We should merge their changes directly, not nest under childKey.
+    // Non-layout components return their value, which should be stored under childKey.
+    const layoutComponentTypes = ['panel', 'columns', 'well', 'fieldset', 'table', 'tabs'];
+    final childComponent = _children.firstWhere((c) => c.key == childKey, orElse: () => _children.first);
+    final isLayoutChild = layoutComponentTypes.contains(childComponent.type);
+
     final updated = Map<String, dynamic>.from(value);
-    updated[key] = val;
+
+    if (isLayoutChild && val is Map<String, dynamic>) {
+      // Merge the layout component's changes directly into our formData
+      updated.addAll(val);
+    } else {
+      // Store non-layout component's value under its key
+      updated[childKey] = val;
+    }
+
     onChanged(updated);
   }
 

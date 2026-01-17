@@ -112,8 +112,19 @@ class _FormRendererState extends State<FormRenderer> {
   }
 
   void _updateField(String key, dynamic value) {
+    const layoutComponentTypes = ['panel', 'columns', 'well', 'fieldset', 'table', 'tabs'];
+    final component = widget.form.components.firstWhere(
+      (c) => c.key == key,
+      orElse: () => widget.form.components.first,
+    );
+    final isLayoutComponent = layoutComponentTypes.contains(component.type);
+
     setState(() {
-      _formData = Map<String, dynamic>.from(_formData)..[key] = value;
+      if (isLayoutComponent && value is Map<String, dynamic>) {
+        _formData = Map<String, dynamic>.from(_formData)..addAll(value);
+      } else {
+        _formData = Map<String, dynamic>.from(_formData)..[key] = value;
+      }
       _updateCalculatedFields();
     });
 
@@ -123,8 +134,7 @@ class _FormRendererState extends State<FormRenderer> {
     }
   }
 
-  /// Recursively search for a field value in formData, including nested maps.
-  /// This handles cases where panel/columns components store their values nested.
+  /// This handles cases where panel/columns components store their values nested
   dynamic _getFieldValue(String key) {
     // First check top-level
     if (_formData.containsKey(key)) {

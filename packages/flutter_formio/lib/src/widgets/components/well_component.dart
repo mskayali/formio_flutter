@@ -8,7 +8,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:formio/formio.dart';
 
-
 class WellComponent extends StatelessWidget {
   /// The Form.io component definition.
   final ComponentModel component;
@@ -46,9 +45,19 @@ class WellComponent extends StatelessWidget {
   }
 
   /// Updates value of a specific field inside the well.
-  void _updateField(String key, dynamic val) {
+  void _updateField(String childKey, dynamic val) {
+    const layoutComponentTypes = ['panel', 'columns', 'well', 'fieldset', 'table', 'tabs'];
+    final childComponent = _children.firstWhere((c) => c.key == childKey, orElse: () => _children.first);
+    final isLayoutChild = layoutComponentTypes.contains(childComponent.type);
+
     final updated = Map<String, dynamic>.from(value);
-    updated[key] = val;
+
+    if (isLayoutChild && val is Map<String, dynamic>) {
+      updated.addAll(val);
+    } else {
+      updated[childKey] = val;
+    }
+
     onChanged(updated);
   }
 

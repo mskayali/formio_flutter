@@ -8,7 +8,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:formio/formio.dart';
 
-
 class TabsComponent extends StatefulWidget {
   /// The Form.io component definition for the tabs.
   final ComponentModel component;
@@ -61,9 +60,32 @@ class _TabsComponentState extends State<TabsComponent> with TickerProviderStateM
     return components.map((c) => ComponentModel.fromJson(c)).toList();
   }
 
-  void _updateField(String key, dynamic newValue) {
+  void _updateField(String childKey, dynamic newValue) {
+    const layoutComponentTypes = ['panel', 'columns', 'well', 'fieldset', 'table', 'tabs'];
+
+    // Find child component in any tab to check its type
+    final tabs = widget.component.raw['components'] as List? ?? [];
+    ComponentModel? childComponent;
+    for (final tab in tabs) {
+      final components = tab['components'] as List? ?? [];
+      for (final comp in components) {
+        if (comp['key'] == childKey) {
+          childComponent = ComponentModel.fromJson(comp);
+          break;
+        }
+      }
+      if (childComponent != null) break;
+    }
+
+    final isLayoutChild = childComponent != null && layoutComponentTypes.contains(childComponent.type);
     final updated = Map<String, dynamic>.from(widget.value);
-    updated[key] = newValue;
+
+    if (isLayoutChild && newValue is Map<String, dynamic>) {
+      updated.addAll(newValue);
+    } else {
+      updated[childKey] = newValue;
+    }
+
     widget.onChanged(updated);
   }
 
