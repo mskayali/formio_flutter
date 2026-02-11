@@ -1,6 +1,6 @@
 name: formio
 description: Flutter widgets for rendering Form.io forms with full feature parity. Includes 46+ components, validation, wizard forms, calculations, and JavaScript support.
-version: 2.0.3
+version: 2.0.4
 repository: https://github.com/mskayali/formio_flutter
 issue_tracker: https://github.com/mskayali/formio_flutter/issues
 
@@ -13,7 +13,7 @@ dependencies:
     sdk: flutter
 
   # Core API package (hosted on pub.dev)
-  formio_api: ^2.0.3
+  formio_api: ^2.0.4
 
   # Flutter-specific dependencies
   flutter_html: ^3.0.0

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.4] - 2026-02-11
+
+### Changed
+
+- Maintenance release to maintain version parity with `formio` package
+
 ## [2.0.3] - 2026-01-14
 
 ### Fixed

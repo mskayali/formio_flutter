@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.4] - 2026-02-11
+
+### Added
+
+- Added sticky header support with `sticky_headers` package for improved form navigation
+- Added button registration functionality for enhanced component management
+- Added new translation support for internationalization
+
+### Fixed
+
+- Fixed `initialData` override for all nested components
+- Fixed form submission nesting issues
+- Fixed survey component scroll bug
+- Fixed validation bugs affecting form validation behavior
+- Improved URL parser for better link handling
+- Code cleanup: Removed empty containers
+
 ## [2.0.3] - 2026-01-14
 
 ### Added
